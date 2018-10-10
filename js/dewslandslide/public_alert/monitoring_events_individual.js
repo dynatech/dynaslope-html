@@ -1,13 +1,14 @@
-
 /****
  *
- *	Created by Kevin Dhale dela Cruz
- *	JS file for Individual Monitoring Event Page [public_alert/monitoring_events_individual.php]
+ *  Created by Kevin Dhale dela Cruz
+ *  JS file for Individual Monitoring Event Page [public_alert/monitoring_events_individual.php]
  *  [host]/public_alert/monitoring_events/[release_id]
  *
 ****/
 
 $(document).ready(() => {
+    // Initialize new timeline
+    initializeTimeLine();
     $(".datetime").datetimepicker({
         format: "YYYY-MM-DD HH:mm:ss",
         allowInputToggle: true,
@@ -241,39 +242,16 @@ $(document).ready(() => {
             }
         });
     });
-
-    function initialize_map () {
-        const lat = latitude;
-        const lon = longitude;
-        const name = site_code;
-
-        const mapOptions = {
-            // center: new google.maps.LatLng(14.5995, 120.9842),
-            center: new google.maps.LatLng(lat, lon),
-            zoom: 12
-        };
-
-        const map = new google.maps.Map(document.getElementById("map"), mapOptions);
-
-        marker = [];
-        marker[0] = new google.maps.Marker({
-            position: new google.maps.LatLng(
-                parseFloat(lat),
-                parseFloat(lon)
-            ),
-            map,
-            title: `${name}\n${
-                address}`
-        });
-
-        const siteName = name;
-        const mark = marker[0];
-        google.maps.event.addListener(mark, "click", (function (name) {
-            return function () {
-                alert(name);
-            };
-        })(siteName));
-    }
-
-    google.maps.event.addDomListener(window, "load", initialize_map);
 });
+
+function initializeTimeLine () {
+    console.log("This is the initializeTimeLine fnx:");
+    const timeline_panel_template = $("div.demo-card.demo-card--step");
+    for (let x = 1; x < 6; x += 1) {
+        const current_template_clone = timeline_panel_template.clone().attr("class", `demo-card demo-card--step${x}`).removeAttr("hidden");
+        console.log(current_template_clone);
+        // $("div.demo-card-wrapper").append(current_template_clone);
+        // current_template_clone = current_template_clone.find();
+        // $(".demo-card-wrapper").append(timeline_panel_template);
+    }
+}

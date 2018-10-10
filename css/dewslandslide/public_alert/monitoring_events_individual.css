@@ -1,16 +1,16 @@
 
 /****
  *
- *	Created by Kevin Dhale dela Cruz
- *	CSS file for Individual Monitoring Event Page [public_alert/monitoring_events_individual.php]
- *	[host]/public_alert/monitoring_events/[release_id]
- *	
+ *  Created by Kevin Dhale dela Cruz
+ *  CSS file for Individual Monitoring Event Page [public_alert/monitoring_events_individual.php]
+ *  [host]/public_alert/monitoring_events/[release_id]
+ *  
 ****/
 
 #map-canvas { 
-	width: 375px !important;
-	min-width: 0% !important;
-	max-width: 30% !important;
+    width: 375px !important;
+    min-width: 0% !important;
+    max-width: 30% !important;
     height: 450px !important;
     background-color: blue;
     position: fixed;
@@ -22,12 +22,12 @@
 
 #reveal {
     line-height: 1.25em;
-	font-size: 20px;
-	font-weight: 600;
-	position: fixed;
-	top: 80px;
-	left: 100vh - 100px; //65px;
-	z-index: 0;
+    font-size: 20px;
+    font-weight: 600;
+    position: fixed;
+    top: 80px;
+    left: 100vh - 100px; //65px;
+    z-index: 0;
 }
 
 #reveal small { font-size: 16px; }
