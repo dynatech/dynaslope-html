@@ -149,9 +149,15 @@ function createPanelTables (alerts) {
         }
 
         groups.forEach((group, index) => {
-            if (group[0] === "Subsurface Column Status" && subsurface.length === 0) return;
             const [header, column_header_1, column_header_2, data_input] = group;
             const $table_template = $("#table-template").clone().removeAttr("id").prop("hidden", false);
+
+            if (group[0] === "Subsurface Column Status" && subsurface.length === 0) {
+                const unhide = $("#no-sub-sensor").clone().prop("hidden", false);
+                const no_sub = unhide.css("color", "red").prop("outerHTML");
+                $(`${panel_group} #panel-table-row`).append(no_sub);
+                return;
+            }
 
             const input_arr = [
                 ["label > u", header],
