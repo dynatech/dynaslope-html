@@ -41,6 +41,7 @@ $(document).ready(function() {
 	loadSiteConvoViaQacess();
 	initializeOnClickAddMobileForEmployee();
 	initializeOnClickAddMobileForCommunity();
+	initializeOnClickUnregistered();
 });
 
 function initializeOnClickSendRoutine () {
@@ -303,6 +304,23 @@ function initializeOnClickEventInbox () {
 		}
 
 		conversation_details_label = site+" "+office+" - "+firstname+" "+lastname;
+		startConversation(conversation_details);
+	});
+}
+
+function initializeOnClickUnregistered() {
+	$("body").on("click","#quick-unregistered-inbox-display li",function(){
+		let raw_name = $(this).closest('li').find("input[type='text']").val().split(",");
+		let firstname = raw_name[1].trim();
+		let lastname = raw_name[0].trim();
+		let conversation_details = {
+			full_name: $(this).closest('li').find("input[type='text']").val(),
+			firstname: firstname,
+			lastname: lastname,
+			number: "N/A"
+		}
+
+		conversation_details_label = firstname+" "+lastname;
 		startConversation(conversation_details);
 	});
 }
