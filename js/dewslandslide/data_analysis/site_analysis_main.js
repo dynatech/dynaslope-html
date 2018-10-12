@@ -43,7 +43,7 @@ function initializeTimestamps () {
 function loadDefaultSite (site_code) {
     $("#data_timestamp").val(moment().format("YYYY-MM-DD HH:mm:ss"));
     // $("#data_timestamp").val("2017-11-11 00:00:00");
-    const sc = site_code === "" ? "agb" : site_code;
+    const sc = typeof site_code === "undefined" || site_code === "" ? "agb" : site_code;
     $("#site_code").val(sc).trigger("change");
     $("#plot-site-level").trigger("click");
 }
