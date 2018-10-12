@@ -9,7 +9,10 @@ let wss_connect= connectWS();
 function connectWS() {
 		console.log("trying to connect to web socket server");
 		// var wssConnection = new WebSocket("ws://192.168.150.132:5050");
-		var wssConnection = new WebSocket(`ws://${window.location.host}:5050`);
+		let url = window.location.host;
+		let split_url = url.split(":");
+		let update_url = `ws://${split_url[0]}:5050`;
+		var wssConnection = new WebSocket(update_url);
 		
 		wssConnection.onopen = function(e) {
 			console.log("Connection established!");
@@ -32,12 +35,13 @@ function connectWS() {
 					displayOrgSelection(msg_data.data);
 					break;
 				case "smsloadquickinbox":
-					inbox_container = msg_data.data;
 					displayQuickInboxMain(msg_data.data);
+					break;
+				case "smsloadunregisteredinbox":
+					displayUnregisteredInboxMain(msg_data.data);
 					break;
 				case "latestAlerts":
 					initLoadLatestAlerts(msg_data.data);
-					// $("#chatterbox-loading").modal("hide"); 
 					break;					
 				case "fetchedCmmtyContacts":
 					displayDataTableCommunityContacts(msg_data.data);
@@ -55,8 +59,12 @@ function connectWS() {
 				case "updatedCmmtyContact":
 					contactSettingsFeedback(msg_data);
 					break;	
+				case "getLEWCMobileDetailsViaSiteName":
+					sendRoutineSMSToLEWC(msg_data);
+					break;
 				case "sendSms":
 					updateConversationBubble(msg_data);
+					break;
 				case "newAddedDwslContact":
 					displayAddEmployeeContactMessage(msg_data);
 					break;
@@ -67,7 +75,7 @@ function connectWS() {
 					displayUpdateCommunityDetails(msg_data.data);
 					break;	
 				case "newCommunityContact":
-					displayAddCommunityContactMessage(msg_data.data);
+					displayAddCommunityContactMessage(msg_data);
 					break;
 				case "updateCommunityContact":
 					displayUpdateCommunityDetails(msg_data.data);
@@ -135,9 +143,23 @@ function connectWS() {
 					displayEwiStatus(msg_data.statuses, msg_data.gintag_status);
 					break;
 				case "taggingStatus":
-					console.log(msg_data.tag_status);
-					displayConversationTaggingStatus(msg_data.tag_status);
+					console.log(msg_data.status);
+					displayConversationTaggingStatus(msg_data.status);
 					break;
+				case "fetchGndMeasReminderSettings":
+		            if (msg_data.saved == true) {
+		                reconstructSavedSettingsForGndMeasReminder(msg_data.save_settings,msg_data.event_sites, msg_data.extended_sites, msg_data.routine_sites, msg_data);
+		                
+		            } else {
+		                displaySitesForGndMeasReminder(msg_data);
+		            }
+		            $("#ground-meas-reminder-modal").modal("show");
+		            $("#add-special-case").prop("disabled", false);
+					break;
+				case "insertGndMeasReminderSettingsStatus":
+					console.log(msg_data.status);
+					displayGndMeasSavingStatus(msg_data.status);
+					break;	
 				default:
 					console.log("No request to load.");
 					break;

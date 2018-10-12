@@ -146,7 +146,7 @@ function buildDashboardTables (socket_data) {
                 },
                 {
                     render (data, type, full) {
-                        return `<a><span class='glyphicon glyphicon-phone send_ewi_sms'></span></a>&ensp;&ensp;<a><span class='glyphicon glyphicon-envelope' id='${full.latest_release_id}' data-sent='0' data-event-id='${full.event_id}'></span></a>`;
+                        return `<a><span class='glyphicon glyphicon-phone send_ewi_sms' id='${full.latest_release_id}_sms' data-sent='0' data-event-id='${full.event_id}_sms' ></span></a>&ensp;&ensp;<a><span class='glyphicon glyphicon-envelope' id='${full.latest_release_id}' data-sent='0' data-event-id='${full.event_id}'></span></a>`;
                     }
                 }
             ],

@@ -18,8 +18,14 @@ function processReceivedGeneratedAlerts ([data]) {
         ["#no-alerts-panel-group .panel", "#no-alert"]
     ];
 
+    const headers = ["#invalid-header", "#alert-header", "#no-alert-header"];
+
     groups.forEach(([parent, exclude]) => {
         $(`${parent}:not(${exclude}-panel-template)`).remove();
+    });
+
+    headers.forEach((header) => {
+        $(header).prop("hidden", "hidden");
     });
 
     createInvalidPanels(invalids);
@@ -29,6 +35,7 @@ function processReceivedGeneratedAlerts ([data]) {
 
 function createInvalidPanels (invalids) {
     invalids.forEach((invalid) => {
+        $("#invalid-header").prop("hidden", false);
         const {
             ts_last_retrigger, site_code, alert_symbol,
             iomp, remarks
@@ -58,7 +65,15 @@ function createAlertPanels (alerts) {
             ts, validity, public_alert
         } = alert;
 
+        const input_arr = [
+            ["#alert-timestamp", ts],
+            ["#alert-site-code", site_code.toUpperCase()],
+            ["#alert-symbol", internal_alert],
+            ["#alert-validity", `Valid until: ${validity}`]
+        ];
+
         if (validity) {
+            $("#alert-header").prop("hidden", false);
             const $alert_panel = $("#alert-panel-template").clone().removeAttr("id");
 
             let panel_color = "panel-info";
@@ -70,13 +85,6 @@ function createAlertPanels (alerts) {
 
             $alert_panel.removeClass("panel-info").addClass(panel_color);
 
-            const input_arr = [
-                ["#alert-timestamp", ts],
-                ["#alert-site-code", site_code.toUpperCase()],
-                ["#alert-symbol", internal_alert],
-                ["#alert-validity", `Valid until: ${validity}`]
-            ];
-
             input_arr.forEach(([element, text]) => {
                 $alert_panel.find(element).text(text);
             });
@@ -87,10 +95,17 @@ function createAlertPanels (alerts) {
 
             $("#alerts-panel-group").append($alert_panel);
         } else {
+            $("#no-alert-header").prop("hidden", false);
             const $no_alert_panel = $("#no-alert-panel-template").clone().removeAttr("id");
-            $no_alert_panel.find("#no-alert-timestamp").text(ts);
-            $no_alert_panel.find("#no-alert-site-code").text(site_code.toUpperCase());
-            $no_alert_panel.find("#no-alert-symbol").text(`${internal_alert}`);
+            const no_alert_input = [
+                ["#no-alert-timestamp", ts],
+                ["#no-alert-site-code", site_code.toUpperCase()],
+                ["#no-alert-symbol", internal_alert]
+            ];
+
+            no_alert_input.forEach(([element, text]) => {
+                $no_alert_panel.find(element).text(text);
+            });
 
             $no_alert_panel.find(".panel-collapse").prop("id", `no-alert-collapse-${site_code}`);
             $no_alert_panel.find(".panel-heading").attr("href", `#no-alert-collapse-${site_code}`);
@@ -134,17 +149,21 @@ function createPanelTables (alerts) {
         }
 
         groups.forEach((group, index) => {
-            if (index === 2 && subsurface.length === 0) return;
             const [header, column_header_1, column_header_2, data_input] = group;
             const $table_template = $("#table-template").clone().removeAttr("id").prop("hidden", false);
+
+            if (group[0] === "Subsurface Column Status" && subsurface.length === 0) {
+                const unhide = $("#no-sub-sensor").clone().prop("hidden", false);
+                const no_sub = unhide.css("color", "red").prop("outerHTML");
+                $(`${panel_group} #panel-table-row`).append(no_sub);
+                return;
+            }
 
             const input_arr = [
                 ["label > u", header],
                 [".table-header-1", column_header_1],
                 [".table-header-2", column_header_2]
             ];
-
-            $table_template.find("label > u").text(header);
 
             input_arr.forEach(([element, text]) => {
                 $table_template.find(element).text(text);

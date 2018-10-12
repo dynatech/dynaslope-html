@@ -10,15 +10,16 @@ let temp_important_tag = [];
 let tag_container = null;
 
 $(document).ready(function() {
+	initializeOnClickSendRoutine();
 	initializeGetQuickGroupSelection();
 	initializeContactSettingsButton();
 	initializeOnClickQuickInbox();
+	initializeOnClickEventInbox();
 	initializeContactCategoryOnSelectDesign();
 	initializeSettingsOnSelectDesign();
 	initializeContactCategoryOnChange();
 	initializeContactSettingsOnChange();
 	initializeQuickSelectionGroupFlagOnClick();
-	initializeGoChatOnClick();
 	initializeGoLoadOnClick();
 	initializeSendMessageOnClick();
 	initializeOnAvatarClickForTagging();
@@ -33,8 +34,89 @@ $(document).ready(function() {
 	initializeLoadSearchedKeyMessage();
 	initializeSearchViaOption();
 	initializeEmployeeContactGroupSending();
-	getQuickGroupSelection();
+	initializeSemiAutomatedGroundMeasurementReminder();
+	initializeGndMeasSettingsCategory();
+	initializeGndMeasSaveButton();
+	initializeResetSpecialCasesButtonOnCLick();
+	loadSiteConvoViaQacess();
+	initializeOnClickAddMobileForEmployee();
+	initializeOnClickAddMobileForCommunity();
 });
+
+function initializeOnClickSendRoutine () {
+	
+	let offices = [];
+	let sites_on_routine = [];
+
+	$('#send-routine-msg').click(() => {
+		$("#chatterbox-loader-modal").modal("show");
+	    if ($(".btn.btn-primary.active").val() == "Reminder Message") {
+	        offices = ["LEWC"];
+	    } else {
+	        offices = ["LEWC", "MLGU", "BLGU"];
+	    }
+
+        $("input[name=\"sites-on-routine\"]:checked").each(function () {
+            sites_on_routine.push(this.id);
+        });
+        getRoutineMobileIDs(offices, sites_on_routine);                
+    });
+}
+
+function getRoutineMobileIDs(offices, sites_on_routine) {
+    const lewc_details_request = {
+    	type: "getRoutineMobileIDsForRoutine",
+    	sites: sites_on_routine,
+    	offices: offices
+    }
+    wss_connect.send(JSON.stringify(lewc_details_request));	
+}
+
+function sendRoutineSMSToLEWC(raw) { // To be refactored to accomodate custom routine message per site
+	let message = $("#routine-msg").val();
+	let sender = " - " + $("#user_name").html() + " from PHIVOLCS-DYNASLOPE";
+	raw.data.forEach(function(contact) {
+		raw.sites.forEach(function(site) {
+			if (contact.fk_site_id == site.site_id) {
+				let temp = "";
+				if (site.purok == null && site.sitio == null) {
+					temp = site.barangay+", "+site.municipality+", "+site.province;
+				} else if (site.purok == null && site.sitio != null) {
+					temp = site.sitio+", "+site.barangay+", "+site.municipality+", "+site.province;
+				} else if (site.purok != null && site.sitio == null) {
+					temp = site.purok+", "+site.barangay+", "+site.municipality+", "+site.province;
+				} else {
+					temp =  site.purok+", "+site.sitio+", "+site.barangay+", "+site.municipality+", "+site.province;
+				}
+				let site_details = temp;
+				message = message.replace("(site_location)", site_details);
+				message = message.replace("(current_date)", raw.date);
+				message = message.replace("(greetings)", "umaga");
+				message = message.replace("(gndmeas_time_submission)","bago-mag 11:30 AM");
+
+				try {
+					let convo_details = {
+						type: 'sendSmsToRecipients',
+						recipients: [contact.mobile_id],
+						message: message + sender
+					};
+					wss_connect.send(JSON.stringify(convo_details));   		
+				} catch(err) {
+					console.log(err);
+					// Add PMS here
+				}
+				message = $("#routine-msg").val();
+			}
+		});
+	});
+
+	$("#chatterbox-loader-modal").modal("hide");
+	if (message.indexOf('Magandang tanghali po') > -1) {
+		$.notify("Successfully sent routine messages.","success");
+	} else {
+		$.notify("Successfully sent ground measurement reminder.","success");
+	}
+}
 
 function initializeGetQuickGroupSelection () {
 	$("#btn-advanced-search").on("click",function() {
@@ -50,8 +132,6 @@ function initializeContactSettingsButton () {
 		} else {
 			$('#contact-settings').modal("toggle");
 			displayContactSettingsMenu();
-			addNewMobileForEmployee();
-			addNewMobileForCommunity();
 			$("#contact-category").val("default").change();
 			$("#settings-cmd").prop('disabled', true);
 			$(".collapse").collapse("show");
@@ -103,7 +183,7 @@ function initializeContactSettingsOnChange () {
 		$("#mobile-div").empty();
 		$("#landline-div").empty();
 		$("#mobile-div-cc").empty();
-		$("#landline-div").empty();
+		$("#landline-div-cc").empty();
 		if ($('#settings-cmd').val() != 'default') {
 			$('#settings-cmd').css("border-color", "#3c763d");
 			$('#settings-cmd').css("background-color", "#dff0d8");
@@ -206,61 +286,23 @@ function initializeOnClickQuickInbox () {
 	});
 }
 
-function initializeGoChatOnClick () {
-	$("#go-chat").click(function() {
-		let multiple_contact = $("#contact-suggestion").val().split(";");
-		let raw_name = "";
-		let firstname = "";
-		let lastname = "";
-		let office = "";
-		let site = "";
-		let number = "N/A";
-		let conversation_details = {}
-		if (multiple_contact.length > 2) {
-			let recipient_container = [];
-			let temp = {};
-			for (let counter = 0; counter < multiple_contact.length-1; counter++) {
-				raw_name = multiple_contact[counter].split(",");
-				firstname = raw_name[1].trim();
-				lastname = raw_name[0].split("-")[1].trim();
-				office = raw_name[0].split(" ")[1].trim();
-				site = raw_name[0].split(" ")[0].trim();
-				number = "N/A";
-
-				temp = {
-					raw_name: raw_name,
-					firstname: firstname,
-					lastname: lastname,
-					office: office,
-					site: site,
-					number: number,
-					isMultiple: true
-				};
-
-				recipient_container.push(temp);
-			}
-			conversation_details = {
-				isMultiple: true,
-				data: recipient_container
-			};
-		} else {
-			raw_name = multiple_contact[0].split(",");
-			firstname = raw_name[1].trim();
-			lastname = raw_name[0].split("-")[1].trim();
-			lastname = lastname.replace("NA ","");
-			office = raw_name[0].split(" ")[1].trim();
-			site = raw_name[0].split(" ")[0].trim();
-			conversation_details = {
-				full_name: $("#contact-suggestion").val(),
-				firstname: firstname,
-				lastname: lastname,
-				office: office,
-				site: site,
-				number: "N/A",
-				isMultiple: false
-			}
-			conversation_details_label = site+" "+office+" - "+firstname+" "+lastname;
+function initializeOnClickEventInbox () {
+	$("body").on("click","#quick-event-inbox-display li",function(){
+		let raw_name = $(this).closest('li').find("input[type='text']").val().split(",");
+		let firstname = raw_name[1].trim();
+		let lastname = raw_name[0].split("-")[1].trim();
+		let office = raw_name[0].split(" ")[1].trim();
+		let site = raw_name[0].split(" ")[0].trim();
+		let conversation_details = {
+			full_name: $(this).closest('li').find("input[type='text']").val(),
+			firstname: firstname,
+			lastname: lastname,
+			office: office,
+			site: site,
+			number: "N/A"
 		}
+
+		conversation_details_label = site+" "+office+" - "+firstname+" "+lastname;
 		startConversation(conversation_details);
 	});
 }
@@ -276,10 +318,20 @@ function initializeGoLoadOnClick () {
 		    offices_selected.push($(this).attr('value'));
 		});
 
-		const sites = sites_selected.join(", ");
-		const offices = offices_selected.join(", ");
-		conversation_details_label = "Site(s): "+sites.toUpperCase()+" | Office(s): "+offices.toUpperCase();
-		loadSiteConversation();
+		// Validate if there is incomplete checkbox input from user
+		if((sites_selected.length === 0) && (offices_selected.length === 0)) {
+			$.notify("You need to specify at least an OFFICE and a SITE to search.", "warn");
+		}
+		else if(offices_selected.length === 0) {
+			$.notify("No OFFICE selected! Please choose at least 1 office.", "warn");		
+		} else if (sites_selected.length === 0) {
+			$.notify("No SITE selected! Please choose at least 1 site.", "warn");
+		} else { 
+			const sites = sites_selected.join(", ");
+			const offices = offices_selected.join(", ");
+			conversation_details_label = "Site(s): "+sites.toUpperCase()+" | Office(s): "+offices.toUpperCase();
+			loadSiteConversation();			
+		}
 	});
 }
 
@@ -290,7 +342,7 @@ function initializeSendMessageOnClick () {
 	});
 }
 
-function addNewMobileForEmployee () {
+function initializeOnClickAddMobileForEmployee () {
 	$("#employee-add-number").click(function(){
 		if (employee_input_count <= 4) {
 			$("#mobile-div").append(
@@ -322,6 +374,8 @@ function addNewMobileForEmployee () {
 			"<option value='1'>1</option>"+
 			"<option value='2'>2</option>"+
 			"<option value='3'>3</option>"+
+			"<option value='4'>4</option>"+
+			"<option value='5'>5</option>"+
 			"</select>"+
 			"</div>"+
 			"</div>"+
@@ -363,8 +417,9 @@ function addNewMobileForEmployee () {
 
 } 
 
-function addNewMobileForCommunity () {
+function initializeOnClickAddMobileForCommunity () {
 	$("#community-add-number").click(function(){
+		console.log(community_input_count);
 		if (community_input_count <= 4) {
 			$("#mobile-div-cc").append(
 			"<div class='row'>"+
@@ -395,6 +450,8 @@ function addNewMobileForCommunity () {
 			"<option value='1'>1</option>"+
 			"<option value='2'>2</option>"+
 			"<option value='3'>3</option>"+
+			"<option value='4'>4</option>"+
+			"<option value='5'>5</option>"+
 			"</select>"+
 			"</div>"+
 			"</div>"+
@@ -444,6 +501,7 @@ function submitEmployeeInformation () {
 	let landline_numbers = [];
 
 	//for mobile number
+	const employee_mobile = $("#mobile-div :input").length / 4;
 	for (let counter = 1; counter < employee_input_count; counter +=1) {
 		const mobile_number_raw = {
 			"user_id": $("#user_id_ec").val(),
@@ -498,10 +556,10 @@ function submitEmployeeInformation () {
 	$('#employee-contact-wrapper').hide();
 	
 	// console.log(mobile_numbers);
-	// wss_connect.send(JSON.stringify(message));
+	wss_connect.send(JSON.stringify(message));
 }
 
-function onSubmitCommunityContactForm (sites, organizations) {
+function submitCommunityContactForm (sites, organizations) {
 	const save_type = $("#settings-cmd").val();
 	let message_type = null;
 	let mobile_numbers = [];
@@ -510,7 +568,8 @@ function onSubmitCommunityContactForm (sites, organizations) {
 	//for mobile number
 	for (let counter = 1; counter < community_input_count; counter +=1) {
 		const mobile_number_raw = {
-			"mobile_id": $("#user_id_cc").val(),
+			"user_id": $("#user_id_cc").val(),
+			"mobile_id": $("#community_mobile_id_"+counter).val(),
 			"mobile_number": $("#community_mobile_number_"+counter).val(),
 			"mobile_status": $("#community_mobile_status_"+counter).val(),
 			"mobile_priority": $("#community_mobile_priority_"+counter).val()
@@ -522,7 +581,7 @@ function onSubmitCommunityContactForm (sites, organizations) {
 	for (let counter = 1; counter < community_input_count_landline; counter +=1) {
 		const landline_number_raw = {
 			"user_id": $("#user_id_cc").val(),
-			"id": $("#community_landline_id_"+counter).val(),
+			"landline_id": $("#community_landline_id_"+counter).val(), 
 			"landline_number": $("#community_landline_number_"+counter).val(),
 			"landline_remarks": $("#community_landline_remarks_"+counter).val()
 		};
@@ -546,13 +605,15 @@ function onSubmitCommunityContactForm (sites, organizations) {
 		"organizations": organization_selected
 	}
 
+	// console.log(contact_data);
+
 	if (save_type === "updatecontact") {
 		message_type = "updateCommunityContact";
 	}else {
 		message_type = "newCommunityContact";
 	}
 
-	message = {
+	const message = {
 		type: message_type,
 		data: contact_data
 	}
@@ -560,7 +621,7 @@ function onSubmitCommunityContactForm (sites, organizations) {
 	$('#comm-response-contact-container_wrapper').show();
 	$('#community-contact-wrapper').hide();
 
-	// wss_connect.send(JSON.stringify(message));
+	wss_connect.send(JSON.stringify(message));
 }
 
 function emptyEmployeeContactForm () {
@@ -590,6 +651,8 @@ function emptyCommunityContactForm () {
 	$("#gender_cc").val("");
 	$("#active_status_cc").val("");
 	$("#ewirecipient_cc").val("");
+	$("#mobile-div-cc").val("");
+	$("#landline-div-cc").val("");
 	community_input_count = 1;
 }
 
@@ -681,7 +744,7 @@ function initializeOnClickConfirmTagging () {
 					"Timestamp: " + message_details[3] + "&#013;&#010;&#013;&#010;&#013;&#010;" +
 					message_details[4] + "&#013;&#010;"
 				);
-			}//
+			}
 		}
 	});
 }
@@ -697,7 +760,7 @@ function addNewTags (message_details, new_tag, is_important, site_code, recipien
 			"tag": new_tag,
 			"full_name": message_details[2],
 			"ts": message_details[3],
-			"time_sent": moment(message_details[3]).format("h:mm A"),
+			"time_sent": moment(message_details[3]).format("h:00"),
 			"msg": message_details[4],
 			"account_id": current_user_id,
 			"tag_important": is_important,
@@ -710,7 +773,7 @@ function addNewTags (message_details, new_tag, is_important, site_code, recipien
 			"sms_id": message_details[0],
 			"full_name": message_details[2],
 			"ts": message_details[3],
-			"time_sent": moment(message_details[3]).format("h:mm A"),
+			"time_sent": moment(message_details[3]).format("h:00"),
 			"msg": message_details[4],
 			"account_id": current_user_id,
 			"tag_important": is_important,
@@ -949,4 +1012,179 @@ function initializeEmployeeContactGroupSending() {
         };
     	wss_connect.send(JSON.stringify(employee_teams));
 	});
+}
+
+function initializeSemiAutomatedGroundMeasurementReminder() {
+    $("#btn-automation-settings").on("click",function() {
+    	$("#gnd-meas-category").val("event");
+        let special_case_length = $(".special-case-template").length;
+        special_case_num = 0;
+        for (let counter = special_case_length-1; counter >=0; counter--) {
+            $("#clone-special-case-"+counter).remove();
+        }
+        var data = {
+            type: "getGroundMeasDefaultSettings"
+        };
+        wss_connect.send(JSON.stringify(data));
+    });
+}
+
+function initializeGndMeasSettingsCategory() {
+	   $("#gnd-meas-category").on("change",function() {
+        changeSemiAutomationSettings($(this).val(), ground_meas_reminder_data);
+    });
+}
+
+
+function initializeGndMeasSaveButton() {
+	    $("#save-gnd-meas-settings-button").on("click",function() {
+        let special_case_length = $(".special-case-template").length-1;
+        let gnd_sitenames = [];
+        let special_case_sites = [];
+        let time_of_sending = ground_meas_reminder_data.time_of_sending;
+        if (gnd_meas_overwrite == "new") {
+            $("input[name=\"gnd-sitenames\"]:checked").each(function () {
+                gnd_sitenames.push(this.value);
+            });
+            if (gnd_sitenames.length == 0) {
+            	$.notify('Please check at least one site','error');
+            } else if(gnd_sitenames.length > 0){
+        		
+            	gnd_sitenames = [];
+            	if (special_case_length > 0) {
+            		for (let counter = 0; counter < special_case_length; counter++) {
+	                    special_case_sites = [];
+	                    $("input[name=\"gnd-meas-"+counter+"\"]:checked").each(function () {
+	                        special_case_sites.push(this.value);
+	                        $(".gndmeas-reminder-site-container .gndmeas-reminder-site .checkbox label").find("input[value="+this.value+"]").prop("checked", false);
+	                    });
+
+			            let special_case_settings = {
+	                        type: "setGndMeasReminderSettings",
+	                        send_time: time_of_sending,
+	                        sites: special_case_sites,
+	                        category: $("#gnd-meas-category").val(),
+	                        altered: 1,
+	                        template: $("#special-case-message-"+counter).val(),
+	                        overwrite: false,
+	                        modified: first_name
+	                    };
+                    	wss_connect.send(JSON.stringify(special_case_settings));
+		            }
+	            	$.notify('Ground measurement settings saved for special case!','success');
+            	}
+            	$("input[name=\"gnd-sitenames\"]:checked").each(function () {
+	                gnd_sitenames.push(this.value);
+	            });
+
+            	let gnd_meas_settings = {
+	                type: "setGndMeasReminderSettings",
+	                send_time: time_of_sending,
+	                sites: gnd_sitenames,
+	                altered: 0,
+	                category: $("#gnd-meas-category").val(),
+	                template: $("#reminder-message").val(),
+	                overwrite: false,
+	                modified: first_name
+	            };
+	            wss_connect.send(JSON.stringify(gnd_meas_settings));
+            	$.notify('Ground measurement settings saved!','success');
+          
+            }
+            $(".special-case-site-container .gndmeas-reminder-site .checkbox label").closest("input").text();
+        } else {
+        	let all_settings = ground_meas_reminder_data.settings
+                $("input[name=\"gnd-sitenames\"]:checked").each(function () {
+                    gnd_sitenames.push(this.value);
+                });
+                if (gnd_sitenames == 0) {
+	            	$.notify('Please check at least one site','error');
+	            } else {
+
+	                let gnd_meas_settings = {
+	                    type: "setGndMeasReminderSettings",
+	                    send_time: time_of_sending,
+	                    sites: gnd_sitenames,
+	                    altered: 0,
+	                    category: $("#gnd-meas-category").val(),
+	                    template: $("#reminder-message").text(),
+	                    overwrite: true,
+	                    modified: first_name
+	                };
+
+	                // wss_connect.send(JSON.stringify(gnd_meas_settings));
+
+	                if (special_case_length > 0) {
+	                    for (let counter = 0; counter < special_case_length.length; counter++) {
+	                        gnd_sitenames = [];
+	                        $("input[name=\"gnd-sitenames-"+counter+"\"]:checked").each(function () {
+	                            gnd_sitenames.push(this.value);
+	                        });
+
+	                        let gnd_meas_settings = {
+	                            type: "setGndMeasReminderSettings",
+	                            send_time: time_of_sending,
+	                            sites: gnd_sitenames,
+	                            altered: 1,
+	                            category: $("#gnd-meas-category").val(),
+	                            template: $("#special-case-message-"+counter).text(),
+	                            overwrite: true,
+	                            modified: first_name
+	                        };
+	                        // wss_connect.send(JSON.stringify(gnd_meas_settings));              
+	                    }
+	                	$.notify('Ground measurement settings saved!','success');
+		            } else {
+		            	// $.notify('Please check at least on site on special cases','error');
+		            }
+	            }
+            }  
+    });
+}
+
+function displayGndMeasSavingStatus(status) {
+	if(status == true){
+		$("#ground-meas-reminder-modal").modal("hide");
+	}else {
+		$.notify('Something went wrong. Please try again','error');
+	}
+}
+
+function initializeResetSpecialCasesButtonOnCLick () {
+    $("#reset-button").on("click",() => {
+        resetSpecialCases();
+    });    
+}
+
+function resetSpecialCases() {
+    // Clear special cases
+    $("#gnd-meas-category").val('event');
+    let special_case_length = $(".special-case-template").length;
+    special_case_num = 0;
+    for (let counter = special_case_length-1; counter >=0; counter--) {
+        $("#clone-special-case-"+counter).remove();
+    }
+    resetCaseDiv();
+    var data = {
+        type: "getGroundMeasDefaultSettings"
+    };
+    wss_connect.send(JSON.stringify(data));
+}
+
+function loadSiteConvoViaQacess() {
+    $(document).on("click", "#quick-release-display li", function () {
+    	$("#chatterbox-loader-modal").modal("show");
+    	let site_names = [$(this).closest("li").find("#site_id").val()];
+    	let site_code = [$(this).closest("li").find("#site_code").val().toUpperCase()];
+    	conversation_details_label = $(this).closest("li").find(".friend-name").text().toUpperCase();
+    	$("#conversation-details").append(conversation_details_label);
+    	let convo_request = {
+			'type': 'loadSmsForSites',
+			'organizations': [],
+			'sitenames': site_names,
+			'site_code': site_code
+		};
+		wss_connect.send(JSON.stringify(convo_request));
+    });
+
 }
