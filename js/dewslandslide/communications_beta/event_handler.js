@@ -76,13 +76,17 @@ function getRoutineMobileIDs(offices, sites_on_routine) {
 function sendRoutineSMSToLEWC(raw) { // To be refactored to accomodate custom routine message per site
 	let message = $("#routine-msg").val();
 	let sender = " - " + $("#user_name").html() + " from PHIVOLCS-DYNASLOPE";
+	console.log("hereSend");
 	raw.data.forEach(function(contact) {
 		raw.sites.forEach(function(site) {
+			console.log(site);
 			if (contact.fk_site_id == site.site_id) {
 				let temp = "";
 				if (site.purok == null && site.sitio == null) {
 					temp = site.barangay+", "+site.municipality+", "+site.province;
-				} else if (site.purok == null && site.sitio != null) {
+				} else if (site.purok == "" && site.sitio == "") {
+					temp = site.barangay+", "+site.municipality+", "+site.province; 
+				}else if (site.purok == null && site.sitio != null) {
 					temp = site.sitio+", "+site.barangay+", "+site.municipality+", "+site.province;
 				} else if (site.purok != null && site.sitio == null) {
 					temp = site.purok+", "+site.barangay+", "+site.municipality+", "+site.province;
@@ -94,7 +98,7 @@ function sendRoutineSMSToLEWC(raw) { // To be refactored to accomodate custom ro
 				message = message.replace("(current_date)", raw.date);
 				message = message.replace("(greetings)", "umaga");
 				message = message.replace("(gndmeas_time_submission)","bago-mag 11:30 AM");
-
+				// console.log(message);
 				try {
 					let convo_details = {
 						type: 'sendSmsToRecipients',
