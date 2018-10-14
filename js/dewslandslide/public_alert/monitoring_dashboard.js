@@ -741,6 +741,7 @@ function initializeReleaseModalForm () {
             data.forEach(({ name, value }) => {
                 final[name] = value === "" ? null : value;
             });
+            final.reporter_1 = $("#reporter_1").attr("value-id");
 
             if (entry.status === "routine") {
                 $("#loading .progress-bar").text("Inserting all routine releases...");
@@ -750,8 +751,7 @@ function initializeReleaseModalForm () {
                 const temp = final.internal_alert_level.slice(0, 2);
                 final = {
                     ...final,
-                    public_alert_level: temp === "ND" ? "A1" : temp,
-                    reporter_1: $("#reporter_1").attr("value-id")
+                    public_alert_level: temp === "ND" ? "A1" : temp
                 };
 
                 if (entry.status === "extended") {
