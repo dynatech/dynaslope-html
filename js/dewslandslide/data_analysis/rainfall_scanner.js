@@ -226,6 +226,7 @@ function createRainfallPercentagesPlot (data) {
             shadow: false
         },
         tooltip: {
+            hideDelay: 3000,
             useHTML: true,
             style: {
                 pointerEvents: "auto"
