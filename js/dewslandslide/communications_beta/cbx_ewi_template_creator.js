@@ -365,14 +365,14 @@ $(document).ready(function(e){
         $('#update-backbone').text($('#update-backbone').val()+$(this).val());
     });
 
-    $.get('../chatterbox/getdistinctsitename',function(data){
-        var response = JSON.parse(data);
-        for (var counter = 0; counter < response.length;counter++) {
-                 $('#site_code').append($("<option></option>")
-                            .attr("value",response[counter].sitename)
-                            .text(response[counter].sitename)); 
-        }
-    });
+    // $.get('../chatterbox/getdistinctsitename',function(data){
+    //     var response = JSON.parse(data);
+    //     for (var counter = 0; counter < response.length;counter++) {
+    //              $('#site_code').append($("<option></option>")
+    //                         .attr("value",response[counter].sitename)
+    //                         .text(response[counter].sitename)); 
+    //     }
+    // });
 
     $('#date-time-of-release').datetimepicker({
         format: 'YYYY-MM-DD HH:mm'
