@@ -945,7 +945,7 @@ function sendReport (site_code, event_id) {
     const recipients = $("#recipients").tagsinput("items");
     const form_data = new FormData();
     const file_data = typeof upload_files[site_code] !== "undefined" ? upload_files[site_code] : [];
-    const is_test = (HOSTNAME.contains("dynaslope.phivolcs.dost.gov.ph")) ? false : true;
+    const is_test = (HOSTNAME.includes("dynaslope.phivolcs.dost.gov.ph")) ? false : true;
     const form = {
         event_id,
         site_code,
