@@ -782,8 +782,6 @@ function initializeReleaseModalForm () {
                         }
                     });
 
-                    final.trigger_list = list.length === 0 ? null : list;
-
                     if (list != null) {
                         if (list.indexOf("D") > -1) {
                             if ($(".od_group[value=llmc]").is(":checked")) final.llmc = "set";
