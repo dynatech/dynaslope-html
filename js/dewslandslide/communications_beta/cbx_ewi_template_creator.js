@@ -365,14 +365,14 @@ $(document).ready(function(e){
         $('#update-backbone').text($('#update-backbone').val()+$(this).val());
     });
 
-    // $.get('../chatterbox/getdistinctsitename',function(data){
-    //     var response = JSON.parse(data);
-    //     for (var counter = 0; counter < response.length;counter++) {
-    //              $('#site_code').append($("<option></option>")
-    //                         .attr("value",response[counter].sitename)
-    //                         .text(response[counter].sitename)); 
-    //     }
-    // });
+    $.get('../chatterbox/getdistinctsitename',function(data){
+        var response = JSON.parse(data);
+        for (var counter = 0; counter < response.length;counter++) {
+            $('#site_code').append($("<option></option>")
+                        .attr("value",response[counter].sitename)
+                        .text("("+response[counter].sitename +")  "+ response[counter].address)); 
+        }
+    });
 
     $('#date-time-of-release').datetimepicker({
         format: 'YYYY-MM-DD HH:mm'
@@ -600,7 +600,6 @@ function triggerChange(realtime_input) {
                 meridiem = meridiem.replace("PM","NN");
             }
             var current_date = moment(moment().format("YYYY-MM-DD")).format('LL');
-
             realtime_input = realtime_input.replace("(current_date_time)",current_date+" "+meridiem);
             realtime_input = realtime_input.replace('(site_location)',location);
             realtime_input = realtime_input.replace('(alert_level)',$('#alert_level').val());
