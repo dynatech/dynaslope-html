@@ -23,21 +23,22 @@ var defaultTemplateInputs = {
 }
 
 $(document).ready(function(e){
-
+    $('#template_table').empty();
     template_table = $('#template_table').DataTable( {
         "processing": true,
         "serverSide": false,
         "ajax": '../communications/fetchalltemplate',
         columns: [
-            { "data" : "id" , title:"ID"},
-            { "data" : "alert_status", title:"ALERT STATUS"},
-            { "data" : "alert_symbol_level", title:"ALERT SYMBOL / ALERT LEVEL"},
-            { "data" : "key_input", title:"KEY INPUT"},
-            { "data" : "last_update_by", title:"LATEST MODIFICATION"},
+            { "data" : "id" , title:"Id"},
+            { "data" : "alert_status", title:"Alert Status"},
+            { "data" : "alert_symbol_level", title:"Alert Symbol / Alert Level"},
+            { "data" : "key_input", title:"Key Input"},
+            { "data" : "last_update_by", title:"Latest Modification"},
             { "data" : "functions", title: "*"}
         ]
     });
 
+    $('#backbone_template').empty();
     backboneTable = $('#backbone_table').DataTable({
     	"processing": true,
     	"bSort" : false,
@@ -45,13 +46,15 @@ $(document).ready(function(e){
     	"serverSide": false,
     	"ajax": '../communications/fetchallbackbonetemplate',
     	columns: [
-    		{ "data" : "id", title: "ID"},
-    		{ "data" : "alert_status", title: "ALERT STATUS"},
-    		{ "data" : "template", title: "BACKBONE MESSAGE"},
-    		{ "data" : "last_modified_by", title: "LAST UPDATE"},
+    		{ "data" : "id", title: "Id"},
+    		{ "data" : "alert_status", title: "Alert Status"},
+    		{ "data" : "template", title: "Backbone Message"},
+    		{ "data" : "last_modified_by", title: "Last Update"},
     		{ "data" : "functions", title : "*"}
     	]
     });
+
+    $("#template_table_length").prepend('<button type="button" class="btn btn-primary btn-sm" id="add_template"><span class="glyphicon glyphicon-plus" aria-hidden="true"></span> Add template</button>&nbsp;&nbsp;');
 
     $('#template_table tbody').on('mouseover', 'tr', function () {
        var ttip = $('#template_table').DataTable().row(this).data();
@@ -66,24 +69,7 @@ $(document).ready(function(e){
     	reloadBackboneTable();
     });
 
-    $('#add_template').on('click',function(){
-    	$('form').trigger('reset');
-        resetFields();
-    	$('#modal-title').text('Create Template');
-    	$('#submit_template').text("CREATE");
-    	$('#template_modal').modal('toggle');
-
-        keyInputAutocomplete();
-    });
-
-    $('#add_backbone').on('click',function(){
-        // loadKeyInputs();
-    	$('form').trigger('reset');
-    	$('#modal-title-backbone').text('Create Message Backbone');
-    	$('#submit_backbone').text("CREATE");
-    	$('#backbone_modal').modal('toggle');
-        backboneAutocomplete();
-    });
+    
 
     $('#show_key_inputs').on('click',function(){
     	$('#key_input_display').modal('toggle');
@@ -391,9 +377,35 @@ $(document).ready(function(e){
 
 });
 
+function initializeAddTemplateButton () {
+    $('#add_template').on('click',function(){
+        $('form').trigger('reset');
+        resetFields();
+        $('#modal-title').text('Create Template');
+        $('#submit_template').text("CREATE");
+        $('#template_modal').modal('toggle');
+
+        keyInputAutocomplete();
+    });
+
+}
+
+function initializeAddBackboneButton(){
+
+    $('#add_backbone').on('click',function(){
+        // loadKeyInputs();
+        $('form').trigger('reset');
+        $('#modal-title-backbone').text('Create Message Backbone');
+        $('#submit_backbone').text("CREATE");
+        $('#backbone_modal').modal('toggle');
+        backboneAutocomplete();
+    });
+}
+
 function tooltipKeyinput(toToolTip) {
     $.get('../communications/fetchallbackbonetemplate',function(data){
         var response = JSON.parse(data);
+        console.log(response);
         var tooltip = "";
         for (var counter =0; counter < response.data.length;counter++) {
             if (response.data[counter].alert_status == toToolTip.alert_status) {
@@ -418,19 +430,22 @@ function reloadTable() {
 	var templateTable = $('#template_table').DataTable();
 	$('#template_table').DataTable().clear();
 	$('#template_table').DataTable().destroy();
+
     template_table = $('#template_table').DataTable( {
     	"processing": true,
     	"serverSide": false,
         "ajax": '../communications/fetchalltemplate',
         columns: [
             { "data" : "id" , title:"ID"},
-            { "data" : "alert_status", title:"ALERT STATUS"},
-            { "data" : "alert_symbol_level", title:"ALERT SYMBOL / ALERT LEVEL"},
-            { "data" : "key_input", title:"KEY INPUT"},
-            { "data" : "last_update_by", title:"LATEST MODIFICATION"},
+            { "data" : "alert_status", title:"Alert Status"},
+            { "data" : "alert_symbol_level", title:"Alert Symbol / Alert Level"},
+            { "data" : "key_input", title:"Key Input"},
+            { "data" : "last_update_by", title:"Latest Modification"},
             { "data" : "functions", title: "*"}
         ]
     });
+    $("#template_table_length").prepend('<button type="button" class="btn btn-primary btn-sm" id="add_template"><span class="glyphicon glyphicon-plus" aria-hidden="true"></span> Add template</button>&nbsp;&nbsp;');
+    initializeAddTemplateButton();
 }
 
 function keyInputAutocomplete() {
@@ -554,12 +569,14 @@ function reloadBackboneTable() {
         "ajax": '../communications/fetchallbackbonetemplate',
         columns: [
     		{ "data" : "id", title: "ID"},
-    		{ "data" : "alert_status", title: "ALERT STATUS"},
-    		{ "data" : "template", title: "BACKBONE MESSAGE"},
-    		{ "data" : "last_modified_by", title: "LASTEST MODIFICATION"},
+    		{ "data" : "alert_status", title: "Alert Status"},
+    		{ "data" : "template", title: "Backbone Message"},
+    		{ "data" : "last_modified_by", title: "Latest Modification"},
     		{ "data" : "functions", title : "*"}
         ]
     });
+    $("#backbone_table_length").prepend('<button type="button" class="btn btn-primary btn-sm" id="add_backbone"><span class="glyphicon glyphicon-plus" aria-hidden="true"></span> Add message backbone</button>&nbsp;&nbsp;');
+    initializeAddBackboneButton();
 }
 
 function loadKeyInputs(){
