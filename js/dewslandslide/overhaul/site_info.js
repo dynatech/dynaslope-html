@@ -1,9 +1,11 @@
 let button_type = null;
 $(document).ready(function(e) {
-	intializeSaveSiteButton();
+	initializeValidateSiteInformationForm();
+	// intializeSaveSiteButton();
 	getAllSites();
 	initializeOpenAddNewSiteModal();
-	initializeOnClickUpdateSite();
+	initializeOnClickSiteAction();
+	initializeDeleteSiteButton();
 	// $( '#modal_button').hide();
 	// $( window ).resize(function() {
 	//   site_info_page_widht = $(window ).width();
@@ -56,103 +58,113 @@ $(document).ready(function(e) {
 	
 });
 
-// function initializeValidateSiteInformationForm () {
-// 	$("#site-information-form").validate({
-//         debug: true,
-//         rules: {
-//             site_name: "required",
-// 			site_code: "required",
-// 			barangay: "required",
-// 			municipality: "required",
-// 			province: "required",
-// 			region: "required",
-// 			psgc: "required",
-// 			households: "required",
-// 			season: "required",
-// 			is_active: "required"
-//         },
-//         messages: { comments: "" },
-//         errorPlacement (error, element) {
-//             const placement = $(element).closest(".form-group");
-//             if ($(element).hasClass("cbox_trigger_switch")) {
-//                 $("#errorLabel").append(error).show();
-//             } else if (placement) {
-//                 $(placement).append(error);
-//             } else {
-//                 error.insertAfter(placement);
-//             } // remove on success
+function initializeValidateSiteInformationForm () {
+	$("#site-information-form").validate({
+        debug: true,
+        rules: {
+            site_name: "required",
+			site_code: "required",
+			barangay: "required",
+			municipality: "required",
+			province: "required",
+			region: "required",
+			psgc: "required",
+			households: "required",
+			season: "required",
+			is_active: "required"
+        },
+        messages: { comments: "" },
+        errorPlacement (error, element) {
+            const placement = $(element).closest(".form-group");
+            if ($(element).hasClass("cbox_trigger_switch")) {
+                $("#errorLabel").append(error).show();
+            } else if (placement) {
+                $(placement).append(error);
+            } else {
+                error.insertAfter(placement);
+            } // remove on success
 
-//             element.parents(".form-group").addClass("has-feedback");
+            element.parents(".form-group").addClass("has-feedback");
 
-//             // Add the span element, if doesn't exists, and apply the icon classes to it.
-//             const $next_span = element.next("span");
-//             if (!$next_span[0]) {
-//                 if (element.is("select") || element.is("textarea")) $next_span.css({ top: "25px", right: "25px" });
-//             }
-//         },
-//         success (label, element) {
-//             // Add the span element, if doesn't exists, and apply the icon classes to it.
-//             if (!$(element).next("span")) {
-//                 $("<span class='glyphicon glyphicon-ok form-control-feedback' style='top:0px; right:37px;'></span>").insertAfter($(element));
-//             }
+            // Add the span element, if doesn't exists, and apply the icon classes to it.
+            const $next_span = element.next("span");
+            if (!$next_span[0]) {
+                if (element.is("select") || element.is("textarea")) $next_span.css({ top: "25px", right: "25px" });
+            }
+        },
+        success (label, element) {
+            // Add the span element, if doesn't exists, and apply the icon classes to it.
+            if (!$(element).next("span")) {
+                $("<span class='glyphicon glyphicon-ok form-control-feedback' style='top:0px; right:37px;'></span>").insertAfter($(element));
+            }
 
-//             $(element).closest(".form-group").children("label.error").remove();
-//         },
-//         highlight (element, errorClass, validClass) {
-//             $(element).parents(".form-group").addClass("has-error").removeClass("has-success");
-//             if ($(element).parent().is(".datetime") || $(element).parent().is(".time")) {
-//                 $(element).nextAll("span.glyphicon").remove();
-//                 $("<span class='glyphicon glyphicon-remove form-control-feedback' style='top:0px; right:37px;'></span>").insertAfter($(element));
-//             } else $(element).next("span").addClass("glyphicon-remove").removeClass("glyphicon-ok");
-//         },
-//         unhighlight (element, errorClass, validClass) {
-//             $(element).parents(".form-group").addClass("has-success").removeClass("has-error");
-//             if ($(element).parent().is(".datetime") || $(element).parent().is(".time")) {
-//                 $(element).nextAll("span.glyphicon").remove();
-//                 $("<span class='glyphicon glyphicon-ok form-control-feedback' style='top:0px; right:37px;'></span>").insertAfter($(element));
-//             } else $(element).next("span").addClass("glyphicon-ok").removeClass("glyphicon-remove");
-//         },
-//         submitHandler (form) {
-        	
-            
-//         }
-//     });
-// }
-
-function intializeSaveSiteButton(){
-	$("#btn-insert-site").click(({ currentTarget }) => {
-        button_type = "insert";
-        const data = {
-        	site_code: $("#site_code").val(),
-        	purok: $("#purok").val(),
-        	sitio: $("#sitio").val(),
-        	barangay: $("#barangay").val(),
-        	municipality: $("#municipality").val(),
-        	province: $("#province").val(),
-        	region: $("#region").val(),
-        	psgc: $("#psgc").val(),
-        	households: $("#households").val(),
-        	season: $("#season").val(),
-        	is_active: $("#is_active").val()
-        };
-        insertOrUpdateSite(data, button_type);
+            $(element).closest(".form-group").children("label.error").remove();
+        },
+        highlight (element, errorClass, validClass) {
+            $(element).parents(".form-group").addClass("has-error").removeClass("has-success");
+            if ($(element).parent().is(".datetime") || $(element).parent().is(".time")) {
+                $(element).nextAll("span.glyphicon").remove();
+                $("<span class='glyphicon glyphicon-remove form-control-feedback' style='top:0px; right:37px;'></span>").insertAfter($(element));
+            } else $(element).next("span").addClass("glyphicon-remove").removeClass("glyphicon-ok");
+        },
+        unhighlight (element, errorClass, validClass) {
+            $(element).parents(".form-group").addClass("has-success").removeClass("has-error");
+            if ($(element).parent().is(".datetime") || $(element).parent().is(".time")) {
+                $(element).nextAll("span.glyphicon").remove();
+                $("<span class='glyphicon glyphicon-ok form-control-feedback' style='top:0px; right:37px;'></span>").insertAfter($(element));
+            } else $(element).next("span").addClass("glyphicon-ok").removeClass("glyphicon-remove");
+        },
+        submitHandler (form) {
+            saveSite();
+        }
     });
 }
 
-function insertOrUpdateSite  (data,type) {
+function saveSite(){
+    const data = {
+    	site_code: $("#site_code").val(),
+    	purok: $("#purok").val(),
+    	sitio: $("#sitio").val(),
+    	barangay: $("#barangay").val(),
+    	municipality: $("#municipality").val(),
+    	province: $("#province").val(),
+    	region: $("#region").val(),
+    	psgc: $("#psgc").val(),
+    	households: $("#households").val(),
+    	season: $("#season").val(),
+    	is_active: $("#is_active").val()
+    };
+    saveSiteChanges(data);
+}
+
+function saveSiteChanges  (data) {
 	let url = null;
-	if(type == "insert"){
+	let success_message = null;
+	let modal_name = "#site-info-modal";
+	if(button_type == "insert"){
 		url = "../site_info/insertNewSite";
-	}else if(type == "update"){
+		success_message = "Successfully added new site.";
+	}else if(button_type == "update"){
+		data.site_id = $("#site_id").val();
 		url = "../site_info/updateSite";
+		success_message = "Successfully updated site.";
 	}else {
+		data.site_id = $("#delete_site_id").val();
 		url = "../site_info/deleteSite";
+		success_message = "Successfully deleted site.";
+		modal_name = "#delete-site-modal";
 	}
 
 	$.post(url, data)
     .done((result, textStatus, jqXHR) => {
-        console.log(result);
-        $.notify("Successfully added new site", "success");
+        if(result == "true"){
+        	$.notify(success_message, "success");
+	        $("#site-information-form").trigger('reset');
+	        $(modal_name).modal("hide");
+	        getAllSites();
+        }else {
+        	$.notify("Something went wrong, Please try again.", "error");
+        }
     })
     .catch((x) => {
     	// insert pms here
@@ -167,10 +179,6 @@ function deleteSite () {
 
 }
 
-function getSiteInformation () {
-
-}
-
 function getAllSites(){
 	$.getJSON("../site_info/getAllSites")
     .done((data) => {
@@ -179,13 +187,12 @@ function getAllSites(){
 }
 
 function displayAllSites(data){
-	// $("#site-info-modal").modal("show");
 	$("#sites-table").empty();
 	$("#sites-table").DataTable({
 		destroy: true,
 		data: data,
 		columns: [
-		{ "data": "site_code", "title": "Site ID"},
+		{ "data": "site_code", "title": "Site Code"},
 		{ "data": "purok", "title": "Purok" },
 		{ "data": "sitio", "title": "Sitio"},
 		{ "data": "barangay", "title": "Barangay"},
@@ -197,30 +204,58 @@ function displayAllSites(data){
 		{ "data": "season", "title": "Season"},
 		{ "data": "active", "title": "Is Active"},
 		{ "data": "actions", "title": "Actions"}
-		],
-		"dom": '<"toolbar">frtip'
+		]
 	});
-	$("div.toolbar").html('<button type="button" class="btn btn-primary" id="open-site-modal"><span class="glyphicon glyphicon-plus" aria-hidden="true"></span> Add new site</button>&nbsp;&nbsp;');
+	$("#sites-table_length").prepend('<button type="button" class="btn btn-primary btn-sm" id="open-site-modal"><span class="glyphicon glyphicon-plus" aria-hidden="true"></span> Add new site</button>&nbsp;&nbsp;');
+	initializeOpenAddNewSiteModal();
 }
 
 function initializeOpenAddNewSiteModal(){
-	$(".toolbar #open-site-modal").click(({ currentTarget }) => {
-		alert();
+	$("#open-site-modal").click(({ currentTarget }) => {
+    	button_type = "insert";
+    	$("#btn-save-site").text("Save");
+    	$("#site-info-title").text("Add new site");
+    	$("#site_id").val(0);
+    	$('#site-information-form').trigger("reset");
+		$("#site-info-modal").modal("show");
     });
 }
 
-function initializeOnClickUpdateSite () {
+function initializeOnClickSiteAction () {
 	$('#sites-table').on('click','.update',function(){
-        $('form').trigger('reset');
-    	var table = $('#sites-table').DataTable();
-		var data = table.row($(this).closest('tr')).data();
-		console.log(data);
+    	let table = $('#sites-table').DataTable();
+		let data = table.row($(this).closest('tr')).data();
+    	$("#site_id").val(data.site_id);
+		$("#site_code").val(data.site_code);
+    	$("#purok").val(data.purok);
+    	$("#sitio").val(data.sitio);
+    	$("#barangay").val(data.barangay);
+    	$("#municipality").val(data.municipality);
+    	$("#province").val(data.province);
+    	$("#region").val(data.region);
+    	$("#psgc").val(data.psgc);
+    	$("#households").val(data.households);
+    	$("#season").val(data.season);
+    	$("#is_active").val(data.active);
+		button_type = "update";
+		$("#btn-save-site").text("Save Changes");
+		$("#site-info-title").text("Update - " + data.site_code.toUpperCase());
+		$("#site-info-modal").modal("show");
     });
 
     $('#sites-table').on('click','.delete',function(){
-        $('form').trigger('reset');
-    	var table = $('#sites-table').DataTable();
-		var data = table.row($(this).closest('tr')).data();
-		console.log(data);
+    	let table = $('#sites-table').DataTable();
+		let data = table.row($(this).closest('tr')).data();
+		button_type = "delete";
+		$("#delete_site_id").val(data.site_id);
+		$("#delete-message").text("Are you sure you want to delete " + data.site_code.toUpperCase() + "?");
+		$("#delete-site-modal").modal("show");
     });
+}
+
+function initializeDeleteSiteButton () {
+	$('#btn-delete-site').on('click',function(){
+		const data = {};
+		saveSiteChanges(data);
+	});
 }
