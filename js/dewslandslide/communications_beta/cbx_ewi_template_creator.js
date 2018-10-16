@@ -29,12 +29,12 @@ $(document).ready(function(e){
         "serverSide": false,
         "ajax": '../communications/fetchalltemplate',
         columns: [
-            { "data" : "id" , title:"ID"},
-            { "data" : "alert_status", title:"ALERT STATUS"},
-            { "data" : "alert_symbol_level", title:"ALERT SYMBOL / ALERT LEVEL"},
-            { "data" : "key_input", title:"KEY INPUT"},
-            { "data" : "last_update_by", title:"LATEST MODIFICATION"},
-            { "data" : "functions", title: "*"}
+        { "data" : "id" , title:"ID"},
+        { "data" : "alert_status", title:"ALERT STATUS"},
+        { "data" : "alert_symbol_level", title:"ALERT SYMBOL / ALERT LEVEL"},
+        { "data" : "key_input", title:"KEY INPUT"},
+        { "data" : "last_update_by", title:"LATEST MODIFICATION"},
+        { "data" : "functions", title: "*"}
         ]
     });
 
@@ -45,18 +45,18 @@ $(document).ready(function(e){
     	"serverSide": false,
     	"ajax": '../communications/fetchallbackbonetemplate',
     	columns: [
-    		{ "data" : "id", title: "ID"},
-    		{ "data" : "alert_status", title: "ALERT STATUS"},
-    		{ "data" : "template", title: "BACKBONE MESSAGE"},
-    		{ "data" : "last_modified_by", title: "LAST UPDATE"},
-    		{ "data" : "functions", title : "*"}
-    	]
-    });
+      { "data" : "id", title: "ID"},
+      { "data" : "alert_status", title: "ALERT STATUS"},
+      { "data" : "template", title: "BACKBONE MESSAGE"},
+      { "data" : "last_modified_by", title: "LAST UPDATE"},
+      { "data" : "functions", title : "*"}
+      ]
+  });
 
     $('#template_table tbody').on('mouseover', 'tr', function () {
-       var ttip = $('#template_table').DataTable().row(this).data();
-       tooltipKeyinput(ttip);
-    });
+     var ttip = $('#template_table').DataTable().row(this).data();
+     tooltipKeyinput(ttip);
+ });
 
     $('#key_input_tab').on('click',function(){
     	reloadTable();
@@ -69,19 +69,19 @@ $(document).ready(function(e){
     $('#add_template').on('click',function(){
     	$('form').trigger('reset');
         resetFields();
-    	$('#modal-title').text('Create Template');
-    	$('#submit_template').text("CREATE");
-    	$('#template_modal').modal('toggle');
+        $('#modal-title').text('Create Template');
+        $('#submit_template').text("CREATE");
+        $('#template_modal').modal('toggle');
 
         keyInputAutocomplete();
     });
 
     $('#add_backbone').on('click',function(){
         // loadKeyInputs();
-    	$('form').trigger('reset');
-    	$('#modal-title-backbone').text('Create Message Backbone');
-    	$('#submit_backbone').text("CREATE");
-    	$('#backbone_modal').modal('toggle');
+        $('form').trigger('reset');
+        $('#modal-title-backbone').text('Create Message Backbone');
+        $('#submit_backbone').text("CREATE");
+        $('#backbone_modal').modal('toggle');
         backboneAutocomplete();
     });
 
@@ -118,36 +118,36 @@ $(document).ready(function(e){
         templateData['alert_status'] = $('#alert_status').val();
         templateData['backbone_message'] = $('#backbone_template').val();
 
-    	if ($('#submit_template').text() == "CREATE") {
-			$.post("../communications/addtemplate", {template : JSON.stringify(templateData)})
-			.done(function(data) {
-                console.log(data);
-                var response = JSON.parse(data);
-				if (response.template == 1 || response.template == true) {
-					$.notify("Successfully added a new template.","success");
-					reloadTable();
-					$('#template_modal').modal('toggle');
-				} else {
-					$.notify("Failed to add a new template, Duplicate entry.","error");
-				}
-			});	
-    	} else {
-    		templateData['id'] = tableId;
-			$.post("../communications/updatetemplate", {template : JSON.stringify(templateData)})
-			.done(function(data) {
-                console.log(data);
-				var response = JSON.parse(data);
-				if (response == 1 || response == true) {
-					$.notify("Successfully updated a template.","success");
-					reloadTable();
-					$('#template_modal').modal('toggle');
-				} else {
-					$.notify("Failed to update a template, template already exist.","error");
-				}
-			});	
-    	}
-    	templateData = {};
-    });
+        if ($('#submit_template').text() == "CREATE") {
+         $.post("../communications/addtemplate", {template : JSON.stringify(templateData)})
+         .done(function(data) {
+            console.log(data);
+            var response = JSON.parse(data);
+            if (response.template == 1 || response.template == true) {
+               $.notify("Successfully added a new template.","success");
+               reloadTable();
+               $('#template_modal').modal('toggle');
+           } else {
+               $.notify("Failed to add a new template, Duplicate entry.","error");
+           }
+       });	
+     } else {
+      templateData['id'] = tableId;
+      $.post("../communications/updatetemplate", {template : JSON.stringify(templateData)})
+      .done(function(data) {
+        console.log(data);
+        var response = JSON.parse(data);
+        if (response == 1 || response == true) {
+           $.notify("Successfully updated a template.","success");
+           reloadTable();
+           $('#template_modal').modal('toggle');
+       } else {
+           $.notify("Failed to update a template, template already exist.","error");
+       }
+   });	
+  }
+  templateData = {};
+});
 
     $('#submit_backbone').on('click',function(){
     	templateData['backbone_message'] = $('#update-backbone').val();
@@ -155,53 +155,53 @@ $(document).ready(function(e){
     	if ($('#submit_backbone').text() == "CREATE") {
             templateData['alert_status'] = $('#bb_alert_status').val();
             console.log(templateData);
-    		$.post('../communications/addbackbonemessage',{backbone_message: JSON.stringify(templateData)})
-    		.done(function(data){
-    			console.log(data);
-    			var response = JSON.parse(data);
-				if (response == 1 || response == true) {
-					$.notify("Successfully added a new backbone message.","success");
-					reloadBackboneTable();
-					$('#backbone_modal').modal('toggle');
-				} else {
-					$.notify("Failed to add a new backbone message, Duplicate entry.","error");
-				}
+            $.post('../communications/addbackbonemessage',{backbone_message: JSON.stringify(templateData)})
+            .done(function(data){
+             console.log(data);
+             var response = JSON.parse(data);
+             if (response == 1 || response == true) {
+               $.notify("Successfully added a new backbone message.","success");
+               reloadBackboneTable();
+               $('#backbone_modal').modal('toggle');
+           } else {
+               $.notify("Failed to add a new backbone message, Duplicate entry.","error");
+           }
 
-    		});
-    	} else {
-    		templateData['id'] = tableId;
-            templateData['alert_status'] = $('#bb_alert_status').val();
-    		$.post('../communications/updatebackbonemessage',{backbone_message: JSON.stringify(templateData)})
-    		.done(function(data){
-                console.log(data);
-    			var response = JSON.parse(data);
-                if (response == 1 || response == true) {
-                    $.notify("Successfully updated a backbone message.","success");
-                    reloadBackboneTable();
-                    $('#backbone_modal').modal('toggle');
-                } else {
-                    $.notify("Failed to update a backbone message, backbone category already exist.","error");
-                }
-    		});
-    	}
-        tempStatus = "";
-    	templateData = {};
-    });
+       });
+        } else {
+          templateData['id'] = tableId;
+          templateData['alert_status'] = $('#bb_alert_status').val();
+          $.post('../communications/updatebackbonemessage',{backbone_message: JSON.stringify(templateData)})
+          .done(function(data){
+            console.log(data);
+            var response = JSON.parse(data);
+            if (response == 1 || response == true) {
+                $.notify("Successfully updated a backbone message.","success");
+                reloadBackboneTable();
+                $('#backbone_modal').modal('toggle');
+            } else {
+                $.notify("Failed to update a backbone message, backbone category already exist.","error");
+            }
+        });
+      }
+      tempStatus = "";
+      templateData = {};
+  });
 
     $('#delete_template').on('click',function(){
     	templateData['id'] = tableId;
-		$.post("../communications/deletetemplate", {template : JSON.stringify(templateData)})
-		.done(function(data) {
-			var response = JSON.parse(data);
-			if (response == 1 || response == true) {
-				$.notify("Successfully deleted  template.","success");
-				reloadTable();
-				$('#delete_template_modal').modal('toggle');
-			} else {
-				$.notify("Failed to delete template. Please contact one of the SWAT member.","error");
-			}
-		});	
-    })
+      $.post("../communications/deletetemplate", {template : JSON.stringify(templateData)})
+      .done(function(data) {
+         var response = JSON.parse(data);
+         if (response == 1 || response == true) {
+            $.notify("Successfully deleted  template.","success");
+            reloadTable();
+            $('#delete_template_modal').modal('toggle');
+        } else {
+            $.notify("Failed to delete template. Please contact one of the SWAT member.","error");
+        }
+    });	
+  })
 
     $('#delete_backbone').on('click',function(){
         templateData['id'] = tableId;
@@ -222,10 +222,10 @@ $(document).ready(function(e){
         $('form').trigger('reset');
         resetFields();
         keyInputAutocomplete();
-    	var table = $('#template_table').DataTable();
-		var data = table.row($(this).closest('tr')).data();
-		tableId = data.id;
-		$('#modal-title').text('Update Template');
+        var table = $('#template_table').DataTable();
+        var data = table.row($(this).closest('tr')).data();
+        tableId = data.id;
+        $('#modal-title').text('Update Template');
         if (data.alert_symbol_level.toLowerCase().indexOf("alert") == -1) {
             tempSymbol = data.alert_symbol_level;
             $('#alert_symbols').val(data.alert_symbol_level);
@@ -240,20 +240,20 @@ $(document).ready(function(e){
             $('#techinfo_template').prop('disabled',true);
         }
         $('#backbone_template').prop('disabled',true);
-		$('#submit_template').text("UPDATE");
-		$('#template_modal').modal('toggle');
+        $('#submit_template').text("UPDATE");
+        $('#template_modal').modal('toggle');
     });
 
     $('#template_table tbody').on('click','tr:has(td) .delete',function(){
     	var table = $('#template_table').DataTable();
-		var data = table.row($(this).closest('tr')).data();
-		tableId = data.id;
-		var to_be_deleted = "Alert Level / Alert Symbol: "+data.alert_symbol_level+"\n"+
-							"Key input: "+data.key_input;
-		$('#delete-template').val(to_be_deleted);
-		$('#submit_template').text("UPDATE");
-		$('#delete_template_modal').modal('toggle');
-    });
+      var data = table.row($(this).closest('tr')).data();
+      tableId = data.id;
+      var to_be_deleted = "Alert Level / Alert Symbol: "+data.alert_symbol_level+"\n"+
+      "Key input: "+data.key_input;
+      $('#delete-template').val(to_be_deleted);
+      $('#submit_template').text("UPDATE");
+      $('#delete_template_modal').modal('toggle');
+  });
 
     $('#update-backbone').on('input',function(){
     	triggerChange($('#update-backbone').val());
@@ -261,16 +261,16 @@ $(document).ready(function(e){
 
     $('#backbone_table tbody').on('click','.update',function(){
     	var table = $('#backbone_table').DataTable();
-		var data = table.row($(this).closest('tr')).data();
-		tableId = data.id;
-		$('#modal-title-backbone').text('Update Message Backbone');
-        $('#update-backbone').val(data.template);
-        $('#update-backbone').text(data.template);
-        tempStatus = data.alert_status;
-		$('#submit_backbone').text("UPDATE");
-		$('#backbone_modal').modal('toggle');
-		triggerChange(data);
-    });
+      var data = table.row($(this).closest('tr')).data();
+      tableId = data.id;
+      $('#modal-title-backbone').text('Update Message Backbone');
+      $('#update-backbone').val(data.template);
+      $('#update-backbone').text(data.template);
+      tempStatus = data.alert_status;
+      $('#submit_backbone').text("UPDATE");
+      $('#backbone_modal').modal('toggle');
+      triggerChange(data);
+  });
 
     $('#backbone_table tbody').on('click','.view',function(){
         $('#template_simulation').modal('toggle');
@@ -278,15 +278,15 @@ $(document).ready(function(e){
 
     $('#backbone_table tbody').on('click','tr:has(td) .delete',function(){
     	var table = $('#backbone_table').DataTable();
-		var data = table.row($(this).closest('tr')).data();
-		tableId = data.id;
-		console.log(data);
-        var to_be_deleted = "Alert Status: "+data.alert_status+"\n"+
-                            "Template: "+data.template+"\n";
-        $('#delete-backbone').val(to_be_deleted);
-		$('#submit_backbone').text("UPDATE");
-        $('#delete_backbone_modal').modal('toggle');
-    });
+      var data = table.row($(this).closest('tr')).data();
+      tableId = data.id;
+      console.log(data);
+      var to_be_deleted = "Alert Status: "+data.alert_status+"\n"+
+      "Template: "+data.template+"\n";
+      $('#delete-backbone').val(to_be_deleted);
+      $('#submit_backbone').text("UPDATE");
+      $('#delete_backbone_modal').modal('toggle');
+  });
 
     $('a#open_popover').popover().parent().delegate('button#alert_lvl', 'click', function() {
         template = $('#backbone_template').val()+$(this).val();
@@ -369,8 +369,8 @@ $(document).ready(function(e){
         var response = JSON.parse(data);
         for (var counter = 0; counter < response.length;counter++) {
             $('#site_code').append($("<option></option>")
-                        .attr("value",response[counter].sitename)
-                        .text("("+response[counter].sitename +")  "+ response[counter].address)); 
+                .attr("value",response[counter].sitename)
+                .text("("+response[counter].sitename +")  "+ response[counter].address)); 
         }
     });
 
@@ -423,12 +423,12 @@ function reloadTable() {
     	"serverSide": false,
         "ajax": '../communications/fetchalltemplate',
         columns: [
-            { "data" : "id" , title:"ID"},
-            { "data" : "alert_status", title:"ALERT STATUS"},
-            { "data" : "alert_symbol_level", title:"ALERT SYMBOL / ALERT LEVEL"},
-            { "data" : "key_input", title:"KEY INPUT"},
-            { "data" : "last_update_by", title:"LATEST MODIFICATION"},
-            { "data" : "functions", title: "*"}
+        { "data" : "id" , title:"ID"},
+        { "data" : "alert_status", title:"ALERT STATUS"},
+        { "data" : "alert_symbol_level", title:"ALERT SYMBOL / ALERT LEVEL"},
+        { "data" : "key_input", title:"KEY INPUT"},
+        { "data" : "last_update_by", title:"LATEST MODIFICATION"},
+        { "data" : "functions", title: "*"}
         ]
     });
 }
@@ -485,46 +485,46 @@ function alertSymbolAutocomplete(response) {
     var alert_symbols = [];
     for (var counter=0;counter < response.data.length;counter++){
         if ($.inArray(response.data[counter].alert_symbol_level,alert_symbols) == -1) {
-           if (response.data[counter].alert_symbol_level.toLowerCase().indexOf("alert") == -1) {
+         if (response.data[counter].alert_symbol_level.toLowerCase().indexOf("alert") == -1) {
             alert_symbols.push(response.data[counter].alert_symbol_level);
-           }
         }
     }
-    var alert = document.getElementById("alert_symbols");
-    var awesomplete = new Awesomplete(alert, {
-        minChars: 1,
-    });
-    awesomplete.list = alert_symbols;
+}
+var alert = document.getElementById("alert_symbols");
+var awesomplete = new Awesomplete(alert, {
+    minChars: 1,
+});
+awesomplete.list = alert_symbols;
 }
 
 function alertLevelAutocomplete(response) {
     var alert_levels = [];
     for (var counter=0;counter < response.data.length;counter++){
         if ($.inArray(response.data[counter].alert_symbol_level,alert_levels) == -1) {
-           if (response.data[counter].alert_symbol_level.toLowerCase().indexOf("alert") != -1) {
+         if (response.data[counter].alert_symbol_level.toLowerCase().indexOf("alert") != -1) {
             alert_levels.push(response.data[counter].alert_symbol_level);
-           }
         }
     }
-    var alert = document.getElementById("alert_level");
-    var awesomplete = new Awesomplete(alert, {
-        minChars: 1,
-    });
-    awesomplete.list = alert_levels;
+}
+var alert = document.getElementById("alert_level");
+var awesomplete = new Awesomplete(alert, {
+    minChars: 1,
+});
+awesomplete.list = alert_levels;
 }
 
 function backboneCategoryAutocomplete(response) {
     var backbone_category = [];
     for (var counter=0;counter < response.data.length;counter++){
         if ($.inArray(response.data[counter].alert_status,backbone_category) == -1) {
-           backbone_category.push(response.data[counter].alert_status); 
-        }
-    }
-    var input = document.getElementById("alert_status");
-    var awesomplete = new Awesomplete(input, {
-        minChars: 1,
-    });
-    awesomplete.list = backbone_category;
+         backbone_category.push(response.data[counter].alert_status); 
+     }
+ }
+ var input = document.getElementById("alert_status");
+ var awesomplete = new Awesomplete(input, {
+    minChars: 1,
+});
+ awesomplete.list = backbone_category;
 }
 
 function backboneAutocomplete() {
@@ -553,11 +553,11 @@ function reloadBackboneTable() {
     	"serverSide": false,
         "ajax": '../communications/fetchallbackbonetemplate',
         columns: [
-    		{ "data" : "id", title: "ID"},
-    		{ "data" : "alert_status", title: "ALERT STATUS"},
-    		{ "data" : "template", title: "BACKBONE MESSAGE"},
-    		{ "data" : "last_modified_by", title: "LASTEST MODIFICATION"},
-    		{ "data" : "functions", title : "*"}
+        { "data" : "id", title: "ID"},
+        { "data" : "alert_status", title: "ALERT STATUS"},
+        { "data" : "template", title: "BACKBONE MESSAGE"},
+        { "data" : "last_modified_by", title: "LASTEST MODIFICATION"},
+        { "data" : "functions", title : "*"}
         ]
     });
 }
@@ -571,10 +571,11 @@ function loadKeyInputs(){
 }
 
 function triggerChange(realtime_input) {
+
     if (($("#template_modal").data('bs.modal') || {}).isShown == true) {
         $.post('../chatterbox/getsitbangprovmun', {sites: $('#site_code').val()}).done(function(data){
             var response = JSON.parse(data);
-            var location = response[0].sition+", "+response[0].barangay+", "+response[0].municipality+", "+response[0].province;
+            var location = response[0].sitio+", "+response[0].barangay+", "+response[0].municipality+", "+response[0].province;
             location = location.replace("undefined,","");
             location = location.trim();
             var d = new Date();
@@ -599,6 +600,7 @@ function triggerChange(realtime_input) {
             } else if (meridiem == "12:00 PM") {
                 meridiem = meridiem.replace("PM","NN");
             }
+
             var current_date = moment(moment().format("YYYY-MM-DD")).format('LL');
             realtime_input = realtime_input.replace("(current_date_time)",current_date+" "+meridiem);
             realtime_input = realtime_input.replace('(site_location)',location);
@@ -607,6 +609,10 @@ function triggerChange(realtime_input) {
             realtime_input = realtime_input.replace('(recommended_response)',$('#response_template').val());
             realtime_input = realtime_input.replace('(staff_duty)',$('#staff_duty').val()+" - PHIVOLCS-DYNASLOPE");
             realtime_input = realtime_input.replace('(release_time)',$('#time_of_release').val());
+            realtime_input = realtime_input.replace('(new_ewi_time)','12:00 NN');
+            realtime_input = realtime_input.replace('(gndmeas_date_submission)','<mamaya bago mag 11:30 AM>');
+            realtime_input = realtime_input.replace('(gndmeas_time_submission)','<mamaya bago mag 11:30 AM>');
+
             $('#template_view').val(realtime_input);
             $('#template_view').text(realtime_input);
         });
@@ -629,9 +635,12 @@ function triggerChange(realtime_input) {
         template = template.replace('(gndmeas_time_submission)','mamaya bago mag 11:30 AM');
         template = template.replace('(new_ewi_time)','12:00 NN');
         template = template.replace('(next_ewi_date)','mamaya');
+
         $('#preview-backbone').val(template);
         $('#preview-backbone').text(template);
     }
+
+
 }
 
 function resetFields(){
