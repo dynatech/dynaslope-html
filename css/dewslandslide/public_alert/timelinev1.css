@@ -52,18 +52,30 @@ hr { margin: 10px 0 10px; }
 
 .timeline {
     list-style: none;
-    padding: 20px 0 20px;
+    /*padding: 20px 0 20px;*/
+    padding: 0;
     position: relative;
 }
 
-.timeline:before {
+#timeline-column-left .timeline:before {
     top: 0;
     bottom: 0;
     position: absolute;
     content: " ";
     width: 3px;
     background-color: #eeeeee;
-    left: 5%;
+    left: 103%;
+    margin-left: -1.5px;
+}
+
+#timeline-column-right .timeline:before {
+    top: 0;
+    bottom: 0;
+    position: absolute;
+    content: " ";
+    width: 3px;
+    background-color: #eeeeee;
+    left: -2.5%;
     margin-left: -1.5px;
 }
 
@@ -93,11 +105,11 @@ hr { margin: 10px 0 10px; }
     }
 
     .timeline > li > .timeline-panel {
-        width: 91%;
+        width: 100%;
         float: left;
         border: 1px solid #d4d4d4;
         border-radius: 2px;
-        padding: 20px;
+        padding: 20px 0px 8px 0px;
         position: relative;
         -webkit-box-shadow: 0 1px 6px rgba(0, 0, 0, 0.175);
         box-shadow: 0 1px 6px rgba(0, 0, 0, 0.175);
@@ -121,11 +133,22 @@ hr { margin: 10px 0 10px; }
             right: -14px;
             display: inline-block;
             border-top: 14px solid transparent;
-            border-left: 14px solid #fff;
             border-right: 0 solid #fff;
             border-bottom: 14px solid transparent;
             content: " ";
         }
+
+        .timeline > li > .timeline-panel.ewi-card:after {
+            border-left: 14px solid #F8991D;
+        }
+
+        .timeline > li.timeline-inverted > .timeline-panel.narrative-card:after {
+            border-right: 14px solid #989898;
+        }        
+
+        .timeline > li.timeline > .timeline-panel.eos-card:after {
+            border-left: 14px solid #16526D;
+        }      
 
         .timeline > li > .timeline-badge {
             color: #fff;
@@ -136,18 +159,19 @@ hr { margin: 10px 0 10px; }
             text-align: center;
             position: absolute;
             top: 16px;
-            left: 5%;
+            left: 47%;
             margin-left: -25px;
             background-color: #999999;
             z-index: 100;
             border-top-right-radius: 50%;
-            border-top-left-radius: 50%;
+            border-top-left-radius: 50%; 
             border-bottom-right-radius: 50%;
             border-bottom-left-radius: 50%;
         }
 
-        .timeline > li.timeline-inverted > .timeline-panel {
+        .timeline > li.timeline-inverted > .timeline-panel.narrative-card {
             float: right;
+            padding: 10px 0px 8px 0px;
         }
 
         .timeline > li.timeline-inverted > .timeline-panel:before {
@@ -155,6 +179,7 @@ hr { margin: 10px 0 10px; }
             border-right-width: 15px;
             left: -15px;
             right: auto;
+            top: 0px;
         }
 
         .timeline > li.timeline-inverted > .timeline-panel:after {
@@ -162,6 +187,7 @@ hr { margin: 10px 0 10px; }
             border-right-width: 14px;
             left: -14px;
             right: auto;
+            top: 0px;
         }
 
 .timeline-badge.primary {
@@ -360,3 +386,173 @@ hr { margin: 10px 0 10px; }
 h3.popover-title { font-weight: bold; font-size: 16px!important; background: #C0C0C0; }
 .popover-content { background: #A9A9A9; }
 #reminder { font-size: 13px; color: red; font-weight: bold; }
+
+/*New Styles*/
+
+.number-box {
+    display: inline;
+    float: left;
+    padding: 10px;
+    font-size: 35px;
+    line-height: 35px;
+    font-weight: 600;
+    background: rgba(0, 0, 0, 0.17);    
+}
+
+.number-box-narrative {
+    display: inline;
+    float: left;
+    padding: 10px;
+    font-size: 12px;
+    line-height: 3px;
+    font-weight: 600;
+    background: rgba(0, 0, 0, 0.17); 
+}
+
+.timeline-heading {
+    margin-bottom: 15px;
+    color: white;
+    padding-left: 20px;
+    padding-right: 20px;    
+}
+
+.ewi-card {
+    background-color: #F8991D;
+}
+
+.narrative-title {
+    text-transform: uppercase;
+    font-size: 1.5rem;
+    font-weight: 600;
+    letter-spacing: 1.5px;
+    margin: 0;
+    padding-top: 10px;
+    line-height: 0rem;
+    padding-left: 0px;
+}
+
+.narrative-card {
+    background-color: #989898;
+    padding-top: 10px;
+}
+
+.narrative-card > .timeline-heading {
+    margin-bottom: 8px;
+}
+
+.narrative-card > .timeline-body {
+    padding-left: 10px;
+    padding-right: 10px;
+    padding-top: 5px;
+    padding-bottom: 5px;
+}
+
+.narrative-span {
+    font-style: italic;
+}
+
+.eos-card {
+    background-color: #16526D;
+}
+
+.timeline-body {
+    background-color: white;
+    padding: 12px 20px 20px;
+    margin-right: -0.25px;
+    margin-left: 0.1px;
+}
+
+.head-column {
+    padding-right: 0px;
+    padding-left: 30px;
+}
+
+.head {
+  text-transform: uppercase;
+  font-size: 2.2rem;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  margin: 0;
+  padding-top: 10px;
+  line-height: 2.2rem;
+}
+
+.head span.card-title {
+  display: block;
+  font-size: 1.3rem;
+  margin: 0;
+  font-weight: 600;
+}
+
+.fa.fa-edit {
+    padding-top: 15px;
+    font-size: 20px;
+}
+
+.page-header {
+    font-size: 25px;
+    font-weight: 600;
+    color: #17526D;
+    border: solid #17526D;
+    border-radius: 6px;
+    margin-bottom: 20px;    
+
+    box-sizing: border-box;
+    text-align: center;
+    display: block;
+    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+    padding-bottom: 0px;
+}
+
+.container-line.timeline-head {
+    margin-top: 30px;
+    margin-bottom: 40px;
+}
+
+.container-line {
+    margin-top: 20px;
+    margin-bottom: 20px;
+    height: 3px;
+    background-color: #17526D;
+    position: relative;
+}
+
+.circle {
+    display: inline-block;
+    vertical-align: middle;
+    width: 15px;
+    height: 15px;
+    background-color: #17526D;
+    border: solid 1px #17526D;
+    border-radius: 50%;
+    position: absolute;
+    top: -6px;
+}
+
+.base-section-div-text, .container-line-text.timeline-head-text, .container-line-text.tab-head-text, .container-line-text.section-head-text {
+    font-size: 22px;
+    font-weight: 600;
+    padding: 0 10px;
+}
+.container-line-text.timeline-head-text {
+    top: -18px;
+    left: calc(50% - 35px);
+}
+.container-line-text {
+    display: inline-block;
+    vertical-align: middle;
+    color: #17526D;
+    border: solid 3px #17526D;
+    border-radius: 6px;
+    position: absolute;
+    background-color: white;
+}
+
+.left {
+    left: 0;
+}
+
+.right {
+    right: 0;
+}
+

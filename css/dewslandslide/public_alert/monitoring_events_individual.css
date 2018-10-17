@@ -1,25 +1,6 @@
 
 /*Import existing and new css*/
 @import url("timelinev1.css");
-@import url("timelinev2.css");
+/*@import url("timelinev2.css");*/
 
 /*Custom values for event page*/
-
-div.timeline-card {
-    height: 258px !important;
-    border-radius: 15px;
-    background-color: #F8991D !important;
-    margin: 90px !important;
-    margin-top: 35px !important;
-    margin-bottom: 35px !important;    
-}
-
-div.timeline-card-wrapper {
-    height: auto !important;
-}
-
-div.body {
-    height: 170px !important;
-    border-bottom-left-radius: 15px;
-    border-bottom-right-radius: 15px;
-}

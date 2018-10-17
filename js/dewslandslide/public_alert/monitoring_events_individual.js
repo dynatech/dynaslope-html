@@ -5,42 +5,90 @@
  *  [host]/public_alert/monitoring_events/[release_id]
  *
 ****/
-var current_release = {};
-const event_id = window.location.pathname.split("/")[3];
-let event = null;
-var site_code = null;
-var address = null;
-var timeframe = null;
-var narratives;
-var releases;
-var triggers;
+let current_release = {};
+const GL_TRIGGER_LOOKUP = {
+    R: "Rainfall (R)",
+    E: "Earthquake (E)",
+    D: "On-demand (D)",
+    g: "Surficial data movement (g/L2)",
+    G: "Surficial data movement (G/L3)",
+    s: "Subsurface data movement (s/L2)",
+    S: "Subsurface data movement (S/L3)",
+    m: "Manifestation (m)",
+    M: "Manifestation (M)"
+};
+let STAFF_LIST;
+let GL_VALIDITY;
 
 $(document).ready(() => {
-    $.get(`/../../../pubrelease/getEvent/${event_id}`, (data) => {
-        [event] = data;
-    }, "json")
-    .done((data) => {
-        const { site_code: name } = event;
-        const formattedEventStartTS = moment(event.event_start).format("MMMM D, hh:mm A");
-        const formattedValidityTS = moment(event.validity).format("MMMM D, hh:mm A");
+    const $loading_bar = $("#loading");
+    $loading_bar.modal("show");
+    const event_id = window.location.pathname.split("/")[3];
 
-        site_code = name.toUpperCase();
-        address = `${event.barangay}, ${event.municipality}, ${event.province}`;
-        timeframe = `${formattedEventStartTS} to ${formattedValidityTS}`;
-        initializeEventDetailsOnLoad();
+    getStaffNames()
+    .done((staff_list) => {
+        STAFF_LIST = staff_list;
+    });
+
+    getEvent(event_id)
+    .done(([event]) => {
+        console.log(event);
+        const {
+            site_code, event_start, validity,
+            purok, sitio, barangay, municipality,
+            province
+        } = event;
+        GL_VALIDITY = validity;
+        const formattedEventStartTS = moment(event_start).format("MMMM Do YYYY, hh:mm A");
+        const formattedValidityTS = moment(validity).format("MMMM Do YYYY, hh:mm A");
+
+        let address = `Brgy. ${barangay}, ${municipality}, ${province}`;
+        let temp = "";
+        if (purok !== null) temp = `Purok ${purok}, `;
+        if (sitio !== null) temp = `${temp}Sitio ${sitio}, `;
+        address = `${temp}${address}`;
+
+        const timeframe = `${formattedEventStartTS} to ${formattedValidityTS}`;
+        initializeEventDetailsOnLoad(site_code.toUpperCase(), address, timeframe);
+    });
+
+    $.when(getDataForEWICard(event_id), getEventNarratives(event_id), getEventEOSAnalysis(event_id))
+    .done((ewi_data, [event_narratives], [eos]) => {
+        const timeline_array = compileTimelineCardDataIntoArray(ewi_data, event_narratives, eos);
+
+        timeline_array.sort((a, b) => moment(b.ts).diff(a.ts));
+        console.log(timeline_array);
+
+        let card_id;
+        let get_iomp = false;
+        let height_counter = 0;
+        timeline_array.forEach((timeline_entry, index) => {
+            const { type } = timeline_entry;
+            if (type === "eos") {
+                get_iomp = true;
+                card_id = index;
+            }
+            if (type === "ewi" && get_iomp) {
+                setIOMPForEachEOS(timeline_entry, card_id);
+                get_iomp = false;
+            }
+
+            createTimelineCard(timeline_entry, index);
+            if (["ewi", "eos"].includes(type)) {
+                addBuffers(index, height_counter);
+                height_counter = 0;
+            }
+
+            if (type === "narrative") {
+                height_counter += $(`#card-${index}`).outerHeight(true);
+            }
+        });
+
+        $loading_bar.modal("hide");
     });
 
     // Initializations
     initializeReleaseEditOnClick();
-    initializeTimelineOnLoad();
-
-    /* Initialize narrative cards */
-    const data = null;
-    getShiftNarratives(data)
-    .then((return_data) => {
-        const narratives = return_data;
-        console.log(narratives);
-    });
 
     $(".datetime").datetimepicker({
         format: "YYYY-MM-DD HH:mm:ss",
@@ -213,25 +261,100 @@ function setElementHeight () {
 
 /* ----- INITIALIZERS DECLARATIONS ----- */
 
-function initializeEventDetailsOnLoad () {
-    $("#site-code").text(site_code);
-    $("#address").text(address);
-    $("#event_timeframe").text(timeframe);
+function initializeEventDetailsOnLoad (...args) {
+    const ids = ["#site-code", "#address", "#event_timeframe"];
+    ids.forEach((id, index) => {
+        $(id).text(args[index]);
+    });
 }
 
-function initializeTimelineOnLoad () {
-    console.log("This is the initializeTimeLine fnx:");
-    const timeline_panel_template = $("div.timeline-card");
-    for (let x = 1; x < 2; x += 1) {
-        const type = "ewi";
-        const current_template_clone = timeline_panel_template.clone().attr("class", `timeline-card ${type}-card`).removeAttr("hidden");
-        console.log(current_template_clone);
-        $("div.timeline-card-wrapper").append(current_template_clone);
+function createTimelineCard (timeline_entry, index) {
+    const { type } = timeline_entry;
+    const $template = $(`#${type}-card-template`).clone().prop("id", `card-${index}`).prop("hidden", false);
+
+    const column_side = type === "narrative" ? "right" : "left";
+
+    let $timeline_card = $template;
+
+    if (type === "ewi") $timeline_card = prepareEwiCard(timeline_entry, GL_VALIDITY, $template);
+    if (type === "narrative") $timeline_card = prepareNarrativeCard(timeline_entry, $template);
+    if (type === "eos") $timeline_card = prepareEOSCard(timeline_entry, $template);
+
+    $(`#timeline-column-${column_side} ul.timeline`).append($timeline_card);
+}
+
+function prepareEwiCard (release_data, validity, $template) {
+    const {
+        release_time, internal_alert_level,
+        data_timestamp, release_triggers,
+        reporter_id_mt, reporter_id_ct,
+        comments
+    } = release_data;
+    const qualifier = selectEwiCardQualifier(data_timestamp, validity);
+
+    $template.find(".card-title").text(qualifier);
+    $template.find(".card-title-ts").text(moment(data_timestamp).add(30, "min").format("MMMM Do YYYY, hh:mm A"));
+    $template.find(".release_time").text(moment.utc(release_time, "HH:mm").format("hh:mm A"));
+    $template.find(".internal_alert_level").text(internal_alert_level);
+
+    if (release_triggers.length === 0) $template.find(".triggers").prop("hidden", true);
+    else {
+        release_triggers.forEach((trigger) => {
+            const { trigger_type, timestamp: trigger_timestamp, info } = trigger;
+            const trigger_info = `${GL_TRIGGER_LOOKUP[trigger_type]} alert triggered on ${moment(trigger_timestamp).format("MMMM Do YYYY, hh:mm A")}`;
+            const $trigger_li = $("<li>").text(trigger_info);
+            const $tech_info_li = $(`<ul><li>${info}</li></ul>`);
+
+            const $trigger_ul = $template.find(".triggers > ul");
+            $trigger_ul.append($trigger_li);
+            $trigger_ul.append($tech_info_li);
+        });
     }
+
+    if (comments === "" || comments === null) $template.find(".comments-div").prop("hidden", true);
+    else $template.find(".comments").text(comments);
+
+    const iomp = [["mt", reporter_id_mt], ["ct", reporter_id_ct]];
+    iomp.forEach(([type, id]) => {
+        const { first_name, last_name } = STAFF_LIST.find(element => id === element.id);
+        $template.find(`.reporters > .${type}`).text(`${first_name} ${last_name}`);
+    });
+
+    return $template;
 }
 
-function initializeTimelineCardOnLoad () {
-    console.log("This is the initializeTimeline");
+function prepareNarrativeCard (narrative_data, $template) {
+    const { narrative, timestamp: narrative_ts } = narrative_data;
+    $template.find(".narrative-span").text(narrative);
+    $template.find(".narrative-ts").text(moment(narrative_ts).format("MMMM Do YYYY, hh:mm:ss A"));
+    return $template;
+}
+
+function prepareEOSCard (eos_data, $template) {
+    const { analysis, shift_start } = eos_data;
+    const shift_end = moment(shift_start).add(13, "hours").format("MMMM Do YYYY, hh:mm A");
+    $template.find(".card-title-ts").text(shift_end);
+    $template.find(".analysis-div").html(analysis);
+    return $template;
+}
+
+function selectEwiCardQualifier (data_timestamp, validity) {
+    const ts = moment(data_timestamp).add(30, "min");
+    let qualifier;
+
+    if (moment(ts).isSame(validity)) qualifier = "End of Monitoring: ";
+    else if (moment(ts).isBefore(validity)) qualifier = "Early Warning Release for ";
+    else {
+        const duration = moment.duration(ts.diff(validity));
+        const days = Math.floor(duration.asDays());
+        qualifier = `Day ${days} of Extended Monitoring: `;
+    }
+    return qualifier;
+}
+
+function getTriggersForSpecificRelease (release_id, triggers_arr) {
+    const triggers = triggers_arr.filter(data => data.release_id === release_id);
+    return triggers;
 }
 
 function initializeReleaseEditOnClick () {
@@ -283,57 +406,127 @@ function initializeReleaseEditOnClick () {
 
 /* ----- DATA GETTERS ----- */
 
-// Gets from the backend all the narratives for a specific shift | Need to be fixed soon
-function getShiftNarratives (data) {
-    const shift_timestamps = { start: "2018-10-03 07:30:00", end: "2018-10-03 20:30:00" };
-    const timestamps = $.extend(true, {}, shift_timestamps);
-    // timestamps.event_id = data.event_id;
-    timestamps.event_id = 6067;
-    timestamps.start = moment(timestamps.start).add(1, "hour").format("YYYY-MM-DD HH:mm:ss");
-    // if (data.internal_alert_level === "A0") timestamps.end = null;
-
-    return $.getJSON("/../../accomplishment/getNarrativesForShift", timestamps)
+// Gets from the backend all the narratives for a specific event
+function getEventNarratives (event_id) {
+    return $.getJSON(`/../../accomplishment/getNarratives/${event_id}`)
     .catch((error) => {
-        console.error(error);
+        console.log(error);
     });
 }
 
-// Gets from the backend all the narratives for a specific event
-function getEventNarratives (event_id) {
-    $.get(`/../../accomplishment/getNarratives/${event_id}`,
-        (data) => {
-            console.log(`Debug: getEventNarratives return data from Event ID: ${event_id}`);
-            console.log(data);
-            narratives = data;
-        }, "JSON");
-
+function getEventEOSAnalysis (event_id) {
+    return $.getJSON(`/../../accomplishment/getEndOfShiftDataAnalysis/all/${event_id}`)
+    .catch((error) => {
+        console.log(error);
+    });
 }
 
 // Gets event details from the backend via pubrelease controller
 function getEvent (event_id) {
-    $.get(`/../../../pubrelease/getEvent/${event_id}`,
-        (data) => {
-            console.log(`Debug: getEvent return data from Event ID: ${event_id}`);
-            console.log(data);
-        }, "JSON");
+    return $.getJSON(`/../../../pubrelease/getEvent/${event_id}`)
+    .catch((error) => {
+        console.log(error);
+    });
 }
 
 // Gets all triggers for the specified event from the backend via pubrelease controller
 function getAllEventTriggers (event_id) {
-    $.get(`/../../../pubrelease/getAllEventTriggers/${event_id}`,
-        (data) => {
-            console.log(`Debug: getAllEventTriggers return data from Event ID: ${event_id}`);
-            console.log(data);
-            triggers = data;
-        }, "JSONs");
+    return $.getJSON(`/../../../pubrelease/getAllEventTriggers/${event_id}`)
+    .catch((error) => {
+        console.log(error);
+    });
 }
 
 // Gets ewi releases for the specified event from the backend via pubrelease controller
-function getAllRelease (event_id) {
-    $.get(`/../../../pubrelease/getAllRelease/${event_id}`,
-        (data) => {
-            console.log(`Debug: getAllRelease return data from Event ID: ${event_id}`);
-            console.log(data);
-            releases = data;
-        }, "JSON");
+function getAllEventReleases (event_id) {
+    return $.getJSON(`/../../../pubrelease/getAllRelease/${event_id}`)
+    .catch((error) => {
+        console.log(error);
+    });
+}
+
+function getDataForEWICard (event_id) {
+    return $.when(getAllEventReleases(event_id), getAllEventTriggers(event_id))
+    .then(([releases], [triggers]) => {
+        const new_map = releases.map((release) => {
+            const { release_id, data_timestamp } = release;
+            const release_triggers = getTriggersForSpecificRelease(release_id, triggers);
+            return {
+                ...release,
+                release_triggers,
+                ts: data_timestamp,
+                type: "ewi"
+            };
+        });
+
+        return $.Deferred().resolve(new_map);
+    });
+}
+
+function compileTimelineCardDataIntoArray (releases, event_narratives, eos) {
+    const timeline_array = [...releases];
+
+    event_narratives.forEach((narrative) => {
+        const { timestamp } = narrative;
+        const temp = { ...narrative, ts: timestamp, type: "narrative" };
+        timeline_array.push(temp);
+    });
+
+    eos.forEach((current_eos) => {
+        const { shift_start } = current_eos;
+        const shift_end = moment(shift_start).add(13, "hours");
+        const temp = { ...current_eos, ts: shift_end, type: "eos" };
+        timeline_array.push(temp);
+    });
+
+    return timeline_array;
+}
+
+function getStaffNames () {
+    return $.getJSON("/../../../monitoring/getStaffNames")
+    .catch((error) => {
+        console.log(error);
+    });
+}
+
+function setIOMPForEachEOS (timeline_entry, card_id) {
+    const { reporter_id_mt, reporter_id_ct } = timeline_entry;
+    const iomp = [["mt", reporter_id_mt], ["ct", reporter_id_ct]];
+    iomp.forEach(([type, id]) => {
+        const { first_name, last_name } = STAFF_LIST.find(element => id === element.id);
+        $(`#card-${card_id}`).find(`.reporters > .${type}`).text(`${first_name} ${last_name}`);
+    });
+}
+
+function addBuffers (index, height_counter) {
+    const $buffer = $("<li>", { class: "buffer" });
+    const $card = $(`#card-${index}`);
+    $("#timeline-column-left > .timeline").append($buffer.clone());
+
+    const $tbody = $card.prevAll(".timeline:first").find(".timeline-body");
+    const t_body_height = $tbody.outerHeight(true) + 8;
+
+    let left_buffer_height;
+    let right_buffer_height = 0;
+    if ($tbody.length === 0) left_buffer_height = height_counter - 20;
+    else if (height_counter <= t_body_height + 80) {
+        left_buffer_height = 0;
+
+        const card_heading_height = $card.find(".timeline-heading").outerHeight(true) + 20;
+        if (index === 37 || index === 38) console.log(height_counter, t_body_height, card_heading_height);
+        right_buffer_height = t_body_height - card_heading_height + 40;
+    } else {
+        left_buffer_height = height_counter - t_body_height - 80;
+    }
+
+    const $column_right = $("#timeline-column-right > .timeline");
+    const last_height = right_buffer_height + 35;
+    const $column_right_last = $column_right.find("li:last-child");
+    if ($column_right_last.hasClass("buffer")) {
+        $column_right_last.height(last_height);
+    } else {
+        $column_right.append($buffer.height(last_height));
+    }
+
+    $card.prev(".buffer").height(left_buffer_height);
 }
