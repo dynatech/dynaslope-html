@@ -556,3 +556,6 @@ h3.popover-title { font-weight: bold; font-size: 16px!important; background: #C0
     right: 0;
 }
 
+.btn {
+    border-radius: 0px !important; 
+}

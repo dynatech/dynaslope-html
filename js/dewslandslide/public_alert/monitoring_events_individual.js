@@ -19,26 +19,40 @@ const GL_TRIGGER_LOOKUP = {
 };
 let STAFF_LIST;
 let GL_VALIDITY;
+let EVENT_ID;
+let SITE_CODE;
 
 $(document).ready(() => {
     const $loading_bar = $("#loading");
     $loading_bar.modal("show");
-    const event_id = window.location.pathname.split("/")[3];
+    EVENT_ID = window.location.pathname.split("/")[3];
+
+    initializeDateTimePickers();
+    // initializePageResizer();
+    initializeFormValidator();
+    initializeBulletinSendingAndDownloading();
+    initializeReleaseEditOnClick();
+
+    reposition("#edit");
+    reposition("#outcome");
+    reposition("#bulletinLoadingModal");
 
     getStaffNames()
     .done((staff_list) => {
         STAFF_LIST = staff_list;
     });
 
-    getEvent(event_id)
+    getEvent(EVENT_ID)
     .done(([event]) => {
-        console.log(event);
         const {
             site_code, event_start, validity,
             purok, sitio, barangay, municipality,
             province
         } = event;
         GL_VALIDITY = validity;
+        SITE_CODE = site_code;
+
+        // Refactor this to new function
         const formattedEventStartTS = moment(event_start).format("MMMM Do YYYY, hh:mm A");
         const formattedValidityTS = moment(validity).format("MMMM Do YYYY, hh:mm A");
 
@@ -47,17 +61,17 @@ $(document).ready(() => {
         if (purok !== null) temp = `Purok ${purok}, `;
         if (sitio !== null) temp = `${temp}Sitio ${sitio}, `;
         address = `${temp}${address}`;
-
         const timeframe = `${formattedEventStartTS} to ${formattedValidityTS}`;
+        // End of code to be refactored
+
         initializeEventDetailsOnLoad(site_code.toUpperCase(), address, timeframe);
     });
 
-    $.when(getDataForEWICard(event_id), getEventNarratives(event_id), getEventEOSAnalysis(event_id))
+    $.when(getDataForEWICard(EVENT_ID), getEventNarratives(EVENT_ID), getEventEOSAnalysis(EVENT_ID))
     .done((ewi_data, [event_narratives], [eos]) => {
         const timeline_array = compileTimelineCardDataIntoArray(ewi_data, event_narratives, eos);
 
         timeline_array.sort((a, b) => moment(b.ts).diff(a.ts));
-        console.log(timeline_array);
 
         let card_id;
         let get_iomp = false;
@@ -73,23 +87,39 @@ $(document).ready(() => {
                 get_iomp = false;
             }
 
-            createTimelineCard(timeline_entry, index);
             if (["ewi", "eos"].includes(type)) {
-                addBuffers(index, height_counter);
-                height_counter = 0;
+                if (index !== 0 && timeline_array[index - 1].type === "narrative") {
+                    addBuffer(type);
+                    adjustBufferHeight(type, index, height_counter);
+                }
+            } else {
+                if (index !== 0 && ["ewi", "eos"].includes(timeline_array[index - 1].type)) {
+                    addBuffer(type);
+                    adjustBufferHeight(type, index);
+                }
             }
 
-            if (type === "narrative") {
-                height_counter += $(`#card-${index}`).outerHeight(true);
-            }
+            createTimelineCard(timeline_entry, index);
         });
 
         $loading_bar.modal("hide");
     });
 
-    // Initializations
-    initializeReleaseEditOnClick();
+    $("#refresh").click(() => { location.reload(); });
+});
 
+// function setElementHeight () {
+//     const window_h = $(window).height();
+//     const offset = $("#column_2").offset().top;
+//     const nav_height_top = $(".navbar-fixed-top").height();
+//     const nav_height_bottom = $(".navbar-fixed-bottom").height();
+//     const final = window_h - offset - nav_height_bottom - 80;
+//     $("#map-canvas").css("min-height", final);
+// }
+
+/* ----- INITIALIZERS DECLARATIONS ----- */
+
+function initializeDateTimePickers () {
     $(".datetime").datetimepicker({
         format: "YYYY-MM-DD HH:mm:ss",
         allowInputToggle: true,
@@ -107,7 +137,9 @@ $(document).ready(() => {
             vertical: "bottom"
         }
     });
+}
 
+function initializePageResizer () {
     $(window).on("resize", () => {
         setElementHeight();
     }).resize();
@@ -115,11 +147,9 @@ $(document).ready(() => {
     $(window).on("resize", () => {
         $("#page-wrapper").css("min-height", ($(window).height()));
     }).resize();
+}
 
-    reposition("#edit");
-    reposition("#outcome");
-    reposition("#bulletinLoadingModal");
-
+function initializeFormValidator () {
     jQuery.validator.addMethod("at_least_one", (value, element, options) => {
         if ($(".od_group[name=llmc").is(":checked") || $(".od_group[name=lgu").is(":checked")) { return true; }
         return false;
@@ -209,17 +239,20 @@ $(document).ready(() => {
             });
         }
     });
+}
 
-    $("#refresh").click(() => { location.reload(); });
-
+function initializeBulletinSendingAndDownloading () {
     let release_id = null;
     let text = null;
     let filename = null;
     let subject = null;
 
-    $(".print").click(() => {
-        release_id = $(this).val();
-        loadBulletin(release_id, event_id);
+    $("body").on("click", ".print", ({ currentTarget }) => {
+        release_id = $(currentTarget).data("release-id");
+        console.log($(currentTarget).data("name"));
+        console.log($(currentTarget).data("release-id"));
+        loadBulletin(release_id, EVENT_ID);
+        $(".bulletin-title").text(`Early Warning Information Bulletin for ${SITE_CODE.toUpperCase()}`);
     });
 
     $("#download").click(() => {
@@ -248,24 +281,333 @@ $(document).ready(() => {
             }
         });
     });
-});
-
-function setElementHeight () {
-    const window_h = $(window).height();
-    const offset = $("#column_2").offset().top;
-    const nav_height_top = $(".navbar-fixed-top").height();
-    const nav_height_bottom = $(".navbar-fixed-bottom").height();
-    const final = window_h - offset - nav_height_bottom - 80;
-    $("#map-canvas").css("min-height", final);
 }
 
-/* ----- INITIALIZERS DECLARATIONS ----- */
+function initializeReleaseEditOnClick () {
+    $("body").on("click", ".fa-edit", (data) => {
+        const { currentTarget } = data;
+        const release_id = $(currentTarget).data("release-id");
+
+        $("#modalForm .form-group").removeClass("has-feedback").removeClass("has-error").removeClass("has-success");
+        $("#modalForm .glyphicon.form-control-feedback").remove();
+
+        getSpecificReleaseData(release_id)
+        .done((release_data) => {
+            const { data_timestamp, release_time, comments } = release_data;
+            $("#data_timestamp").val(data_timestamp);
+            $("#release_time").val(release_time);
+            $("#comments").val(comments);
+        });
+
+        getJSONReleaseTriggers(release_id)
+        .done((triggers) => {
+            const lookup = {
+                G: "ground", g: "ground", S: "sensor", s: "sensor", E: "eq", R: "rain", D: "od"
+            };
+
+            for (const k in lookup) {
+                $(`#${lookup[k]} input`).prop("disabled", true);
+                $(`#${lookup[k]}_area`).hide();
+            }
+
+            current_release.trigger_list = [];
+            triggers.forEach((a) => {
+                const delegate = (x, a) => {
+                    if (x.includes(".od_group")) {
+                        $(x).prop("disabled", false).prop("checked", parseInt(a));
+                    } else $(x).val(a).prop("disabled", false);
+                };
+                switch (a.trigger_type) {
+                    case "g": case "s":
+                        $(`#trigger_${lookup[a.trigger_type]}_1`).val(a.timestamp).prop("disabled", false);
+                        $(`#trigger_${lookup[a.trigger_type]}_1_info`).val(a.info).prop("disabled", false);
+                        current_release.trigger_list.push([`trigger_${lookup[a.trigger_type]}_1`, a.trigger_id]);
+                        break;
+                    case "G": case "S":
+                        $(`#trigger_${lookup[a.trigger_type]}_2`).val(a.timestamp).prop("disabled", false);
+                        $(`#trigger_${lookup[a.trigger_type]}_2_info`).val(a.info).prop("disabled", false);
+                        current_release.trigger_list.push([`trigger_${lookup[a.trigger_type]}_2`, a.trigger_id]);
+                        break;
+                    case "R": case "E": case "D":
+                        $(`#trigger_${lookup[a.trigger_type]}`).val(a.timestamp).prop("disabled", false);
+                        $(`#trigger_${lookup[a.trigger_type]}_info`).val(a.info).prop("disabled", false);
+                        current_release.trigger_list.push([`trigger_${lookup[a.trigger_type]}`, a.trigger_id]);
+                        if (a.trigger_type === "E") {
+                            delegate("#magnitude", a.eq_info[0].magnitude);
+                            delegate("#latitude", a.eq_info[0].latitude);
+                            delegate("#longitude", a.eq_info[0].longitude);
+                        } else if (a.trigger_type === "D") {
+                            delegate("#reason", a.od_info[0].reason);
+                            delegate(".od_group[name=llmc]", a.od_info[0].is_llmc);
+                            delegate(".od_group[name=lgu]", a.od_info[0].is_lgu);
+                        }
+                        break;
+                    default:
+                        console.error("Error: Trigger type does not exist.");
+                }
+                $(`#${lookup[a.trigger_type]}_area`).show();
+            });
+        })
+        .done(() => {
+            $("#edit").modal("show");
+        });
+
+        /* PLEASE HELP. What is the correct implem? Above of this or below this??? */
+        // getSpecificReleaseData(release_id)
+        // .done((release_data) => {
+        //     console.log("This is the release_data: ", release_data);
+        // })
+        // .done(
+        //     getJSONReleaseTriggers(release_id)
+        //     .done((triggers) => {
+        //         console.log("This is the release_triggers: ", triggers);
+
+        //         const lookup = {
+        //             G: "ground", g: "ground", S: "sensor", s: "sensor", E: "eq", R: "rain", D: "od"
+        //         };
+
+        //         for (const k in lookup) {
+        //             $(`#${lookup[k]} input`).prop("disabled", true);
+        //             $(`#${lookup[k]}_area`).hide();
+        //         }
+
+        //         current_release.trigger_list = [];
+        //         triggers.forEach((a) => {
+        //             const delegate = (x, a) => {
+        //                 if (x.includes(".od_group")) {
+        //                     $(x).prop("disabled", false).prop("checked", parseInt(a));
+        //                 } else $(x).val(a).prop("disabled", false);
+        //             };
+        //             switch (a.trigger_type) {
+        //                 case "g": case "s":
+        //                     $(`#trigger_${lookup[a.trigger_type]}_1`).val(a.timestamp).prop("disabled", false);
+        //                     $(`#trigger_${lookup[a.trigger_type]}_1_info`).val(a.info).prop("disabled", false);
+        //                     current_release.trigger_list.push([`trigger_${lookup[a.trigger_type]}_1`, a.trigger_id]);
+        //                     break;
+        //                 case "G": case "S":
+        //                     $(`#trigger_${lookup[a.trigger_type]}_2`).val(a.timestamp).prop("disabled", false);
+        //                     $(`#trigger_${lookup[a.trigger_type]}_2_info`).val(a.info).prop("disabled", false);
+        //                     current_release.trigger_list.push([`trigger_${lookup[a.trigger_type]}_2`, a.trigger_id]);
+        //                     break;
+        //                 case "R": case "E": case "D":
+        //                     $(`#trigger_${lookup[a.trigger_type]}`).val(a.timestamp).prop("disabled", false);
+        //                     $(`#trigger_${lookup[a.trigger_type]}_info`).val(a.info).prop("disabled", false);
+        //                     current_release.trigger_list.push([`trigger_${lookup[a.trigger_type]}`, a.trigger_id]);
+        //                     if (a.trigger_type === "E") {
+        //                         delegate("#magnitude", a.eq_info[0].magnitude);
+        //                         delegate("#latitude", a.eq_info[0].latitude);
+        //                         delegate("#longitude", a.eq_info[0].longitude);
+        //                     } else if (a.trigger_type === "D") {
+        //                         delegate("#reason", a.od_info[0].reason);
+        //                         delegate(".od_group[name=llmc]", a.od_info[0].is_llmc);
+        //                         delegate(".od_group[name=lgu]", a.od_info[0].is_lgu);
+        //                     }
+        //                     break;
+        //                 default:
+        //                     console.error("Error: Trigger type does not exist.");
+        //             }
+        //             $(`#${lookup[a.trigger_type]}_area`).show();
+        //         });
+        //     })
+        // )
+        // .done(() => {
+        //     $("#edit").modal("show");
+        // });
+    });
+}
+
+function getStaffNames () {
+    return $.getJSON("/../../../monitoring/getStaffNames")
+    .catch((error) => {
+        console.log(error);
+    });
+}
+
+// Gets event details from the backend via pubrelease controller
+function getEvent (event_id) {
+    return $.getJSON(`/../../../pubrelease/getEvent/${event_id}`)
+    .catch((error) => {
+        console.log(error);
+    });
+}
 
 function initializeEventDetailsOnLoad (...args) {
     const ids = ["#site-code", "#address", "#event_timeframe"];
     ids.forEach((id, index) => {
         $(id).text(args[index]);
     });
+}
+
+function getDataForEWICard (event_id) {
+    return $.when(getAllEventReleases(event_id), getAllEventTriggers(event_id))
+    .then(([releases], [triggers]) => {
+        const new_map = releases.map((release) => {
+            const { release_id, data_timestamp } = release;
+            const release_triggers = getTriggersForSpecificRelease(release_id, triggers);
+            return {
+                ...release,
+                release_triggers,
+                ts: data_timestamp,
+                type: "ewi"
+            };
+        });
+
+        return $.Deferred().resolve(new_map);
+    });
+}
+
+function getTriggersForSpecificRelease (release_id, triggers_arr) {
+    const triggers = triggers_arr.filter(data => data.release_id === release_id.toString());
+    return triggers;
+}
+
+// Gets all triggers for the specified event from the backend via pubrelease controller
+function getAllEventTriggers (event_id) {
+    return $.getJSON(`/../../../pubrelease/getAllEventTriggers/${event_id}`)
+    .catch((error) => {
+        console.log(error);
+    });
+}
+
+// Gets ewi releases for the specified event from the backend via pubrelease controller
+function getAllEventReleases (event_id) {
+    return $.getJSON(`/../../../pubrelease/getAllRelease/${event_id}`)
+    .catch((error) => {
+        console.log(error);
+    });
+}
+
+// Gets from the backend all the narratives for a specific event
+function getEventNarratives (event_id) {
+    return $.getJSON(`/../../accomplishment/getNarratives/${event_id}`)
+    .catch((error) => {
+        console.log(error);
+    });
+}
+
+function getEventEOSAnalysis (event_id) {
+    return $.getJSON(`/../../accomplishment/getEndOfShiftDataAnalysis/all/${event_id}`)
+    .catch((error) => {
+        console.log(error);
+    });
+}
+
+function compileTimelineCardDataIntoArray (releases, event_narratives, eos) {
+    const timeline_array = [...releases];
+
+    event_narratives.forEach((narrative) => {
+        const { timestamp } = narrative;
+        const temp = { ...narrative, ts: timestamp, type: "narrative" };
+        timeline_array.push(temp);
+    });
+
+    eos.forEach((current_eos) => {
+        const { shift_start } = current_eos;
+        const shift_end = moment(shift_start).add(13, "hours");
+        const temp = { ...current_eos, ts: shift_end, type: "eos" };
+        timeline_array.push(temp);
+    });
+
+    return timeline_array;
+}
+
+function setIOMPForEachEOS (timeline_entry, card_id) {
+    const { reporter_id_mt, reporter_id_ct } = timeline_entry;
+    const iomp = [["mt", reporter_id_mt], ["ct", reporter_id_ct]];
+    iomp.forEach(([type, id]) => {
+        const { first_name, last_name } = STAFF_LIST.find(element => id === element.id);
+        $(`#card-${card_id}`).find(`.reporters > .${type}`).text(`${first_name} ${last_name}`);
+    });
+}
+
+function addBuffer (type) {
+    const $buffer = $("<li>", { class: "buffer" });
+    const column_side = type === "narrative" ? "right" : "left";
+    $(`#timeline-column-${column_side} ul.timeline`).append($buffer);
+}
+
+function adjustBufferHeight (type) {
+    const column_side = type === "narrative" ? "right" : "left";
+    const $column = $(`#timeline-column-${column_side} ul.timeline`);
+    const $buffer = $column.find("li.buffer:last-child");
+    let height = 0;
+
+    if (column_side === "left") {
+        const $prev_card = $buffer.prevAll(".timeline:first");
+        let t_body_height = 0;
+
+        if ($prev_card.length !== 0) {
+            const $tbody_prev = $prev_card.find(".timeline-body");
+            const $panel_prev = $prev_card.find(".timeline-panel");
+            t_body_height += $tbody_prev.outerHeight(true);
+            t_body_height += parseFloat($prev_card.css("margin-bottom"));
+            t_body_height += parseFloat($panel_prev.css("padding-bottom"));
+            t_body_height += parseFloat($panel_prev.css("border-bottom"));
+        }
+
+        let narrative_height_counter = 0;
+
+        const $last_narrative = $("#timeline-column-right > ul > li:last-child");
+        const $prev_narratives = $last_narrative.prevUntil("li.buffer").addBack();
+
+        $prev_narratives.each((i, elem) => {
+            narrative_height_counter += $(elem).outerHeight(true);
+        });
+
+        height = narrative_height_counter - t_body_height - 20 - 20;
+    } else {
+        let height_counter = 0;
+        const $last_left_card = $("#timeline-column-left > ul > li:last-child");
+        const $prev_cards = $last_left_card.prevUntil("li.buffer").addBack();
+        const $last_buffer = $last_left_card.prevAll("li.buffer:first");
+
+        let excess_height = 0;
+        if ($last_buffer.height() === 0) {
+            const $prev_card = $last_buffer.prevAll(".timeline:first");
+            let t_body_height = 0;
+
+            if ($prev_card.length !== 0) {
+                const $tbody_prev = $prev_card.find(".timeline-body");
+                const $panel_prev = $prev_card.find(".timeline-panel");
+                t_body_height += $tbody_prev.outerHeight(true);
+                t_body_height += parseFloat($prev_card.css("margin-bottom"));
+                t_body_height += parseFloat($panel_prev.css("padding-bottom"));
+                t_body_height += parseFloat($panel_prev.css("border-bottom"));
+            }
+
+            let narrative_height_counter = 0;
+
+            const $last_child = $("#timeline-column-right > ul > li:last-child");
+            const $prev_narratives = $last_child.prevUntil("li.buffer");
+
+            $prev_narratives.each((i, elem) => {
+                narrative_height_counter += $(elem).outerHeight(true);
+            });
+
+            excess_height = t_body_height - narrative_height_counter + 20 + 20;
+        }
+
+        $prev_cards.each((i, elem) => {
+            let card_height;
+            if (i + 1 === $prev_cards.length) {
+                const $theading_prev = $(elem).find(".timeline-heading");
+                const $panel_prev = $(elem).find(".timeline-panel");
+                if ($theading_prev.length !== 0) {
+                    card_height = $theading_prev.outerHeight(true);
+                    card_height += parseFloat($panel_prev.css("padding-top"));
+                    card_height += parseFloat($panel_prev.css("border-top"));
+                }
+            } else {
+                card_height = $(elem).outerHeight(true);
+            }
+
+            height_counter += card_height;
+        });
+
+        height = height_counter + excess_height - 20 - 20;
+    }
+
+    $buffer.height(height);
 }
 
 function createTimelineCard (timeline_entry, index) {
@@ -288,10 +630,12 @@ function prepareEwiCard (release_data, validity, $template) {
         release_time, internal_alert_level,
         data_timestamp, release_triggers,
         reporter_id_mt, reporter_id_ct,
-        comments
+        comments, release_id
     } = release_data;
     const qualifier = selectEwiCardQualifier(data_timestamp, validity);
 
+    $template.find(".fa-edit").data("release-id", release_id);
+    $template.find(".print").data("release-id", release_id); 
     $template.find(".card-title").text(qualifier);
     $template.find(".card-title-ts").text(moment(data_timestamp).add(30, "min").format("MMMM Do YYYY, hh:mm A"));
     $template.find(".release_time").text(moment.utc(release_time, "HH:mm").format("hh:mm A"));
@@ -323,6 +667,20 @@ function prepareEwiCard (release_data, validity, $template) {
     return $template;
 }
 
+function selectEwiCardQualifier (data_timestamp, validity) {
+    const ts = moment(data_timestamp).add(30, "min");
+    let qualifier;
+
+    if (moment(ts).isSame(validity)) qualifier = "End of Monitoring: ";
+    else if (moment(ts).isBefore(validity)) qualifier = "Early Warning Release for ";
+    else {
+        const duration = moment.duration(ts.diff(validity));
+        const days = Math.floor(duration.asDays());
+        qualifier = `Day ${days} of Extended Monitoring: `;
+    }
+    return qualifier;
+}
+
 function prepareNarrativeCard (narrative_data, $template) {
     const { narrative, timestamp: narrative_ts } = narrative_data;
     $template.find(".narrative-span").text(narrative);
@@ -338,195 +696,16 @@ function prepareEOSCard (eos_data, $template) {
     return $template;
 }
 
-function selectEwiCardQualifier (data_timestamp, validity) {
-    const ts = moment(data_timestamp).add(30, "min");
-    let qualifier;
-
-    if (moment(ts).isSame(validity)) qualifier = "End of Monitoring: ";
-    else if (moment(ts).isBefore(validity)) qualifier = "Early Warning Release for ";
-    else {
-        const duration = moment.duration(ts.diff(validity));
-        const days = Math.floor(duration.asDays());
-        qualifier = `Day ${days} of Extended Monitoring: `;
-    }
-    return qualifier;
-}
-
-function getTriggersForSpecificRelease (release_id, triggers_arr) {
-    const triggers = triggers_arr.filter(data => data.release_id === release_id);
-    return triggers;
-}
-
-function initializeReleaseEditOnClick () {
-    $("#edit-release-btn").on("click", () => {
-        $("#modalForm .form-group").removeClass("has-feedback").removeClass("has-error").removeClass("has-success");
-        $("#modalForm .glyphicon.form-control-feedback").remove();
-
-        console.log("Debug: Clicked Edit Button once.");
-
-        const release_id = this.id;
-        $.get(
-            `/../../pubrelease/getRelease/${release_id}`,
-            (release) => {
-                $("#data_timestamp").val(release.data_timestamp);
-                $("#release_time").val(release.release_time);
-                $("#comments").val(release.comments);
-
-                console.log("release ", release);
-                current_release = jQuery.extend(true, {}, release);
-                $.get(
-                    `/../../pubrelease/getAllEventTriggers/${release.event_id}/${release_id}`,
-                    (triggers) => {
-                        const lookup = {
-                            G: "ground", g: "ground", S: "sensor", s: "sensor", E: "eq", R: "rain", D: "od"
-                        };
-                        for (const k in lookup) { $(`#${lookup[k]} input`).prop("disabled", true); $(`#${lookup[k]}_area`).hide(); }
-
-                        current_release.trigger_list = [];
-                        triggers.forEach((a) => {
-                            const delegate = function (x, a) { if (x.includes(".od_group")) { $(x).prop("disabled", false).prop("checked", parseInt(a)); } else $(x).val(a).prop("disabled", false); };
-                            switch (a.trigger_type) {
-                                case "g": case "s": $(`#trigger_${lookup[a.trigger_type]}_1`).val(a.timestamp).prop("disabled", false); $(`#trigger_${lookup[a.trigger_type]}_1_info`).val(a.info).prop("disabled", false); current_release.trigger_list.push([`trigger_${lookup[a.trigger_type]}_1`, a.trigger_id]); break;
-                                case "G": case "S": $(`#trigger_${lookup[a.trigger_type]}_2`).val(a.timestamp).prop("disabled", false); $(`#trigger_${lookup[a.trigger_type]}_2_info`).val(a.info).prop("disabled", false); current_release.trigger_list.push([`trigger_${lookup[a.trigger_type]}_2`, a.trigger_id]); break;
-                                case "R": case "E":
-                                case "D": $(`#trigger_${lookup[a.trigger_type]}`).val(a.timestamp).prop("disabled", false); $(`#trigger_${lookup[a.trigger_type]}_info`).val(a.info).prop("disabled", false); current_release.trigger_list.push([`trigger_${lookup[a.trigger_type]}`, a.trigger_id]);
-                                    if (a.trigger_type == "E") { delegate("#magnitude", a.eq_info[0].magnitude); delegate("#latitude", a.eq_info[0].latitude); delegate("#longitude", a.eq_info[0].longitude); break; } else if (a.trigger_type == "D") { delegate("#reason", a.od_info[0].reason); delegate(".od_group[name=llmc]", a.od_info[0].is_llmc); delegate(".od_group[name=lgu]", a.od_info[0].is_lgu); break; }
-                            }
-                            $(`#${lookup[a.trigger_type]}_area`).show();
-                        });
-                    }, "json"
-                )
-                .done(() => {
-                    $("#edit").modal("show");
-                });
-            }, "json"
-        );
-    });
-}
-
-/* ----- DATA GETTERS ----- */
-
-// Gets from the backend all the narratives for a specific event
-function getEventNarratives (event_id) {
-    return $.getJSON(`/../../accomplishment/getNarratives/${event_id}`)
+function getSpecificReleaseData (release_id) {
+    return $.getJSON(`/../../../pubrelease/getRelease/${release_id}`)
     .catch((error) => {
         console.log(error);
     });
 }
 
-function getEventEOSAnalysis (event_id) {
-    return $.getJSON(`/../../accomplishment/getEndOfShiftDataAnalysis/all/${event_id}`)
+function getJSONReleaseTriggers (release_id) {
+    return $.getJSON(`/../../../pubrelease/getAllEventTriggers/${EVENT_ID}/${release_id}`)
     .catch((error) => {
         console.log(error);
     });
-}
-
-// Gets event details from the backend via pubrelease controller
-function getEvent (event_id) {
-    return $.getJSON(`/../../../pubrelease/getEvent/${event_id}`)
-    .catch((error) => {
-        console.log(error);
-    });
-}
-
-// Gets all triggers for the specified event from the backend via pubrelease controller
-function getAllEventTriggers (event_id) {
-    return $.getJSON(`/../../../pubrelease/getAllEventTriggers/${event_id}`)
-    .catch((error) => {
-        console.log(error);
-    });
-}
-
-// Gets ewi releases for the specified event from the backend via pubrelease controller
-function getAllEventReleases (event_id) {
-    return $.getJSON(`/../../../pubrelease/getAllRelease/${event_id}`)
-    .catch((error) => {
-        console.log(error);
-    });
-}
-
-function getDataForEWICard (event_id) {
-    return $.when(getAllEventReleases(event_id), getAllEventTriggers(event_id))
-    .then(([releases], [triggers]) => {
-        const new_map = releases.map((release) => {
-            const { release_id, data_timestamp } = release;
-            const release_triggers = getTriggersForSpecificRelease(release_id, triggers);
-            return {
-                ...release,
-                release_triggers,
-                ts: data_timestamp,
-                type: "ewi"
-            };
-        });
-
-        return $.Deferred().resolve(new_map);
-    });
-}
-
-function compileTimelineCardDataIntoArray (releases, event_narratives, eos) {
-    const timeline_array = [...releases];
-
-    event_narratives.forEach((narrative) => {
-        const { timestamp } = narrative;
-        const temp = { ...narrative, ts: timestamp, type: "narrative" };
-        timeline_array.push(temp);
-    });
-
-    eos.forEach((current_eos) => {
-        const { shift_start } = current_eos;
-        const shift_end = moment(shift_start).add(13, "hours");
-        const temp = { ...current_eos, ts: shift_end, type: "eos" };
-        timeline_array.push(temp);
-    });
-
-    return timeline_array;
-}
-
-function getStaffNames () {
-    return $.getJSON("/../../../monitoring/getStaffNames")
-    .catch((error) => {
-        console.log(error);
-    });
-}
-
-function setIOMPForEachEOS (timeline_entry, card_id) {
-    const { reporter_id_mt, reporter_id_ct } = timeline_entry;
-    const iomp = [["mt", reporter_id_mt], ["ct", reporter_id_ct]];
-    iomp.forEach(([type, id]) => {
-        const { first_name, last_name } = STAFF_LIST.find(element => id === element.id);
-        $(`#card-${card_id}`).find(`.reporters > .${type}`).text(`${first_name} ${last_name}`);
-    });
-}
-
-function addBuffers (index, height_counter) {
-    const $buffer = $("<li>", { class: "buffer" });
-    const $card = $(`#card-${index}`);
-    $("#timeline-column-left > .timeline").append($buffer.clone());
-
-    const $tbody = $card.prevAll(".timeline:first").find(".timeline-body");
-    const t_body_height = $tbody.outerHeight(true) + 8;
-
-    let left_buffer_height;
-    let right_buffer_height = 0;
-    if ($tbody.length === 0) left_buffer_height = height_counter - 20;
-    else if (height_counter <= t_body_height + 80) {
-        left_buffer_height = 0;
-
-        const card_heading_height = $card.find(".timeline-heading").outerHeight(true) + 20;
-        if (index === 37 || index === 38) console.log(height_counter, t_body_height, card_heading_height);
-        right_buffer_height = t_body_height - card_heading_height + 40;
-    } else {
-        left_buffer_height = height_counter - t_body_height - 80;
-    }
-
-    const $column_right = $("#timeline-column-right > .timeline");
-    const last_height = right_buffer_height + 35;
-    const $column_right_last = $column_right.find("li:last-child");
-    if ($column_right_last.hasClass("buffer")) {
-        $column_right_last.height(last_height);
-    } else {
-        $column_right.append($buffer.height(last_height));
-    }
-
-    $card.prev(".buffer").height(left_buffer_height);
 }
