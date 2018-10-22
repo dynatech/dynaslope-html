@@ -81,7 +81,7 @@ $(document).ready(() => {
 
     $.when(getDataForEWICard(EVENT_ID), getEventNarratives(EVENT_ID), getEventEOSAnalysis(EVENT_ID))
     .done((ewi_data, [event_narratives], [eos]) => {
-        if (STATUS === "routine" || typeof eos.analysis === "undefined") eos = [];
+        if (STATUS === "routine" || eos.analysis === null) eos = [];
         const timeline_array = compileTimelineCardDataIntoArray(ewi_data, event_narratives, eos);
 
         timeline_array.sort((a, b) => moment(b.ts).diff(a.ts));
