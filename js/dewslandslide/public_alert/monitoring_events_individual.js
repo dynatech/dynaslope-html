@@ -227,8 +227,6 @@ function initializeBulletinSendingAndDownloading () {
 
     $("body").on("click", ".print", ({ currentTarget }) => {
         release_id = $(currentTarget).data("release-id");
-        console.log($(currentTarget).data("name"));
-        console.log($(currentTarget).data("release-id"));
         loadBulletin(release_id, EVENT_ID);
         $(".bulletin-title").text(`Early Warning Information Bulletin for ${SITE_CODE.toUpperCase()}`);
     });

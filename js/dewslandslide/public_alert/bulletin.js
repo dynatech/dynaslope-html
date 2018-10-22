@@ -55,7 +55,6 @@ function postBulletinModal (release_id) {
 
 function processBulletinModal (modal_html, bulletin_div) {
     $(bulletin_div).html(modal_html);
-    console.log(modal_html);
 
     const loc = $("#location").text().replace(/\s+/g, " ").trim();
     const alert = $("#alert_level_released").text().replace(/\s+/g, " ").trim()
