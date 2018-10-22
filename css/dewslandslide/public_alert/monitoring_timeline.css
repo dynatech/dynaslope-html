@@ -62,8 +62,8 @@ hr {
           background-color: #00B200; }
           .timeline > li > .timeline-panel.ewi-card.extended-card:after {
             border-left: 14px solid #00B200; }
-        .timeline > li > .timeline-panel.ewi-card > span.card-title {
-          color: #777777; }
+        .timeline > li > .timeline-panel.ewi-card .card-title {
+          color: #777777 !important; }
     .timeline > li > .timeline-panel:before, .timeline > li > .timeline-panel:after {
       position: absolute;
       display: inline-block;

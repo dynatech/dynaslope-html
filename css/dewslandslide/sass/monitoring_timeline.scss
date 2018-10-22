@@ -84,10 +84,8 @@ hr { margin: 10px 0 10px; }
 		        	}
 		        }
 
-		        & > span {
-		        	&.card-title {
-    					color: #777777;
-    				}
+		        & .card-title {
+    				color: #777777 !important;
     			}
 	        }
     	}
@@ -192,7 +190,6 @@ hr { margin: 10px 0 10px; }
     		}
     	}
     }
-
 }
 
 %timeline-before-shared {
