@@ -13,10 +13,13 @@ let release_id = null;
 let event_id = null;
 let original_field_values = [];
 let bulletin_timestamp = null;
+let $LOADING;
+let $RESULT_MODAL;
 
 $(document).ready(() => {
-    reposition("#bulletinLoadingModal");
-    reposition("#resultModal");
+    $LOADING = $("#loading");
+    $RESULT_MODAL = $("#bulletin-result-modal");
+    reposition("#bulletin-result-modal");
 
     $("#edit-bulletin").click(() => {
         on_edit = on_edit !== true;
@@ -37,7 +40,7 @@ function loadBulletin (id1, id2) {
 
         addMailRecipients(is_onset);
 
-        $("#bulletinModal").modal({ backdrop: "static", keyboard: false, show: true });
+        $("#bulletin-modal").modal({ backdrop: "static", keyboard: false, show: true });
     })
     .catch((x) => {
         sendBulletinError(`error loading bulletin\n${x.responseText}`);
@@ -51,6 +54,7 @@ function postBulletinModal (release_id) {
 
 function processBulletinModal (modal_html, bulletin_div) {
     $(bulletin_div).html(modal_html);
+    console.log(modal_html);
 
     const loc = $("#location").text().replace(/\s+/g, " ").trim();
     const alert = $("#alert_level_released").text().replace(/\s+/g, " ").trim()
@@ -138,9 +142,11 @@ function renderPDF (id) {
         tagBulletin(release_id, edited_field_values, original_field_values);
     }
 
-    $("#bulletinModal").modal("hide");
-    $("#bulletinLoadingModal .progress-bar").text("Rendering Bulletin PDF...");
-    $("#bulletinLoadingModal").modal({ backdrop: "static", show: "true" });
+    $("#bulletin-modal").modal("hide");
+
+    $LOADING.find(".progress-bar").text("Rendering Bulletin PDF...");
+    $LOADING.modal({ backdrop: "static", show: "true" });
+
     const address = `/../../bulletin/run_script/${id}/${is_edited}`;
 
     edit(false);
@@ -217,7 +223,8 @@ function tagBulletin (release_id, edited_field_values, original_field_values) {
 }
 
 function sendMail (text, subject, filename, recipients) {
-    $("#bulletinLoadingModal .progress-bar").text("Sending EWI and Bulletin...");
+
+    $LOADING.find(".progress-bar").text("Sending EWI and Bulletin...");
 
     const form = {
         text,
@@ -230,13 +237,18 @@ function sendMail (text, subject, filename, recipients) {
 
     mailBulletin(form)
     .then((data) => {
-        $("#bulletinLoadingModal").modal("hide");
-        $("#resultModal .modal-header").html(`<h4>Early Warning Information for ${subject.slice(0, 3)}</h4>`);
+        $LOADING.modal("hide");
+        $LOADING.find(".progress-bar").text("Loading...");
+
+        $RESULT_MODAL.find(".modal-header > #site-id").html(subject.slice(0, 3));
+        const $result_body = $RESULT_MODAL.find(".modal-body");
+        $result_body.find("span").hide();
+        let return_val;
 
         if (data === "Sent.") {
             console.log("Email sent");
 
-            const baseline = moment(bulletin_timestamp).add(20, "minutes");
+            // const baseline = moment(bulletin_timestamp).add(20, "minutes");
             const exec_time = moment().diff(bulletin_timestamp);
             const report = {
                 type: "timeliness",
@@ -246,18 +258,20 @@ function sendMail (text, subject, filename, recipients) {
             };
 
             PMS.send(report);
-
             $(`#${release_id}`).css("color", "red").attr("data-sent", 1);
 
             insertNarrative(recipients);
 
-            $("#resultModal .modal-body").html("<strong>SUCCESS:</strong>&ensp;Early warning information and bulletin successfully sent through mail!");
-            $("#resultModal").modal("show");
+            $result_body.find(".success").show();
+            return_val = $.Deferred().resolve();
         } else {
-            $("#resultModal .modal-body").html(`<strong>ERROR:</strong>&ensp;Early warning information and bulletin sending failed!<br/><br/><i>${data}</i>`);
-            $("#resultModal").modal("show");
-            return $.Deferred().reject();
+            $result_body.find(".error").text(data);
+            $result_body.find(".failed").show();
+            return_val = $.Deferred().reject();
         }
+
+        $RESULT_MODAL.modal("show");
+        return return_val;
     })
     .catch((x) => {
         sendBulletinError(`error sending bulletin\n${x.responseText}`);

@@ -6,46 +6,13 @@
  *  
 ****/
 
-#map-canvas { 
-    width: 375px !important;
-    min-width: 0% !important;
-    max-width: 30% !important;
-    height: 450px !important;
-    background-color: blue;
-    position: fixed;
-    top: 248px;
-    margin: 0 0 0 10px;
-}
-
-#map { height: 100%; }
-
-#reveal {
-    line-height: 1.25em;
-    font-size: 20px;
-    font-weight: 600;
-    position: fixed;
-    top: 80px;
-    left: 100vh - 100px; //65px;
-    z-index: 0;
-}
-
-#reveal small { font-size: 16px; }
-
-#bread {
-    font-weight: 600;
-    position: fixed;
-    top: 200px;
-    left: 100vh - 80px; //80px;
-    z-index: 0;
-}
-
 #header { background-color: white; z-index: 1; }
 
 .highlight {
-    border: 8px solid black !important;
+    /*border: 8px solid black !important;*/
     outline: none !important;
     border-color: #0577ff !important;
-    box-shadow: 0 0 15px #0d49eb !important;
+    box-shadow: 0 0 30px #0d49eb !important;
 }
 
 hr { margin: 10px 0 10px; }
@@ -94,16 +61,6 @@ hr { margin: 10px 0 10px; }
         clear: both;
     }
 
-    .timeline > li:before,
-    .timeline > li:after {
-        content: " ";
-        display: table;
-    }
-
-    .timeline > li:after {
-        clear: both;
-    }
-
     .timeline > li > .timeline-panel {
         width: 100%;
         float: left;
@@ -116,30 +73,34 @@ hr { margin: 10px 0 10px; }
     }
 
         .timeline > li > .timeline-panel:before {
-            position: absolute;
             top: 26px;
             right: -15px;
-            display: inline-block;
             border-top: 15px solid transparent;
+            border-bottom: 15px solid transparent;
             border-left: 15px solid #ccc;
             border-right: 0 solid #ccc;
-            border-bottom: 15px solid transparent;
+            position: absolute;
+            display: inline-block;
             content: " ";
         }
 
         .timeline > li > .timeline-panel:after {
-            position: absolute;
             top: 27px;
             right: -14px;
-            display: inline-block;
             border-top: 14px solid transparent;
-            border-right: 0 solid #fff;
             border-bottom: 14px solid transparent;
+            border-right: 0 solid #fff;
+            position: absolute;
+            display: inline-block;
             content: " ";
         }
 
         .timeline > li > .timeline-panel.ewi-card:after {
             border-left: 14px solid #F8991D;
+        }
+
+        .timeline > li > .timeline-panel.ewi-card.extended-card:after {
+            border-left: 14px solid #00B200;
         }
 
         .timeline > li.timeline-inverted > .timeline-panel.narrative-card:after {
@@ -420,6 +381,10 @@ h3.popover-title { font-weight: bold; font-size: 16px!important; background: #C0
     background-color: #F8991D;
 }
 
+.ewi-card.extended-card {
+    background-color: #00B200;
+}
+
 .narrative-title {
     text-transform: uppercase;
     font-size: 1.5rem;
@@ -434,6 +399,7 @@ h3.popover-title { font-weight: bold; font-size: 16px!important; background: #C0
 .narrative-card {
     background-color: #989898;
     padding-top: 10px;
+    left: 1.95px;
 }
 
 .narrative-card > .timeline-heading {
@@ -480,8 +446,13 @@ h3.popover-title { font-weight: bold; font-size: 16px!important; background: #C0
 .head span.card-title {
   display: block;
   font-size: 1.3rem;
+  color: #999999;
   margin: 0;
   font-weight: 600;
+}
+
+.ewi-card span.card-title {
+    color: #777777;
 }
 
 .fa.fa-edit {
@@ -506,7 +477,7 @@ h3.popover-title { font-weight: bold; font-size: 16px!important; background: #C0
 
 .container-line.timeline-head {
     margin-top: 30px;
-    margin-bottom: 40px;
+    margin-bottom: 30px;
 }
 
 .container-line {
@@ -515,6 +486,15 @@ h3.popover-title { font-weight: bold; font-size: 16px!important; background: #C0
     height: 3px;
     background-color: #17526D;
     position: relative;
+}
+
+.primary-color {
+    color: #17526D;
+}
+
+.container-line.bottom-line {
+    margin-top: 10px;
+    margin-bottom: 30px;
 }
 
 .circle {
@@ -534,6 +514,7 @@ h3.popover-title { font-weight: bold; font-size: 16px!important; background: #C0
     font-weight: 600;
     padding: 0 10px;
 }
+
 .container-line-text.timeline-head-text {
     top: -18px;
     left: calc(50% - 35px);
@@ -558,4 +539,18 @@ h3.popover-title { font-weight: bold; font-size: 16px!important; background: #C0
 
 .btn {
     border-radius: 0px !important; 
+}
+
+span.fa.fa-angle-double-down {
+    font-size: 20px;
+    vertical-align: middle;
+}
+
+span.fa.fa-angle-double-up {
+    font-size: 20px;
+    vertical-align: middle;
+}
+
+.reporters {
+    font-weight: bold;
 }

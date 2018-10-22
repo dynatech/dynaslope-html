@@ -19,19 +19,27 @@ const GL_TRIGGER_LOOKUP = {
 };
 let STAFF_LIST;
 let GL_VALIDITY;
+let GL_EVENT_START;
 let EVENT_ID;
+let TO_HIGHLIGHT = false;
 let SITE_CODE;
+let STATUS;
+let TIMELINE_ARRAY;
+let $LOADING_BAR;
 
 $(document).ready(() => {
-    const $loading_bar = $("#loading");
-    $loading_bar.modal("show");
-    EVENT_ID = window.location.pathname.split("/")[3];
+    $LOADING_BAR = $("#loading");
+    $LOADING_BAR.modal("show");
+    const { location: { pathname } } = window;
+    const urls = pathname.split("/");
+    EVENT_ID = urls[3];
+    if (typeof urls[4] !== "undefined") TO_HIGHLIGHT = urls[4];
 
     initializeDateTimePickers();
-    // initializePageResizer();
     initializeFormValidator();
     initializeBulletinSendingAndDownloading();
     initializeReleaseEditOnClick();
+    initializeSortTimelineButton();
 
     reposition("#edit");
     reposition("#outcome");
@@ -47,10 +55,12 @@ $(document).ready(() => {
         const {
             site_code, event_start, validity,
             purok, sitio, barangay, municipality,
-            province
+            province, status
         } = event;
         GL_VALIDITY = validity;
+        GL_EVENT_START = event_start;
         SITE_CODE = site_code;
+        STATUS = status;
 
         // Refactor this to new function
         const formattedEventStartTS = moment(event_start).format("MMMM Do YYYY, hh:mm A");
@@ -61,7 +71,9 @@ $(document).ready(() => {
         if (purok !== null) temp = `Purok ${purok}, `;
         if (sitio !== null) temp = `${temp}Sitio ${sitio}, `;
         address = `${temp}${address}`;
-        const timeframe = `${formattedEventStartTS} to ${formattedValidityTS}`;
+        let timeframe = formattedEventStartTS;
+        if (status !== "routine") timeframe += ` to ${formattedValidityTS}`;
+        else $(".page-header").text("ROUTINE MONITORING PAGE");
         // End of code to be refactored
 
         initializeEventDetailsOnLoad(site_code.toUpperCase(), address, timeframe);
@@ -69,53 +81,30 @@ $(document).ready(() => {
 
     $.when(getDataForEWICard(EVENT_ID), getEventNarratives(EVENT_ID), getEventEOSAnalysis(EVENT_ID))
     .done((ewi_data, [event_narratives], [eos]) => {
+        if (STATUS === "routine") eos = [];
         const timeline_array = compileTimelineCardDataIntoArray(ewi_data, event_narratives, eos);
 
         timeline_array.sort((a, b) => moment(b.ts).diff(a.ts));
+        TIMELINE_ARRAY = timeline_array;
 
-        let card_id;
-        let get_iomp = false;
-        let height_counter = 0;
-        timeline_array.forEach((timeline_entry, index) => {
-            const { type } = timeline_entry;
-            if (type === "eos") {
-                get_iomp = true;
-                card_id = index;
-            }
-            if (type === "ewi" && get_iomp) {
-                setIOMPForEachEOS(timeline_entry, card_id);
-                get_iomp = false;
-            }
+        delegateCardsToTimeline(TIMELINE_ARRAY);
 
-            if (["ewi", "eos"].includes(type)) {
-                if (index !== 0 && timeline_array[index - 1].type === "narrative") {
-                    addBuffer(type);
-                    adjustBufferHeight(type, index, height_counter);
+        if (TO_HIGHLIGHT !== false) {
+            $("li.timeline").each((i, elem) => {
+                if ($(elem).data("release-id") === TO_HIGHLIGHT) {
+                    $(elem).addClass("highlight");
+                    scrollToDiv(elem);
+                    return false;
                 }
-            } else {
-                if (index !== 0 && ["ewi", "eos"].includes(timeline_array[index - 1].type)) {
-                    addBuffer(type);
-                    adjustBufferHeight(type, index);
-                }
-            }
+                return true;
+            });
+        }
 
-            createTimelineCard(timeline_entry, index);
-        });
-
-        $loading_bar.modal("hide");
+        $LOADING_BAR.modal("hide");
     });
 
-    $("#refresh").click(() => { location.reload(); });
+    $("#refresh").click(() => { window.location.reload(); });
 });
-
-// function setElementHeight () {
-//     const window_h = $(window).height();
-//     const offset = $("#column_2").offset().top;
-//     const nav_height_top = $(".navbar-fixed-top").height();
-//     const nav_height_bottom = $(".navbar-fixed-bottom").height();
-//     const final = window_h - offset - nav_height_bottom - 80;
-//     $("#map-canvas").css("min-height", final);
-// }
 
 /* ----- INITIALIZERS DECLARATIONS ----- */
 
@@ -137,16 +126,6 @@ function initializeDateTimePickers () {
             vertical: "bottom"
         }
     });
-}
-
-function initializePageResizer () {
-    $(window).on("resize", () => {
-        setElementHeight();
-    }).resize();
-
-    $(window).on("resize", () => {
-        $("#page-wrapper").css("min-height", ($(window).height()));
-    }).resize();
 }
 
 function initializeFormValidator () {
@@ -191,7 +170,6 @@ function initializeFormValidator () {
             reason: "required"
         },
         errorPlacement (error, element) {
-            console.error(error);
             element.parents(".form-group").addClass("has-feedback");
 
             // Add the span element, if doesn't exists, and apply the icon classes to it.
@@ -297,6 +275,8 @@ function initializeReleaseEditOnClick () {
             $("#data_timestamp").val(data_timestamp);
             $("#release_time").val(release_time);
             $("#comments").val(comments);
+
+            current_release = { ...release_data };
         });
 
         getJSONReleaseTriggers(release_id)
@@ -312,11 +292,12 @@ function initializeReleaseEditOnClick () {
 
             current_release.trigger_list = [];
             triggers.forEach((a) => {
-                const delegate = (x, a) => {
+                const delegate = (x, i) => {
                     if (x.includes(".od_group")) {
-                        $(x).prop("disabled", false).prop("checked", parseInt(a));
-                    } else $(x).val(a).prop("disabled", false);
+                        $(x).prop("disabled", false).prop("checked", parseInt(i, 10));
+                    } else $(x).val(i).prop("disabled", false);
                 };
+
                 switch (a.trigger_type) {
                     case "g": case "s":
                         $(`#trigger_${lookup[a.trigger_type]}_1`).val(a.timestamp).prop("disabled", false);
@@ -351,68 +332,58 @@ function initializeReleaseEditOnClick () {
         .done(() => {
             $("#edit").modal("show");
         });
+    });
+}
 
-        /* PLEASE HELP. What is the correct implem? Above of this or below this??? */
-        // getSpecificReleaseData(release_id)
-        // .done((release_data) => {
-        //     console.log("This is the release_data: ", release_data);
-        // })
-        // .done(
-        //     getJSONReleaseTriggers(release_id)
-        //     .done((triggers) => {
-        //         console.log("This is the release_triggers: ", triggers);
+function initializeSortTimelineButton () {
+    $("#sort-timeline").click(({ currentTarget }) => {
+        $LOADING_BAR.modal("show");
 
-        //         const lookup = {
-        //             G: "ground", g: "ground", S: "sensor", s: "sensor", E: "eq", R: "rain", D: "od"
-        //         };
+        const $sort_icon = $(currentTarget).find("span");
+        const up = "fa-angle-double-up";
+        const down = "fa-angle-double-down";
+        let is_sort_desc = true;
 
-        //         for (const k in lookup) {
-        //             $(`#${lookup[k]} input`).prop("disabled", true);
-        //             $(`#${lookup[k]}_area`).hide();
-        //         }
+        if ($sort_icon.hasClass(up)) {
+            $sort_icon.removeClass(up).addClass(down);
+            is_sort_desc = false;
+        } else $sort_icon.removeClass(down).addClass(up);
 
-        //         current_release.trigger_list = [];
-        //         triggers.forEach((a) => {
-        //             const delegate = (x, a) => {
-        //                 if (x.includes(".od_group")) {
-        //                     $(x).prop("disabled", false).prop("checked", parseInt(a));
-        //                 } else $(x).val(a).prop("disabled", false);
-        //             };
-        //             switch (a.trigger_type) {
-        //                 case "g": case "s":
-        //                     $(`#trigger_${lookup[a.trigger_type]}_1`).val(a.timestamp).prop("disabled", false);
-        //                     $(`#trigger_${lookup[a.trigger_type]}_1_info`).val(a.info).prop("disabled", false);
-        //                     current_release.trigger_list.push([`trigger_${lookup[a.trigger_type]}_1`, a.trigger_id]);
-        //                     break;
-        //                 case "G": case "S":
-        //                     $(`#trigger_${lookup[a.trigger_type]}_2`).val(a.timestamp).prop("disabled", false);
-        //                     $(`#trigger_${lookup[a.trigger_type]}_2_info`).val(a.info).prop("disabled", false);
-        //                     current_release.trigger_list.push([`trigger_${lookup[a.trigger_type]}_2`, a.trigger_id]);
-        //                     break;
-        //                 case "R": case "E": case "D":
-        //                     $(`#trigger_${lookup[a.trigger_type]}`).val(a.timestamp).prop("disabled", false);
-        //                     $(`#trigger_${lookup[a.trigger_type]}_info`).val(a.info).prop("disabled", false);
-        //                     current_release.trigger_list.push([`trigger_${lookup[a.trigger_type]}`, a.trigger_id]);
-        //                     if (a.trigger_type === "E") {
-        //                         delegate("#magnitude", a.eq_info[0].magnitude);
-        //                         delegate("#latitude", a.eq_info[0].latitude);
-        //                         delegate("#longitude", a.eq_info[0].longitude);
-        //                     } else if (a.trigger_type === "D") {
-        //                         delegate("#reason", a.od_info[0].reason);
-        //                         delegate(".od_group[name=llmc]", a.od_info[0].is_llmc);
-        //                         delegate(".od_group[name=lgu]", a.od_info[0].is_lgu);
-        //                     }
-        //                     break;
-        //                 default:
-        //                     console.error("Error: Trigger type does not exist.");
-        //             }
-        //             $(`#${lookup[a.trigger_type]}_area`).show();
-        //         });
-        //     })
-        // )
-        // .done(() => {
-        //     $("#edit").modal("show");
-        // });
+        TIMELINE_ARRAY.sort((a, b) => {
+            let first = a;
+            let second = b;
+
+            if (is_sort_desc) {
+                first = b;
+                second = a;
+            }
+
+            return moment(first.ts).diff(second.ts);
+        });
+
+        $("#timeline ul.timeline").empty();
+        delegateCardsToTimeline(TIMELINE_ARRAY, is_sort_desc);
+        $LOADING_BAR.modal("hide");
+    });
+}
+
+function scrollToDiv (div) {
+    $("html, body").animate({
+        scrollTop: $(div).offset().top - 100
+    }, "fast");
+}
+
+function getSpecificReleaseData (release_id) {
+    return $.getJSON(`/../../../pubrelease/getRelease/${release_id}`)
+    .catch((error) => {
+        console.log(error);
+    });
+}
+
+function getJSONReleaseTriggers (release_id) {
+    return $.getJSON(`/../../../pubrelease/getAllEventTriggers/${EVENT_ID}/${release_id}`)
+    .catch((error) => {
+        console.log(error);
     });
 }
 
@@ -511,12 +482,52 @@ function compileTimelineCardDataIntoArray (releases, event_narratives, eos) {
     return timeline_array;
 }
 
-function setIOMPForEachEOS (timeline_entry, card_id) {
+function delegateCardsToTimeline (timeline_array, is_sort_desc = true) {
+    let last_eos_card_id;
+    let last_ewi_card_id;
+    let get_iomp = false;
+
+    timeline_array.forEach((timeline_entry, index) => {
+        const { type } = timeline_entry;
+        const selection_arr = [];
+
+        if (type === "narrative") selection_arr.push("ewi", "eos");
+        else selection_arr.push("narrative");
+
+        if (index !== 0) {
+            const { type: prev_entry_type } = timeline_array[index - 1];
+            if (selection_arr.includes(prev_entry_type)) {
+                addBuffer(type);
+                adjustBufferHeight(type, index);
+            }
+        }
+
+        createTimelineCard(timeline_entry, index);
+
+        if (["ewi", "eos"].includes(type)) {
+            if (type === "ewi") last_ewi_card_id = index;
+            else last_eos_card_id = index;
+
+            if (is_sort_desc) {
+                if (type === "ewi" && get_iomp) {
+                    setIOMPForEachEOS(timeline_entry, last_eos_card_id);
+                    get_iomp = false;
+                } else if (type === "eos") {
+                    get_iomp = true;
+                    last_eos_card_id = index;
+                }
+            } else if (type === "ewi") last_ewi_card_id = index;
+            else setIOMPForEachEOS(timeline_array[last_ewi_card_id], index);
+        }
+    });
+}
+
+function setIOMPForEachEOS (timeline_entry, eos_card_id) {
     const { reporter_id_mt, reporter_id_ct } = timeline_entry;
     const iomp = [["mt", reporter_id_mt], ["ct", reporter_id_ct]];
     iomp.forEach(([type, id]) => {
         const { first_name, last_name } = STAFF_LIST.find(element => id === element.id);
-        $(`#card-${card_id}`).find(`.reporters > .${type}`).text(`${first_name} ${last_name}`);
+        $(`#card-${eos_card_id}`).find(`.reporters > .${type}`).text(`${first_name} ${last_name}`);
     });
 }
 
@@ -604,7 +615,10 @@ function adjustBufferHeight (type) {
             height_counter += card_height;
         });
 
-        height = height_counter + excess_height - 20 - 20;
+        height = height_counter + excess_height - 20;
+
+        // Subtract the padding from buffer only if present
+        if ($last_buffer.length !== 0) height -= 20;
     }
 
     $buffer.height(height);
@@ -618,26 +632,29 @@ function createTimelineCard (timeline_entry, index) {
 
     let $timeline_card = $template;
 
-    if (type === "ewi") $timeline_card = prepareEwiCard(timeline_entry, GL_VALIDITY, $template);
+    if (type === "ewi") $timeline_card = prepareEwiCard(timeline_entry, $template, GL_VALIDITY, GL_EVENT_START, STATUS);
     if (type === "narrative") $timeline_card = prepareNarrativeCard(timeline_entry, $template);
     if (type === "eos") $timeline_card = prepareEOSCard(timeline_entry, $template);
 
     $(`#timeline-column-${column_side} ul.timeline`).append($timeline_card);
 }
 
-function prepareEwiCard (release_data, validity, $template) {
+function prepareEwiCard (release_data, $template, validity, event_start, status) {
     const {
         release_time, internal_alert_level,
         data_timestamp, release_triggers,
         reporter_id_mt, reporter_id_ct,
         comments, release_id
     } = release_data;
-    const qualifier = selectEwiCardQualifier(data_timestamp, validity);
+    const [qualifier, is_extended] = selectEwiCardQualifier(data_timestamp, validity, event_start, status);
 
+    if (is_extended) $template.find(".timeline-panel").addClass("extended-card");
+
+    $template.data("release-id", release_id);
     $template.find(".fa-edit").data("release-id", release_id);
-    $template.find(".print").data("release-id", release_id); 
+    $template.find(".print").data("release-id", release_id);
     $template.find(".card-title").text(qualifier);
-    $template.find(".card-title-ts").text(moment(data_timestamp).add(30, "min").format("MMMM Do YYYY, hh:mm A"));
+    $template.find(".card-title-ts").text(moment(data_timestamp).add(30, "minutes").format("MMMM Do YYYY, hh:mm A"));
     $template.find(".release_time").text(moment.utc(release_time, "HH:mm").format("hh:mm A"));
     $template.find(".internal_alert_level").text(internal_alert_level);
 
@@ -667,18 +684,23 @@ function prepareEwiCard (release_data, validity, $template) {
     return $template;
 }
 
-function selectEwiCardQualifier (data_timestamp, validity) {
-    const ts = moment(data_timestamp).add(30, "min");
+function selectEwiCardQualifier (data_timestamp, validity, event_start, status) {
+    const ts = moment(data_timestamp).add(30, "minutes");
     let qualifier;
+    let is_extended = true;
 
-    if (moment(ts).isSame(validity)) qualifier = "End of Monitoring: ";
-    else if (moment(ts).isBefore(validity)) qualifier = "Early Warning Release for ";
+    if (status === "routine") qualifier = "Routine Monitoring Release ";
+    else if (moment(ts).isBefore(validity)) {
+        if (moment(data_timestamp).isSame(event_start)) qualifier = "Start of Monitoring ";
+        else qualifier = "Early Warning Release for ";
+        is_extended = false;
+    } else if (moment(ts).isSame(validity)) qualifier = "End of Monitoring ";
     else {
         const duration = moment.duration(ts.diff(validity));
         const days = Math.floor(duration.asDays());
-        qualifier = `Day ${days} of Extended Monitoring: `;
+        qualifier = `Day ${days} of Extended Monitoring `;
     }
-    return qualifier;
+    return [qualifier, is_extended];
 }
 
 function prepareNarrativeCard (narrative_data, $template) {
@@ -694,18 +716,4 @@ function prepareEOSCard (eos_data, $template) {
     $template.find(".card-title-ts").text(shift_end);
     $template.find(".analysis-div").html(analysis);
     return $template;
-}
-
-function getSpecificReleaseData (release_id) {
-    return $.getJSON(`/../../../pubrelease/getRelease/${release_id}`)
-    .catch((error) => {
-        console.log(error);
-    });
-}
-
-function getJSONReleaseTriggers (release_id) {
-    return $.getJSON(`/../../../pubrelease/getAllEventTriggers/${EVENT_ID}/${release_id}`)
-    .catch((error) => {
-        console.log(error);
-    });
 }
