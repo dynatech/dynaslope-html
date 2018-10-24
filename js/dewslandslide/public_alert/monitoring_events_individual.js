@@ -386,7 +386,7 @@ function getJSONReleaseTriggers (release_id) {
 }
 
 function getStaffNames () {
-    return $.getJSON("/../../../monitoring/getStaffNames")
+    return $.getJSON("/../../../monitoring/getStaffNames/1")
     .catch((error) => {
         console.log(error);
     });
@@ -667,6 +667,11 @@ function prepareEwiCard (release_data, $template, validity, event_start, status)
             const $trigger_ul = $template.find(".triggers > ul");
             $trigger_ul.append($trigger_li);
             $trigger_ul.append($tech_info_li);
+
+            if (trigger_type.toUpperCase() === "M") {
+                const { manifestation_info } = trigger;
+                prepareManifestationInfo([manifestation_info]); // Refactor this to remove array on manifestation info
+            }
         });
     }
 
@@ -680,6 +685,10 @@ function prepareEwiCard (release_data, $template, validity, event_start, status)
     });
 
     return $template;
+}
+
+function prepareManifestationInfo (manifestation_info) {
+    // Create manifestation info additional details
 }
 
 function selectEwiCardQualifier (data_timestamp, validity, event_start, status) {
