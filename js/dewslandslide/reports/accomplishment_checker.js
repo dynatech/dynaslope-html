@@ -140,7 +140,7 @@ $(document).ready(function (a) {
                     grouped_by_site.forEach(function (group) 
                     {   
                         let length = group.length;
-                        let str = '<tr><td class="col-sm-4 text-center v-middle" rowspan="' + length + '"><strong>' + group[0].name.toUpperCase() + '</strong></td>';
+                        let str = '<tr><td class="col-sm-4 text-center v-middle" rowspan="' + length + '"><strong>' + group[0].site_code.toUpperCase() + '</strong></td>';
 
                         for ( let i = 0; i < length; i++ )
                         {
