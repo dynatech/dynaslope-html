@@ -1213,7 +1213,7 @@ function loadSiteConvoViaQacess() {
     	$("#conversation-details").append(conversation_details_label);
     	let convo_request = {
 			'type': 'loadSmsForSites',
-			'organizations': [],
+			'organizations': ['LEWC','BLGU','MLGU','PLGU'],
 			'sitenames': site_names,
 			'site_code': site_code
 		};
