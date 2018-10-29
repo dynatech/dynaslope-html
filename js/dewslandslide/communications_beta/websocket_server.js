@@ -106,6 +106,8 @@ function connectWS() {
 					displayRoutineTemplate(msg_data.data);
 					break;
 				case "fetchedSmsTags":
+					console.log(msg_data);
+					displaySitesToTag(msg_data.sites);
 					displayConversationTags(msg_data.data);
 					break;
 				case "fetchAlertStatus":
