@@ -43,7 +43,7 @@ function loadAllStaff() {
 			console.log(teams);
 			for (var counter = 0; counter < teams.length; counter++) {
 				$('.staff-wrapper').append('<div class="panel panel-primary">'+
-				'<div class="panel-heading"><h4>'+teams[counter][0].team_name+'</h4></div>'+
+				'<div class="panel-heading text-center panel-relative"><h3>'+teams[counter][0].team_name+'</h3></div><br>'+
 				'<div class="row staff-container">'+
 				'<div class="col-sm-12 '+teams[counter][0].team_name.replace(/\s/g,'')+'-team">'+
 				'</div>'+
