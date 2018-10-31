@@ -1,0 +1,347 @@
+
+/****
+ *
+ *	Created by Kevin Dhale dela Cruz
+ *	CSS file for Public Website General
+ *	
+****/
+
+@import "variables";
+
+@font-face {
+    font-family: 'Open Sans';
+    src:    url('/fonts/Open Sans/OpenSans-ExtraBold.ttf');
+    font-weight: bold;
+    font-style: normal;
+}
+
+html, body { height: 100%; }
+
+#page-wrapper {
+    min-height: 67.7%;
+}
+
+#page-wrapper:after {
+    content: "";
+    display: block;
+}
+
+.footer {
+    .navbar {
+    	min-height: 60px;
+        min-width: 1200px;
+    	margin-bottom: 0;
+    	border-radius: 0;
+    	border: solid $primary-blue;
+    	background-color: $primary-blue;
+    }
+
+    $a-tags: "a, a:active, a:hover, a:visited";
+    $a-tags-hover: "a:active, a:hover";
+ 
+    #{$a-tags} {
+      color: white;
+      text-decoration: none;
+    }
+
+    #{$a-tags-hover} {
+      color: $primary-orange;
+    }
+}
+
+.row-padding {
+    padding-left: 10%;
+    padding-right: 10%;
+    font-size: 125%;
+}
+
+.container {
+    min-width: 1200px !important;
+    margin-left: auto;
+    margin-right: auto;
+    padding-left: 15px;
+    padding-right: 15px;
+    padding-bottom: 15px;
+}
+
+#header-row {
+    margin-top: 20px;
+}
+
+#project-name {
+    font-size: 40px;
+    color: $primary-blue;
+    line-height: 55px;
+}
+
+#dynaslope-logo {
+    /*width: 83.47px;*/ /*73.65px;*/
+    /*height: 65.79px;*/ /*58.05px;*/
+    width: 73px;
+    height: 73px;
+    margin: 0 13px 0 0;
+    margin-top: 2px;
+    vertical-align: middle;
+    display: inline-block;
+}
+
+#dost-phivolcs-logo {
+    width: 75px;
+    height: 75px;
+    margin: 0 0 0 10px;
+    margin-top: 2px;
+    vertical-align: middle;
+    display: inline-block;
+}
+
+.nav-general-text {
+    font-family: 'Open Sans', sans-serif;
+    font-size: 13px;
+    font-weight: 800;
+    display: inline-block;
+    vertical-align: middle;
+    padding-top: 14px;
+
+    span {
+        display: block;
+    }
+}
+
+#navigation {
+    background-color: $primary-orange;
+    text-align: center;
+    height: 90px;
+    border-radius: 0;
+    min-width: 1200px;
+
+    ul {
+        white-space: nowrap;
+        list-style: none;
+        min-width: 1200px;
+
+        li {
+            display: inline-block;
+            position: relative;
+            height: 90px;
+            padding: 30px 50px 0;
+            font-weight: bold;
+            font-size: 20px;
+
+            a {
+                text-decoration: none;
+                color: $primary-blue;
+            }
+
+            a:hover {
+                text-decoration: none;
+                color: white;
+            }
+        }
+    }
+}
+
+.sticky {
+    position: fixed;
+    top: 0;
+    width: 100%;
+    z-index: 1;
+    white-space: nowrap;
+
+    & li {
+        padding-left: 20px !important;
+        padding-right: 20px !important;
+    }
+
+    & span#logo {
+        text-align: right;
+        font-size: 30px;
+        font-weight: 800;
+        padding-top: 22px;
+        color: $primary-blue;
+    }
+}
+
+.sticky-wrapper {
+    padding-top: 125px !important;
+}
+
+.active-tab-nav {
+    background-color: $primary-blue;
+
+    a {
+        text-decoration: none;
+        color: white !important;
+    }
+}
+
+p {
+    text-align: justify;
+    text-indent: 40px;
+    font-size: 16px;
+}
+
+textarea {
+    max-width: 100%;
+    min-width: 100%;    
+}
+
+//=====
+// 
+// Page Header
+//
+//=====
+
+#page-header {
+    font-size: 25px;
+    font-weight: 600;
+    color: $primary-blue;
+    border: solid $primary-blue;
+    border-radius: 6px;
+    margin-bottom: 40px;
+}
+
+// ===== END OF Page Header
+
+//=====
+// 
+// Panel CSS
+//
+//=====
+
+.panel {
+    // border-radius: 0px !important;
+    padding-bottom: 8px;
+
+    &.panel-primary {
+        background-color: $primary-blue;
+
+        .panel-heading {
+            background-color: $primary-blue;
+            border: solid $primary-blue;
+        }
+    }
+    
+    .panel-heading {
+       // border-radius: 0px !important;
+
+       .panel-title > a {
+            display: block;
+            text-decoration: none;
+        }
+    }
+
+    .panel-body {
+        // border: solid $primary-blue;
+        background-color: #ffffff;
+    }
+
+    .panel-collapse > .panel-body {
+        font-size: 14px;
+    }
+}
+
+.modal {
+    .modal-header {
+        border-top-right-radius: 6px;
+        border-top-left-radius: 6px;
+        background-color: $primary-orange;
+        color: #FFFFFF;
+    }
+}
+
+li.active {
+    & > a { background-color: $primary-blue !important; }
+}
+
+select {
+    option:disabled { background-color: #EEEEEE; }
+}
+
+// ===== END OF Panel CSS
+
+//=====
+// 
+// Line Divs and Section Divs of other tabs 
+//
+//=====
+
+.container-line {
+    margin-top: 20px;
+    margin-bottom: 20px;
+    height: 3px;
+    background-color: $primary-blue;
+    position: relative;
+
+    &.timeline-head {
+        margin-top: 30px;
+        margin-bottom: 40px;
+    }
+
+    &.tab-head {
+        margin-top: 30px;
+        margin-bottom: 60px;
+    }
+
+    &.section-head {
+        margin-top: 50px;
+        margin-bottom: 60px;
+    }
+}
+
+.circle {
+    display: inline-block;
+    vertical-align: middle;
+    width: 15px;
+    height: 15px;
+    background-color: $primary-blue;;
+    border: solid 1px $primary-blue;
+    border-radius: 50%;
+    position: absolute;
+    top: -6px;
+}
+
+.left { left: 0; }
+.right { right: 0; }
+
+.container-line-text {
+    display: inline-block;
+    vertical-align: middle;
+    color: $primary-blue;
+    border: solid 3px $primary-blue;
+    border-radius: 6px;
+    position: absolute;
+    background-color: white;
+
+    &.year {
+        font-size: 14px;
+        padding: 0 5px;
+        top: -13px;
+        left: calc(50% - 22px);
+    }
+
+    &.timeline-head-text {
+        @extend .base-section-div-text;
+        top: -18px;
+        left: calc(50% - 104px);
+    }
+
+    &.tab-head-text {
+        @extend .base-section-div-text;
+        top: -33px;
+        // left: computed on javascript
+    }
+
+    &.section-head-text {
+        @extend .base-section-div-text;
+        top: -18px;
+        // left: computed on javascript
+    }
+}
+
+.base-section-div-text {
+    font-size: 22px;
+    font-weight: 600;
+    padding: 0 10px;
+}
+
+//===== END OF Line Divs
