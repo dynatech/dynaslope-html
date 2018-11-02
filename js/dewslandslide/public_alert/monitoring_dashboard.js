@@ -778,7 +778,9 @@ function initializeReleaseModalForm () {
                             const haystack = list.join("").toUpperCase();
                             const x = item.value === "rain" ? "R" : "S";
                             const index = haystack.indexOf(x);
-                            list.splice(index, 1);
+                            
+                            // Splice trigger only if it exists
+                            if (index !== -1) list.splice(index, 1);
                         }
                     });
 
