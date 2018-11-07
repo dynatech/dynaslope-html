@@ -36,7 +36,7 @@ hr {
       width: 100%;
       float: left;
       border: 1px solid #d4d4d4;
-      border-radius: 6px;
+      border-radius: 2px;
       padding: 20px 0px 8px 0px;
       position: relative;
       -webkit-box-shadow: 0 1px 6px rgba(0, 0, 0, 0.175);
@@ -115,13 +115,13 @@ hr {
     border-right-width: 15px;
     left: -15px;
     right: auto;
-    top: 13px; }
+    top: 0px; }
   .timeline > li.timeline-inverted > .timeline-panel:after {
     border-left-width: 0;
     border-right-width: 14px;
     left: -14px;
     right: auto;
-    top: 13px; }
+    top: 0px; }
   .timeline > li.timeline > .timeline-panel.eos-card:after {
     border-left: 14px solid #16526D; }
 
