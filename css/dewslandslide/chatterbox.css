@@ -1,0 +1,38 @@
+#quick-inbox-display, #quick-unregistered-inbox-display, #quick-release-display, #quick-event-inbox-display, #group-message-display, #datalogger-inbox-display {
+    height: 555px;
+    overflow: hidden;
+    overflow-y: scroll;
+    list-style-type: none;
+    margin-top: 5px;
+    padding: 0;
+    margin-bottom: 0px;
+}
+
+.friend-list li a {
+    position: relative;
+    display: block;
+    padding: 10px;
+    transition: all .2s ease;
+    -webkit-transition: all .2s ease;
+    -moz-transition: all .2s ease;
+    -ms-transition: all .2s ease;
+    -o-transition: all .2s ease;
+}
+
+.friend-list li a img {
+    float: left;
+    width: 45px;
+    height: 45px;
+    margin-right: 0px;
+}
+
+.friend-list li a .friend-name, .friend-list li a .friend-name:hover {
+    color: #777;
+}
+
+.friend-list li a .last-message {
+    width: 70%;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    overflow: hidden;
+}
