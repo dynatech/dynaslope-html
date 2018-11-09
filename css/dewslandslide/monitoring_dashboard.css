@@ -5,11 +5,6 @@
  *	[base]/home or [base]/dashboard
  */
 
-#map-canvas { 
-	min-width: 20%;
-	/*max-height: 1000px;*/
-}
-
 table {
 	text-align: left;
 }
@@ -23,7 +18,6 @@ table {
 }
 
 .panel-body {
-	font-size: 14px;
 	vertical-align: middle;
 	color: black;
 }
@@ -80,7 +74,7 @@ hr {
 	text-align: center;
 }
 
-#phivolcs, #dost{
+/*#phivolcs, #dost{
 	width: 66px; //165px*0.50
 	height: 77.6px; //194px*0.50
 }
@@ -162,13 +156,7 @@ h2 {
 #info {
 	font-size: 18px;
 	font-weight: bold;
-}
+}*/
 
 #sendBulletinModal .modal-body { padding-bottom: 0; }
 #resultModal .modal-body { font-size: 14px; }
-
-label.error {
-    font-size: 12px;
-    font-style: italic;
-    margin: 10px 0 0 10px;
-}
