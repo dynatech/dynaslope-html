@@ -231,10 +231,13 @@ textarea {
       background-color: rgba(255, 255, 255, 0);
       border: solid rgba(248, 153, 29, 0.2); }
   .panel.panel-danger {
-    background-color: rgba(201, 48, 44, 0.4); }
+    background-color: rgba(153, 27, 30, 0.8); }
     .panel.panel-danger .panel-heading {
       background-color: rgba(255, 255, 255, 0);
-      border: solid rgba(201, 48, 44, 0.1); }
+      border: solid rgba(153, 27, 30, 0.1);
+      color: white; }
+      .panel.panel-danger .panel-heading small {
+        color: white !important; }
   .panel.panel-success {
     background-color: rgba(0, 178, 0, 0.5); }
     .panel.panel-success .panel-heading {
@@ -282,9 +285,13 @@ select option:disabled {
   color: white; }
 
 .alert.alert-danger {
-  background-color: rgba(201, 48, 44, 0.4);
-  border-color: #C9302C;
-  color: #C9302C; }
+  background-color: rgba(153, 27, 30, 0.8);
+  border-color: rgba(153, 27, 30, 0.2);
+  color: white; }
+  .alert.alert-danger a {
+    color: #32BBF8; }
+.alert.alert-info {
+  background-color: #32BBF8; }
 
 .container-line {
   margin-top: 20px;
