@@ -320,11 +320,14 @@ textarea {
     }
 
     &.panel-danger {
-        background-color: rgba($secondary-red, 0.4);
+        background-color: rgba($primary-red, 0.8);
 
         .panel-heading {
             background-color: rgba(white, 0);
-            border: solid rgba($secondary-red, 0.1);
+            border: solid rgba($primary-red, 0.1);
+            color: white;
+            
+            small { color: white !important; }
         }
     }
 
@@ -412,9 +415,17 @@ select {
 
 .alert {
     &.alert-danger {
-        background-color: rgba($secondary-red, 0.4);
-        border-color: $secondary-red;
-        color: $secondary-red;
+        background-color: rgba($primary-red, 0.8);
+        border-color: rgba($primary-red, 0.2);
+        color: white;
+
+        a {
+            color: $secondary-blue;
+        }
+    }
+
+    &.alert-info {
+        background-color: $secondary-blue;
     }
 }
 
