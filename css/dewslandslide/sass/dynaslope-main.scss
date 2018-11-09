@@ -2,7 +2,15 @@
 /****
  *
  *	Created by Kevin Dhale dela Cruz
- *	CSS file for Public Website General
+ *	Main DYNASLOPE 2.0 Stylesheet
+ * 
+ *  P.S DO NOT EDIT any style in this CSS directly
+ *  on the CSS file! Edit the SCSS file located on the
+ *  SASS file folder and re-compile with the output path
+ *  set on the current path of the dynaslope-main.css folder.
+ *  
+ *  ALSO, be mindful to only add GENERAL styles. Create a specific
+ *  CSS or SCSS file for changes applicable only to certain pages.
  *	
 ****/
 
@@ -129,6 +137,8 @@ html, body {
     border-radius: 0;
     min-width: 1200px;
     box-shadow: 2px 2px 8px rgba(0, 0, 0, 0.5);
+
+    .row { margin: 0px; }
 
     ul {
         white-space: nowrap;
@@ -258,10 +268,16 @@ textarea {
     font-family: 'Open Sans Bold', sans-serif;
     font-size: 25px;
     font-weight: 600;
+    text-transform: uppercase;
     color: $primary-blue;
     border: solid $primary-blue;
     border-radius: 6px;
     margin-bottom: 40px;
+
+    box-sizing: border-box;
+    text-align: center;
+    display: block;
+    padding-bottom: 0px;
 }
 
 // ===== END OF Page Header
@@ -280,14 +296,58 @@ textarea {
         background-color: $primary-blue;
 
         .panel-heading {
-            background-color: $primary-blue;
+            background-color: rgba(white, 0);
             border: solid $primary-blue;
+        }
+    }
+
+    &.panel-info {
+        background-color: rgba($secondary-blue, 0.5);
+
+        .panel-heading {
+            background-color: rgba(white, 0);
+            border: solid rgba($secondary-blue, 0.1);
+        }
+    }
+
+    &.panel-warning {
+        background-color: rgba($primary-orange, 0.7);
+
+        .panel-heading {
+            background-color: rgba(white, 0);
+            border: solid rgba($primary-orange, 0.2);
+        }
+    }
+
+    &.panel-danger {
+        background-color: rgba($secondary-red, 0.4);
+
+        .panel-heading {
+            background-color: rgba(white, 0);
+            border: solid rgba($secondary-red, 0.1);
+        }
+    }
+
+    &.panel-success {
+        background-color: rgba($secondary-green, 0.5);
+
+        .panel-heading {
+            background-color: rgba(white, 0);
+            border: solid rgba($secondary-green, 0.1);
+        }
+    }
+
+    &.panel-a1 {
+        background-color: rgba($secondary-yellow, 0.5);
+
+        .panel-heading {
+            background-color: rgba(white, 0);
+            border: solid rgba($secondary-yellow, 0.1);
+            color: rgb(146, 116, 11);
         }
     }
     
     .panel-heading {
-       // border-radius: 0px !important;
-
        .panel-title > a {
             display: block;
             text-decoration: none;
@@ -295,12 +355,13 @@ textarea {
     }
 
     .panel-body {
-        // border: solid $primary-blue;
         background-color: #ffffff;
     }
 
-    .panel-collapse > .panel-body {
-        font-size: 14px;
+    .panel-collapse {
+        & > .panel-body {
+            font-size: 14px;
+        }
     }
 }
 
@@ -335,6 +396,25 @@ select {
     &.btn-danger {
         background-color: $primary-red;
         border-color: $primary-red;
+    }
+
+    &.btn-info {
+        background-color: $secondary-blue;
+        border-color: $secondary-blue;
+    }
+
+    &.btn-default {
+        background-color: $secondary-grey;
+        border-color: $secondary-grey;
+        color: white;
+    }
+}
+
+.alert {
+    &.alert-danger {
+        background-color: rgba($secondary-red, 0.4);
+        border-color: $secondary-red;
+        color: $secondary-red;
     }
 }
 
@@ -403,7 +483,7 @@ select {
     &.timeline-head-text {
         @extend .base-section-div-text;
         top: -18px;
-        left: calc(50% - 104px);
+        left: 50%;
     }
 
     &.tab-head-text {
@@ -427,24 +507,20 @@ select {
 
 //===== END OF Line Divs
 
-.alert_3 {
-  background-color: rgba(255, 50, 50, 0.5);
-  color: black;
+.alert-3 {
+  background-color: rgba($secondary-red, 0.4);
 }
 
-.alert_2 {
-  background-color: rgba(255, 165, 0, 0.5);
-  color: black;
+.alert-2 {
+  background-color: rgba($primary-orange, 0.7);
 }
 
-.alert_1 {
-  background-color: rgba(255, 255, 90, 0.5);
-  color: black;
+.alert-1 {
+  background-color: rgba($secondary-yellow, 0.5);
 }
 
-.alert_nd {
+.alert-nd {
   background-color: #e0ffb3;
-  color: black;
 }
 
 label.error {
