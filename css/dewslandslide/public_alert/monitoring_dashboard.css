@@ -7,11 +7,6 @@
  *	
 ****/
 
-#map-canvas { 
-	min-width: 20%;
-	/*max-height: 1000px;*/
-}
-
 table {
 	text-align: left;
 }
@@ -25,7 +20,6 @@ table {
 }
 
 .panel-body {
-	font-size: 14px;
 	vertical-align: middle;
 	color: black;
 }
@@ -89,22 +83,22 @@ hr {
     margin-bottom: 5px;
 }
 
-#ewi-asap-modal,#success-ewi-modal{
+#ewi-asap-modal, #success-ewi-modal {
    width: 100%;
 }
 
 #primer { font-size: 13px; }
 #primer > ul { margin: 5px 0 0 20px; }
 
-.text-area {
+/*.text-area {
 	margin: 0.5in;
 }
 
 .center-text {
 	text-align: center;
-}
+}*/
 
-#phivolcs, #dost{
+/*#phivolcs, #dost{
 	width: 66px; //165px*0.50
 	height: 77.6px; //194px*0.50
 }
@@ -191,15 +185,9 @@ h2 {
 #sendBulletinModal .modal-body { padding-bottom: 0; }
 #resultModal .modal-body, #errorModal .modal-body { font-size: 14px; }
 
-label.error {
-    font-size: 12px;
-    font-style: italic;
-    margin: 10px 0 0 10px;
-}
-
 h3.popover-title { font-weight: bold; font-size: 16px!important; background: #C0C0C0; }
 .popover-content { background: #A9A9A9; }
-#reminder { font-size: 13px; color: red; font-weight: bold; }
+#reminder { font-size: 13px; color: red; font-weight: bold; }*/
 
 .invalid_area { color: red; }
 

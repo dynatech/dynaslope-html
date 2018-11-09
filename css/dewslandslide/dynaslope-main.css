@@ -1,7 +1,15 @@
 /****
  *
  *	Created by Kevin Dhale dela Cruz
- *	CSS file for Public Website General
+ *	Main DYNASLOPE 2.0 Stylesheet
+ * 
+ *  P.S DO NOT EDIT any style in this CSS directly
+ *  on the CSS file! Edit the SCSS file located on the
+ *  SASS file folder and re-compile with the output path
+ *  set on the current path of the dynaslope-main.css folder.
+ *  
+ *  ALSO, be mindful to only add GENERAL styles. Create a specific
+ *  CSS or SCSS file for changes applicable only to certain pages.
  *	
 ****/
 @font-face {
@@ -100,6 +108,8 @@ html, body {
   border-radius: 0;
   min-width: 1200px;
   box-shadow: 2px 2px 8px rgba(0, 0, 0, 0.5); }
+  #navigation .row {
+    margin: 0px; }
   #navigation ul {
     white-space: nowrap;
     list-style: none;
@@ -193,18 +203,49 @@ textarea {
   font-family: 'Open Sans Bold', sans-serif;
   font-size: 25px;
   font-weight: 600;
+  text-transform: uppercase;
   color: #17526D;
   border: solid #17526D;
   border-radius: 6px;
-  margin-bottom: 40px; }
+  margin-bottom: 40px;
+  box-sizing: border-box;
+  text-align: center;
+  display: block;
+  padding-bottom: 0px; }
 
 .panel {
   padding-bottom: 8px; }
   .panel.panel-primary {
     background-color: #17526D; }
     .panel.panel-primary .panel-heading {
-      background-color: #17526D;
+      background-color: rgba(255, 255, 255, 0);
       border: solid #17526D; }
+  .panel.panel-info {
+    background-color: rgba(50, 187, 248, 0.5); }
+    .panel.panel-info .panel-heading {
+      background-color: rgba(255, 255, 255, 0);
+      border: solid rgba(50, 187, 248, 0.1); }
+  .panel.panel-warning {
+    background-color: rgba(248, 153, 29, 0.7); }
+    .panel.panel-warning .panel-heading {
+      background-color: rgba(255, 255, 255, 0);
+      border: solid rgba(248, 153, 29, 0.2); }
+  .panel.panel-danger {
+    background-color: rgba(201, 48, 44, 0.4); }
+    .panel.panel-danger .panel-heading {
+      background-color: rgba(255, 255, 255, 0);
+      border: solid rgba(201, 48, 44, 0.1); }
+  .panel.panel-success {
+    background-color: rgba(0, 178, 0, 0.5); }
+    .panel.panel-success .panel-heading {
+      background-color: rgba(255, 255, 255, 0);
+      border: solid rgba(0, 178, 0, 0.1); }
+  .panel.panel-a1 {
+    background-color: rgba(252, 199, 17, 0.5); }
+    .panel.panel-a1 .panel-heading {
+      background-color: rgba(255, 255, 255, 0);
+      border: solid rgba(252, 199, 17, 0.1);
+      color: #92740b; }
   .panel .panel-heading .panel-title > a {
     display: block;
     text-decoration: none; }
@@ -232,6 +273,18 @@ select option:disabled {
 .btn.btn-danger {
   background-color: #991B1E;
   border-color: #991B1E; }
+.btn.btn-info {
+  background-color: #32BBF8;
+  border-color: #32BBF8; }
+.btn.btn-default {
+  background-color: #989898;
+  border-color: #989898;
+  color: white; }
+
+.alert.alert-danger {
+  background-color: rgba(201, 48, 44, 0.4);
+  border-color: #C9302C;
+  color: #C9302C; }
 
 .container-line {
   margin-top: 20px;
@@ -281,7 +334,7 @@ select option:disabled {
     left: calc(50% - 22px); }
   .container-line-text.timeline-head-text {
     top: -18px;
-    left: calc(50% - 104px); }
+    left: 50%; }
   .container-line-text.tab-head-text {
     top: -33px; }
   .container-line-text.section-head-text {
@@ -292,21 +345,17 @@ select option:disabled {
   font-weight: 600;
   padding: 0 10px; }
 
-.alert_3 {
-  background-color: rgba(255, 50, 50, 0.5);
-  color: black; }
+.alert-3 {
+  background-color: rgba(201, 48, 44, 0.4); }
 
-.alert_2 {
-  background-color: rgba(255, 165, 0, 0.5);
-  color: black; }
+.alert-2 {
+  background-color: rgba(248, 153, 29, 0.7); }
 
-.alert_1 {
-  background-color: rgba(255, 255, 90, 0.5);
-  color: black; }
+.alert-1 {
+  background-color: rgba(252, 199, 17, 0.5); }
 
-.alert_nd {
-  background-color: #e0ffb3;
-  color: black; }
+.alert-nd {
+  background-color: #e0ffb3; }
 
 label.error {
   font-size: 12px;
