@@ -28,42 +28,42 @@ $(document).ready(() => {
 
                 data.extra_filter = {
                     hasFilter: status !== null || site !== null,
-                    status: status,
-                    site: site
+                    status,
+                    site
                 };
             }
         },
         columns: [
             {
                 data: "event_id",
-                render: (data, type, full, meta) => {
+                render (data, type, full, meta) {
                     return `<a style='color:blue'  href='/../monitoring/events/${data}'>${data}</a>`;
                 }
             },
             {
                 data: "site_code",
-                render: (data, type, full, meta) => {
-                    return `${data.toUpperCase()}" ("${full.barangay}", "${full.municipality}", "${full.province}")`;
+                render (data, type, full, meta) {
+                    return `${data.toUpperCase()} (${full.barangay}, ${full.municipality}, ${full.province})`;
                 }
             },
             {
                 data: "status",
-                render: (data, type, full, meta) => {
+                render (data, type, full, meta) {
                     return data.toUpperCase();
                 }
             },
             { data: "internal_alert_level" },
             {
                 data: "event_start",
-                render: (data, type, full, meta) => {
+                render (data, type, full, meta) {
                     return moment(data).format("D MMMM YYYY, h:mm A");
                 }
             },
             {
                 data: "validity",
-                render: (data, type, full, meta) => {
+                render (data, type, full, meta) {
                     if (data == null) return "-";
-                    else return moment(data).format("D MMMM YYYY, h:mm A");
+                    return moment(data).format("D MMMM YYYY, h:mm A");
                 }
             }
         ],
@@ -80,33 +80,33 @@ $(document).ready(() => {
                 $(row).css("background-color", "rgba(90,90,90,0.7)");
             }
         },
-        initComplete: () => {
-            this.api().columns([1]).every(() => {
-                var column = this;
-                var select = $("<select id='site_filter'><option value=''>---</option></select>")
-                .appendTo($(column.footer()).empty())
-                .on("change", () => {
-                    var val = $.fn.dataTable.util.escapeRegex($(this).val());
-                    reloadTable(val);
-                });
-                $.get("/../pubrelease/getSites", (data) => {
-                    data.forEach((x) => {
-                        select.append(`<option value="${x.site_id}">${x.site_code.toUpperCase()} (${x.address})</option>`);                   });
-                }, "json");
+        initComplete: ({ oInstance: instance }) => {
+            const column_1 = instance.api().columns([1]);
+            const $select = $("<select id='site_filter'><option value=''>---</option></select>");
+
+            const $select_1 = $select.clone();
+            $select_1.appendTo($(column_1.footer()).empty())
+            .on("change", ({ target }) => {
+                const val = $.fn.dataTable.util.escapeRegex($(target).val());
+                reloadTable(val);
             });
 
-            this.api().columns([2]).every(() => {
-                var column = this;
-                var select = $("<select id='status_filter'><option value=''>---</option></select>")
-                .appendTo($(column.footer()).empty())
-                .on("change", () => {
-                    var val = $.fn.dataTable.util.escapeRegex($(this).val());
-                    reloadTable(val);
+            $.get("/../pubrelease/getSites", (data) => {
+                data.forEach((x) => {
+                    $select_1.append(`<option value="${x.site_id}">${x.site_code.toUpperCase()} (${x.address})</option>`);
                 });
+            }, "json");
 
-                ["on-going", "extended", "finished", "routine", "invalid"].forEach((d) => {
-                    select.append(`<option value="${d}">${d.toUpperCase()}</option>`);
-                });
+            const column_2 = instance.api().columns([2]);
+            const $select_2 = $select.clone();
+            $select_2.appendTo($(column_2.footer()).empty())
+            .on("change", ({ target }) => {
+                const val = $.fn.dataTable.util.escapeRegex($(target).val());
+                reloadTable(val);
+            });
+
+            ["on-going", "extended", "finished", "routine", "invalid"].forEach((d) => {
+                $select_2.append(`<option value="${d}">${d.toUpperCase()}</option>`);
             });
         }
     });
