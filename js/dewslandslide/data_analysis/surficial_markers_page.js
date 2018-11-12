@@ -220,6 +220,7 @@ function initializeMarkerTabOnClick () {
                                     $MARKERS_DATA_MODAL.find("#timestamp").text(moment(x).format("MMMM DD, YYYY HH:mm"));
                                     $MARKERS_DATA_MODAL.find("#measurement").val(y);
                                     $MARKERS_DATA_MODAL.find("#update-point").val(id);
+                                    $MARKERS_DATA_MODAL.find("#delete-point").val(id);
                                     $MARKERS_DATA_MODAL.modal("show");
                                 }
                             }
