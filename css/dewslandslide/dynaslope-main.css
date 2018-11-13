@@ -107,7 +107,8 @@ html, body {
   text-align: center;
   border-radius: 0;
   min-width: 1200px;
-  box-shadow: 2px 2px 8px rgba(0, 0, 0, 0.5); }
+  box-shadow: 2px 2px 8px rgba(0, 0, 0, 0.5);
+  z-index: 10; }
   #navigation .row {
     margin: 0px; }
   #navigation ul {
@@ -135,7 +136,7 @@ html, body {
         background-color: #F8991D;
         min-width: 185px;
         box-shadow: 0px 8px 16px 0px rgba(0, 0, 0, 0.2);
-        z-index: 1;
+        z-index: 10;
         transition: 0.2s; }
         #navigation ul li.dropdown .dropdown-content a {
           padding: 1px 20px;
@@ -212,6 +213,10 @@ textarea {
   text-align: center;
   display: block;
   padding-bottom: 0px; }
+  #page-header small:before {
+    content: " ";
+    border-left: 3px solid;
+    padding-left: 7px; }
 
 .panel {
   padding-bottom: 8px; }
@@ -271,6 +276,8 @@ select option:disabled {
 
 .btn.btn-primary {
   background-color: #17526D; }
+.btn.btn-success {
+  background-color: #00B200; }
 .btn.btn-warning {
   background-color: #F8991D; }
 .btn.btn-danger {
@@ -351,6 +358,18 @@ select option:disabled {
   font-size: 22px;
   font-weight: 600;
   padding: 0 10px; }
+
+table {
+  border: 2px solid #17526D;
+  border-radius: 4px; }
+  table thead > tr,
+  table tfoot > tr {
+    background-color: #17526D;
+    color: white; }
+  table a {
+    color: #17526D; }
+  table select {
+    color: black; }
 
 .alert-3 {
   background-color: rgba(201, 48, 44, 0.5); }
