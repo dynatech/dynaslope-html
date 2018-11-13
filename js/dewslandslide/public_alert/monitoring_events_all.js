@@ -37,7 +37,7 @@ $(document).ready(() => {
             {
                 data: "event_id",
                 render (data, type, full, meta) {
-                    return `<a style='color:blue'  href='/../monitoring/events/${data}'>${data}</a>`;
+                    return `<a href='/../monitoring/events/${data}'>${data} <span class="fa fa-link"></span></a>`;
                 }
             },
             {

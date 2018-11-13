@@ -137,6 +137,7 @@ html, body {
     border-radius: 0;
     min-width: 1200px;
     box-shadow: 2px 2px 8px rgba(0, 0, 0, 0.5);
+    z-index: 10;
 
     .row { margin: 0px; }
 
@@ -167,7 +168,7 @@ html, body {
                 background-color: $primary-orange;
                 min-width: 185px;
                 box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
-                z-index: 1;
+                z-index: 10;
                 transition: 0.2s;
 
                 a {
@@ -264,21 +265,27 @@ textarea {
 //
 //=====
 
-#page-header {
-    font-family: 'Open Sans Bold', sans-serif;
-    font-size: 25px;
-    font-weight: 600;
-    text-transform: uppercase;
-    color: $primary-blue;
-    border: solid $primary-blue;
-    border-radius: 6px;
-    margin-bottom: 40px;
+    #page-header {
+        font-family: 'Open Sans Bold', sans-serif;
+        font-size: 25px;
+        font-weight: 600;
+        text-transform: uppercase;
+        color: $primary-blue;
+        border: solid $primary-blue;
+        border-radius: 6px;
+        margin-bottom: 40px;
 
-    box-sizing: border-box;
-    text-align: center;
-    display: block;
-    padding-bottom: 0px;
-}
+        box-sizing: border-box;
+        text-align: center;
+        display: block;
+        padding-bottom: 0px;
+
+        small:before {
+            content: " ";
+            border-left: 3px solid;
+            padding-left: 7px;
+        }
+    }
 
 // ===== END OF Page Header
 
@@ -288,146 +295,150 @@ textarea {
 //
 //=====
 
-.panel {
-    // border-radius: 0px !important;
-    padding-bottom: 8px;
+    .panel {
+        // border-radius: 0px !important;
+        padding-bottom: 8px;
 
-    &.panel-primary {
-        background-color: $primary-blue;
+        &.panel-primary {
+            background-color: $primary-blue;
 
+            .panel-heading {
+                background-color: rgba(white, 0);
+                border: solid $primary-blue;
+            }
+        }
+
+        &.panel-info {
+            background-color: rgba($secondary-blue, 0.5);
+
+            .panel-heading {
+                background-color: rgba(white, 0);
+                border: solid rgba($secondary-blue, 0.1);
+            }
+        }
+
+        &.panel-warning {
+            background-color: rgba($primary-orange, 0.7);
+
+            .panel-heading {
+                background-color: rgba(white, 0);
+                border: solid rgba($primary-orange, 0.2);
+            }
+        }
+
+        &.panel-danger {
+            background-color: rgba($primary-red, 0.8);
+
+            .panel-heading {
+                background-color: rgba(white, 0);
+                border: solid rgba($primary-red, 0.1);
+                color: white;
+                
+                small { color: white !important; }
+            }
+        }
+
+        &.panel-success {
+            background-color: rgba($secondary-green, 0.5);
+
+            .panel-heading {
+                background-color: rgba(white, 0);
+                border: solid rgba($secondary-green, 0.1);
+            }
+        }
+
+        &.panel-a1 {
+            background-color: rgba($secondary-yellow, 0.5);
+
+            .panel-heading {
+                background-color: rgba(white, 0);
+                border: solid rgba($secondary-yellow, 0.1);
+                color: rgb(146, 116, 11);
+            }
+        }
+        
         .panel-heading {
-            background-color: rgba(white, 0);
-            border: solid $primary-blue;
+           .panel-title > a {
+                display: block;
+                text-decoration: none;
+            }
+        }
+
+        .panel-body {
+            background-color: #ffffff;
+        }
+
+        .panel-collapse {
+            & > .panel-body {
+                font-size: 14px;
+            }
         }
     }
 
-    &.panel-info {
-        background-color: rgba($secondary-blue, 0.5);
-
-        .panel-heading {
-            background-color: rgba(white, 0);
-            border: solid rgba($secondary-blue, 0.1);
+    .modal {
+        .modal-header {
+            border-top-right-radius: 6px;
+            border-top-left-radius: 6px;
+            background-color: $primary-orange;
+            color: #FFFFFF;
         }
     }
 
-    &.panel-warning {
-        background-color: rgba($primary-orange, 0.7);
-
-        .panel-heading {
-            background-color: rgba(white, 0);
-            border: solid rgba($primary-orange, 0.2);
+    li.active {
+        & > a { 
+            background-color: $primary-orange !important; 
         }
     }
 
-    &.panel-danger {
-        background-color: rgba($primary-red, 0.8);
+    select {
+        option:disabled { background-color: #EEEEEE; }
+    }
 
-        .panel-heading {
-            background-color: rgba(white, 0);
-            border: solid rgba($primary-red, 0.1);
+    .btn {
+        &.btn-primary {
+            background-color: $primary-blue;
+        }
+
+        &.btn-success {
+            background-color: $secondary-green;
+        }
+
+        &.btn-warning {
+            background-color: $primary-orange;
+        }
+
+        &.btn-danger {
+            background-color: $primary-red;
+            border-color: $primary-red;
+        }
+
+        &.btn-info {
+            background-color: $secondary-blue;
+            border-color: $secondary-blue;
+        }
+
+        &.btn-default {
+            background-color: $secondary-grey;
+            border-color: $secondary-grey;
             color: white;
-            
-            small { color: white !important; }
         }
     }
 
-    &.panel-success {
-        background-color: rgba($secondary-green, 0.5);
+    .alert {
+        &.alert-danger {
+            background-color: rgba($primary-red, 0.8);
+            border-color: rgba($primary-red, 0.2);
+            color: white;
 
-        .panel-heading {
-            background-color: rgba(white, 0);
-            border: solid rgba($secondary-green, 0.1);
+            a {
+                color: $secondary-blue;
+            }
+        }
+
+        &.alert-info {
+            background-color: $secondary-blue;
         }
     }
-
-    &.panel-a1 {
-        background-color: rgba($secondary-yellow, 0.5);
-
-        .panel-heading {
-            background-color: rgba(white, 0);
-            border: solid rgba($secondary-yellow, 0.1);
-            color: rgb(146, 116, 11);
-        }
-    }
-    
-    .panel-heading {
-       .panel-title > a {
-            display: block;
-            text-decoration: none;
-        }
-    }
-
-    .panel-body {
-        background-color: #ffffff;
-    }
-
-    .panel-collapse {
-        & > .panel-body {
-            font-size: 14px;
-        }
-    }
-}
-
-.modal {
-    .modal-header {
-        border-top-right-radius: 6px;
-        border-top-left-radius: 6px;
-        background-color: $primary-orange;
-        color: #FFFFFF;
-    }
-}
-
-li.active {
-    & > a { 
-        background-color: $primary-orange !important; 
-    }
-}
-
-select {
-    option:disabled { background-color: #EEEEEE; }
-}
-
-.btn {
-    &.btn-primary {
-        background-color: $primary-blue;
-    }
-
-    &.btn-warning {
-        background-color: $primary-orange;
-    }
-
-    &.btn-danger {
-        background-color: $primary-red;
-        border-color: $primary-red;
-    }
-
-    &.btn-info {
-        background-color: $secondary-blue;
-        border-color: $secondary-blue;
-    }
-
-    &.btn-default {
-        background-color: $secondary-grey;
-        border-color: $secondary-grey;
-        color: white;
-    }
-}
-
-.alert {
-    &.alert-danger {
-        background-color: rgba($primary-red, 0.8);
-        border-color: rgba($primary-red, 0.2);
-        color: white;
-
-        a {
-            color: $secondary-blue;
-        }
-    }
-
-    &.alert-info {
-        background-color: $secondary-blue;
-    }
-}
 
 // ===== END OF Panel CSS
 
@@ -437,106 +448,139 @@ select {
 //
 //=====
 
-.container-line {
-    margin-top: 20px;
-    margin-bottom: 20px;
-    height: 3px;
-    background-color: $primary-blue;
-    position: relative;
+    .container-line {
+        margin-top: 20px;
+        margin-bottom: 20px;
+        height: 3px;
+        background-color: $primary-blue;
+        position: relative;
 
-    &.timeline-head {
-        margin-top: 30px;
-        margin-bottom: 40px;
+        &.timeline-head {
+            margin-top: 30px;
+            margin-bottom: 40px;
+        }
+
+        &.tab-head {
+            margin-top: 30px;
+            margin-bottom: 60px;
+        }
+
+        &.section-head {
+            margin-top: 50px;
+            margin-bottom: 60px;
+        }
     }
 
-    &.tab-head {
-        margin-top: 30px;
-        margin-bottom: 60px;
+    .circle {
+        display: inline-block;
+        vertical-align: middle;
+        width: 15px;
+        height: 15px;
+        background-color: $primary-blue;;
+        border: solid 1px $primary-blue;
+        border-radius: 50%;
+        position: absolute;
+        top: -6px;
     }
 
-    &.section-head {
-        margin-top: 50px;
-        margin-bottom: 60px;
-    }
-}
+    .left { left: 0; }
+    .right { right: 0; }
 
-.circle {
-    display: inline-block;
-    vertical-align: middle;
-    width: 15px;
-    height: 15px;
-    background-color: $primary-blue;;
-    border: solid 1px $primary-blue;
-    border-radius: 50%;
-    position: absolute;
-    top: -6px;
-}
+    .container-line-text {
+        display: inline-block;
+        vertical-align: middle;
+        color: $primary-blue;
+        border: solid 3px $primary-blue;
+        border-radius: 6px;
+        position: absolute;
+        background-color: white;
 
-.left { left: 0; }
-.right { right: 0; }
+        &.year {
+            font-size: 14px;
+            padding: 0 5px;
+            top: -13px;
+            left: calc(50% - 22px);
+        }
 
-.container-line-text {
-    display: inline-block;
-    vertical-align: middle;
-    color: $primary-blue;
-    border: solid 3px $primary-blue;
-    border-radius: 6px;
-    position: absolute;
-    background-color: white;
+        &.timeline-head-text {
+            @extend .base-section-div-text;
+            top: -18px;
+            left: 50%;
+        }
 
-    &.year {
-        font-size: 14px;
-        padding: 0 5px;
-        top: -13px;
-        left: calc(50% - 22px);
-    }
+        &.tab-head-text {
+            @extend .base-section-div-text;
+            top: -33px;
+            // left: computed on javascript
+        }
 
-    &.timeline-head-text {
-        @extend .base-section-div-text;
-        top: -18px;
-        left: 50%;
+        &.section-head-text {
+            @extend .base-section-div-text;
+            top: -18px;
+            // left: computed on javascript
+        }
     }
 
-    &.tab-head-text {
-        @extend .base-section-div-text;
-        top: -33px;
-        // left: computed on javascript
+    .base-section-div-text {
+        font-size: 22px;
+        font-weight: 600;
+        padding: 0 10px;
     }
-
-    &.section-head-text {
-        @extend .base-section-div-text;
-        top: -18px;
-        // left: computed on javascript
-    }
-}
-
-.base-section-div-text {
-    font-size: 22px;
-    font-weight: 600;
-    padding: 0 10px;
-}
 
 //===== END OF Line Divs
 
-.alert-3 {
-    background-color: rgba($secondary-red, 0.5);
-}
+//=====
+// 
+// Datatables Related CSS
+//
+//=====
 
-.alert-2 {
-    background-color: rgba($primary-orange, 0.7);
-}
+    table {
+        border: 2px solid $primary-blue;
+        border-radius: 4px;
 
-.alert-1 {
-    background-color: rgba($secondary-yellow, 0.5);
-}
+        thead > tr, 
+        tfoot > tr {
+            background-color: $primary-blue;
+            color: white;
+        }
 
-.alert-finished, .alert-extended {
-    background-color: rgba($secondary-green, 0.5);
-}
+        a { color: $primary-blue; }
 
-.alert-invalid {
-    background-color: rgba($secondary-grey, 0.5);
-}
+        select {
+            color: black;
+        }
+    }
+
+//===== END OF Datatables Related CSS 
+
+//=====
+// 
+// Monitoring Alert Related Styles 
+//
+//=====
+
+    .alert-3 {
+        background-color: rgba($secondary-red, 0.5);
+    }
+
+    .alert-2 {
+        background-color: rgba($primary-orange, 0.7);
+    }
+
+    .alert-1 {
+        background-color: rgba($secondary-yellow, 0.5);
+    }
+
+    .alert-finished, .alert-extended {
+        background-color: rgba($secondary-green, 0.5);
+    }
+
+    .alert-invalid {
+        background-color: rgba($secondary-grey, 0.5);
+    }
+
+//===== END OF Monitoring Alert Related Styles 
 
 label.error {
     font-size: 12px;
