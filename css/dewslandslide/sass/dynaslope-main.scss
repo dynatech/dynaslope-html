@@ -519,19 +519,23 @@ select {
 //===== END OF Line Divs
 
 .alert-3 {
-  background-color: rgba($secondary-red, 0.4);
+    background-color: rgba($secondary-red, 0.5);
 }
 
 .alert-2 {
-  background-color: rgba($primary-orange, 0.7);
+    background-color: rgba($primary-orange, 0.7);
 }
 
 .alert-1 {
-  background-color: rgba($secondary-yellow, 0.5);
+    background-color: rgba($secondary-yellow, 0.5);
 }
 
-.alert-nd {
-  background-color: #e0ffb3;
+.alert-finished, .alert-extended {
+    background-color: rgba($secondary-green, 0.5);
+}
+
+.alert-invalid {
+    background-color: rgba($secondary-grey, 0.5);
 }
 
 label.error {

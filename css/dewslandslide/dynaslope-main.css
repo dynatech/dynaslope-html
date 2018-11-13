@@ -353,7 +353,7 @@ select option:disabled {
   padding: 0 10px; }
 
 .alert-3 {
-  background-color: rgba(201, 48, 44, 0.4); }
+  background-color: rgba(201, 48, 44, 0.5); }
 
 .alert-2 {
   background-color: rgba(248, 153, 29, 0.7); }
@@ -361,8 +361,11 @@ select option:disabled {
 .alert-1 {
   background-color: rgba(252, 199, 17, 0.5); }
 
-.alert-nd {
-  background-color: #e0ffb3; }
+.alert-finished, .alert-extended {
+  background-color: rgba(0, 178, 0, 0.5); }
+
+.alert-invalid {
+  background-color: rgba(152, 152, 152, 0.5); }
 
 label.error {
   font-size: 12px;

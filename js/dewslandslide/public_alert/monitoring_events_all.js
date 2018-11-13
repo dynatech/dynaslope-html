@@ -1,7 +1,7 @@
 
 /****
- *	Created by Kevin Dhale dela Cruz
- *	JS file for Monitoring Events Table [public_alert/monitoring_events_all.php]
+ *  Created by Kevin Dhale dela Cruz
+ *  JS file for Monitoring Events Table [public_alert/monitoring_events_all.php]
  *  [host]/public_alert/monitoring_events
  ****/
 
@@ -72,19 +72,24 @@ $(document).ready(() => {
         lengthMenu: [10, 20, 50],
         order: [[0, "desc"]],
         rowCallback: (row, data, index) => {
-            if (data.status === "finished" || data.status === "extended") {
-                $(row).css("background-color", "rgba(0,140,0,0.7)");
-            } else if (data.status === "on-going") {
-                $(row).css("background-color", "rgba(255,0,0,0.7)");
-            } else if (data.status === "invalid") {
-                $(row).css("background-color", "rgba(90,90,90,0.7)");
-            }
-        },
-        initComplete: ({ oInstance: instance }) => {
-            const column_1 = instance.api().columns([1]);
-            const $select = $("<select id='site_filter'><option value=''>---</option></select>");
+            const { status, internal_alert_level } = data;
+            let css = `alert-${status}`;
 
-            const $select_1 = $select.clone();
+            if (status === "on-going") {
+                const public_alert = internal_alert_level.substr(0, 2);
+                let alert;
+                if (public_alert === "ND") alert = 1;
+                else alert = public_alert.substr(1);
+                css = `alert-${alert}`;
+            }
+
+            $(row).addClass(css);
+        },
+        initComplete ({ oInstance: instance }) {
+            const column_1 = instance.api().columns([1]);
+            const $select = $("<select><option value=''>---</option></select>");
+
+            const $select_1 = $select.clone().prop("id", "site_filter");
             $select_1.appendTo($(column_1.footer()).empty())
             .on("change", ({ target }) => {
                 const val = $.fn.dataTable.util.escapeRegex($(target).val());
@@ -98,7 +103,7 @@ $(document).ready(() => {
             }, "json");
 
             const column_2 = instance.api().columns([2]);
-            const $select_2 = $select.clone();
+            const $select_2 = $select.clone().prop("id", "status_filter");
             $select_2.appendTo($(column_2.footer()).empty())
             .on("change", ({ target }) => {
                 const val = $.fn.dataTable.util.escapeRegex($(target).val());
