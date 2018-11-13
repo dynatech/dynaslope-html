@@ -24,7 +24,7 @@ $(document).ready(function() {
 
 function initialize() {
     setTimeout(function() {
-        initializeOnClickGetRoutineReminder();
+        // initializeOnClickGetRoutineReminder();
         initializeQuickInboxMessages();
         initializeDatepickers();
         getRecentActivity();
@@ -102,6 +102,9 @@ function initializeGoChatOnClick (awesomplete) {
             conversation_details = prepareConversationDetails(multiple_contact);
             startConversation(conversation_details);            
         }
+        $("#recent-activity-panel").hide(400);
+        $("#quick-access-panel").hide(400);
+        $("#conversation-panel").show(400)
     });
 }
 
@@ -192,6 +195,7 @@ function initializeQuickInboxMessages () {
 	getQuickInboxEvent();
 	getQuickInboxUnregistered();
 	getQuickInboxDataLogger();
+    $("#inbox-loader").hide();
 }
 
 function getQuickInboxMain () {
@@ -558,19 +562,19 @@ function communityContactFormValidation () {
 
 
 function recentActivityInitializer() {
-$("#routine-actual-option").on("click", function () {
+    $("#routine-actual-option").on("click", function () {
         $("#routine-reminder-option").removeClass("active");
-        $("#routine-msg").val("");
-        $(this).addClass("active");
+        // $("#routine-msg").val("");
+        // $(this).addClass("active");
         $("#def-recipients").text("Default recipients: LEWC, BLGU, MLGU");
     });
 
     $("#routine-reminder-option").on("click", function () {
         $("#routine-actual-option").removeClass("active");
         $("#def-recipients").text("Default recipients: LEWC");
-        $("#routine-msg").val("");
+        // $("#routine-msg").val("");
         // $("#routine-msg").val(routine_reminder_msg);
-        $(this).addClass("active");
+        // $(this).addClass("active");
     });
 
     $(".rv_contacts a").on("click", function () {
@@ -654,12 +658,12 @@ function initializeOnClickGetRoutineReminder() {
 }
 
 function getRoutineTemplate() {
-	$("#routine-actual-option").on("click", () => {
-		let msg = {
-			type: 'getRoutineTemplate'
-		};
-		wss_connect.send(JSON.stringify(msg));
-	});
+	// $("#routine-actual-option").on("click", () => {
+	let msg = {
+		type: 'getRoutineTemplate'
+	};
+	wss_connect.send(JSON.stringify(msg));
+	// });
 }
 
 function getLatestAlert() {
@@ -684,7 +688,7 @@ function displayRoutineReminder(sites,template) {
         case "Friday":
             $("#def-recipients").css("display", "inline-block");
             $(".routine-options-container").css("display", "flex");
-            $("#send-routine-msg").css("display", "inline");
+            $("#send-routine-message").css("display", "inline");
             for (var counter = 0; counter < sites.length; counter++) {
                 if (wet[sites[counter].season - 1].includes(month)) {
                     routine_sites.push(sites[counter]);
@@ -701,13 +705,13 @@ function displayRoutineReminder(sites,template) {
             });
 
             $(".routine_section").append("<div class='routine-msg-container'></div>");
-            $(".routine-msg-container").append("<textarea class='form-control' id='routine-msg' cols='30'rows='10'></textarea>");
-            $("#routine-msg").val(parsed_template);
+            // $(".routine-msg-container").append("<textarea class='form-control' id='routine-msg' cols='30'rows='10'></textarea>");
+            $("#routine-reminder-message").val(parsed_template);
             break;
         case "Tuesday":
             $("#def-recipients").css("display", "inline-block");
             $(".routine-options-container").css("display", "flex");
-            $("#send-routine-msg").css("display", "inline");
+            $("#send-routine-message").css("display", "inline");
             for (var counter = 0; counter < sites.length; counter++) {
                 if (wet[sites[counter].season - 1].includes(month)) {
                     routine_sites.push(sites[counter]);
@@ -724,13 +728,13 @@ function displayRoutineReminder(sites,template) {
             });
 
             $(".routine_section").append("<div class='routine-msg-container'></div>");
-            $(".routine-msg-container").append("<textarea class='form-control' id='routine-msg' cols='30'rows='10'></textarea>");
-            $("#routine-msg").val(parsed_template);
+            // $(".routine-msg-container").append("<textarea class='form-control' id='routine-msg' cols='30'rows='10'></textarea>");
+            $("#routine-reminder-message").val(parsed_template);
             break;
         case "Wednesday":
             $("#def-recipients").css("display", "inline-block");
             $(".routine-options-container").css("display", "flex");
-            $("#send-routine-msg").css("display", "inline");
+            $("#send-routine-message").css("display", "inline");
             for (var counter = 0; counter < sites.length; counter++) {
                 if (dry[sites[counter].season - 1].includes(month)) {
                     routine_sites.push(sites[counter]);
@@ -747,11 +751,12 @@ function displayRoutineReminder(sites,template) {
             });
 
             $(".routine_section").append("<div class='routine-msg-container'></div>");
-            $(".routine-msg-container").prepend("<textarea class='form-control' id='routine-msg' cols='30'rows='10'></textarea>");
-            $("#routine-msg").val(parsed_template);
+            // $(".routine-msg-container").prepend("<textarea class='form-control' id='routine-msg' cols='30'rows='10'></textarea>");
+            $("#routine-reminder-message").val(parsed_template);
             break;
         default:
             $(".routine_section").append("<div class='col-md-12 col-sm-12 col-xs-12'><h6>No Routine Monitoring for today.</h6></div>");
+            $("#routine-reminder-message").val(parsed_template);
             break;
     }
 
