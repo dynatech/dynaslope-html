@@ -327,8 +327,8 @@ function displayConversationPanel(msg_data, full_data, recipients, titles) {
 	});
 	$("#messages").empty();
 	$("#conversation-details").empty();
-	$(".recent_activities").addClass("hidden");
-	$("#main-container").removeClass("hidden");
+	$("#recent-activity-panel").hide(400);
+	$("#conversation-panel").show(400);
 	if(full_data === undefined){
 		$("#conversation-details").append(conversation_details_label);
 	}else {
@@ -726,7 +726,7 @@ function displayImportantTags (data , is_loaded = false) {
 }
 
 function displayRoutineTemplate(template) {
-	$("#routine-msg").val(template[0].template);
+	$("#routine-default-message").val(template[0].template);
 }
 
 function addSitesActivity (sites) {

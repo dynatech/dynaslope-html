@@ -49,9 +49,9 @@ function initializeOnClickSendRoutine () {
 	let offices = [];
 	let sites_on_routine = [];
 
-	$('#send-routine-msg').click(() => {
+	$("#send-routine-message").click(() => {
 		$("#chatterbox-loader-modal").modal("show");
-	    if ($(".btn.btn-primary.active").val() == "Reminder Message") {
+	    if ($("#routine-message-container ul li.active a").text() == "Reminder Message") {
 	        offices = ["LEWC"];
 	    } else {
 	        offices = ["LEWC", "MLGU", "BLGU"];
@@ -285,7 +285,9 @@ function initializeOnClickQuickInbox () {
 			site: site,
 			number: "N/A"
 		}
-
+		$("#recent-activity-panel").hide(400);
+		$("#quick-access-panel").hide(400);
+		$("#conversation-panel").show(400);
 		conversation_details_label = site+" "+office+" - "+firstname+" "+lastname;
 		startConversation(conversation_details);
 	});
@@ -306,7 +308,9 @@ function initializeOnClickEventInbox () {
 			site: site,
 			number: "N/A"
 		}
-
+		$("#recent-activity-panel").hide(400);
+		$("#quick-access-panel").hide(400);
+		$("#conversation-panel").show(400)
 		conversation_details_label = site+" "+office+" - "+firstname+" "+lastname;
 		startConversation(conversation_details);
 	});
@@ -325,6 +329,9 @@ function initializeOnClickUnregistered() {
 		}
 
 		conversation_details_label = firstname+" "+lastname;
+		$("#recent-activity-panel").hide(400);
+		$("#quick-access-panel").hide(400);
+		$("#conversation-panel").show(400)
 		startConversation(conversation_details);
 	});
 }
