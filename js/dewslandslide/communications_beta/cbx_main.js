@@ -141,6 +141,7 @@ function displayQuickInboxMain(msg_data) {
 }
 
 function displayUnregisteredInboxMain(msg_data) {
+	console.log(msg_data);
 	try {
 		try {
 			for (let counter = 0; counter < msg_data.length; counter++) {
@@ -259,6 +260,23 @@ function displayDataTableEmployeeContacts(dwsl_contact_data) {
 		]
 	});
 	$('#emp-response-contact-container').prop('hidden',false);
+}
+
+function displayDataTableUnregisteredContacts (unregistered_data){
+	$('#unregistered-contact-container').empty();
+	$('#unregistered-contact-container').DataTable({
+		destroy: true,
+		data: unregistered_data,
+		columns: [
+		{ "data": "mobile_id", "title": "Mobile ID"},
+		{ "data": "sms_id", "title": "SMS ID"},
+		{ "data": "full_name", "title": "Label"},
+		{ "data": "network", "title": "Network"},
+		{ "data": "user_number", "title": "Mobile Number"},
+		{ "data": "ts_received", "title": "Timestamp Received"}
+		]
+	});
+	$('#unregistered-contact-container').prop('hidden',false);
 }
 
 function displaySiteSelection (sites,psgc_source = []) {

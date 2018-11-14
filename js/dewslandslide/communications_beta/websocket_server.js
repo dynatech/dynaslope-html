@@ -38,6 +38,7 @@ function connectWS() {
 					break;
 				case "smsloadunregisteredinbox":
 					displayUnregisteredInboxMain(msg_data.data);
+					// displayDataTableUnregisteredContacts(msg_data.data);
 					break;
 				case "latestAlerts":
 					initLoadLatestAlerts(msg_data.data);
