@@ -12,7 +12,7 @@ let on_edit = null;
 let release_id = null;
 let event_id = null;
 let original_field_values = [];
-let bulletin_timestamp = null;f
+let bulletin_timestamp = null;
 const HOSTNAME = window.location.hostname;
 let $LOADING;
 let $RESULT_MODAL;
