@@ -12,11 +12,6 @@ function initializeChatterboxPanelBehavior(){
 }
 
 function initializeOnClickShowPanelButton(){
-	// $("#go-to-conversation").click(() => {
-	// 	$("#recent-activity-panel").hide(400);
-	// 	$("#quick-access-panel").hide(400);
-	// 	$("#conversation-panel").show(400);
-	// });
 
 	$("#go-to-recent-activity").click(() => {
 		$("#recent-activity-panel").show(400);
@@ -42,14 +37,10 @@ function initializeOnClickShowPanelButton(){
 			$("#quick-access-panel").show(400);
 			$("#messages-panel").hide(400);
 			QUICK_ACCESS_STATUS = "showed";
-			// $("#go-to-quick-access").css("color", "#F8991D");
-			// $("#hide-quick-access").css("color", "#F8991D");
 		}else {
 			$("#quick-access-panel").hide(400);
 			$("#messages-panel").show(400);
-			QUICK_ACCESS_STATUS = "hidden"
-			// $("#go-to-quick-access").css("color", "white");
-			// $("#hide-quick-access").css("color", "white");
+			QUICK_ACCESS_STATUS = "hidden";
 		}
 		
 	});
