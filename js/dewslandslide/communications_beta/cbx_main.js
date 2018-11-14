@@ -940,7 +940,6 @@ function reconstructSavedSettingsForGndMeasReminder(settings, def_event, def_ext
 }
 
 function changeSemiAutomationSettings(category, data) {
-	console.log(data);
     if (category != "routine" && category != "event" && category != "extended") {
         reconstructSavedSettingsForGndMeasReminder(data.settings, data.event, data.extended, data.routine);
     } else {
@@ -970,13 +969,11 @@ function changeSemiAutomationSettings(category, data) {
 	                	for (var i = 0; i < data.extended_sites.length; i++) {
 		                    var modIndex = i % 6;
 		                    sitename = data.extended_sites[i].toUpperCase();
-		                    $(`#gnd-sitenames-${modIndex}`).append(`<div class="checkbox"><label><input name="gnd-sitenames" type="checkbox" value="${sitename}" checked>${sitename}</label></div>`);
-		                }
-
-		                for (var i = 0; i < data.cant_send_gndmeas.length; i++) {
-		                    var modIndex = i % 6;
-		                    sitename = data.cant_send_gndmeas[i].toUpperCase();
-		                    $(`#gnd-sitenames-${modIndex}`).append(`<div class="checkbox"><label><input name="gnd-sitenames" type="checkbox" value="${sitename}">${sitename}</label></div>`);
+					        if ($.inArray(data.extended_sites[i],data.cant_send_gndmeas) == -1) {
+					        	$(`#gnd-sitenames-${modIndex}`).append(`<div class="checkbox"><label><input name="gnd-sitenames" type="checkbox" value="${sitename}" checked>${sitename}</label></div>`);
+					        } else {
+					        	$(`#gnd-sitenames-${modIndex}`).append(`<div class="checkbox"><label><input name="gnd-sitenames" type="checkbox" value="${sitename}">${sitename}</label></div>`);
+					        } 
 		                }
 	                }
 	                
@@ -995,13 +992,11 @@ function changeSemiAutomationSettings(category, data) {
 		                for (var i = 0; i < data.event_sites.length; i++) {
 		                    var modIndex = i % 6;
 		                    sitename = data.event_sites[i].site_code.toUpperCase();
-		                    $(`#gnd-sitenames-${modIndex}`).append(`<div class="checkbox"><label><input name="gnd-sitenames" type="checkbox" value="${sitename}" checked>${sitename}</label></div>`);
-		                }
-
-		                for (var i = 0; i < data.cant_send_gndmeas.length; i++) {
-		                    var modIndex = i % 6;
-		                    sitename = data.cant_send_gndmeas[i].toUpperCase();
-		                    $(`#gnd-sitenames-${modIndex}`).append(`<div class="checkbox"><label><input name="gnd-sitenames" type="checkbox" value="${sitename}">${sitename}</label></div>`);
+					        if ($.inArray(data.event_sites[i].site_code,data.cant_send_gndmeas) == -1) {
+					        	$(`#gnd-sitenames-${modIndex}`).append(`<div class="checkbox"><label><input name="gnd-sitenames" type="checkbox" value="${sitename}" checked>${sitename}</label></div>`);
+					        } else {
+					        	$(`#gnd-sitenames-${modIndex}`).append(`<div class="checkbox"><label><input name="gnd-sitenames" type="checkbox" value="${sitename}">${sitename}</label></div>`);
+					        } 
 		                }
 		            }
 	                break;
@@ -1019,7 +1014,11 @@ function changeSemiAutomationSettings(category, data) {
 		                for (var i = 0; i < data.routine_sites.length; i++) {
 		                    var modIndex = i % 6;
 		                    sitename = data.routine_sites[i].toUpperCase();
-		                    $(`#gnd-sitenames-${modIndex}`).append(`<div class="checkbox"><label><input name="gnd-sitenames" type="checkbox" value="${sitename}" checked>${sitename}</label></div>`);
+					        if ($.inArray(data.routine_sites[i],data.cant_send_gndmeas) == -1) {
+					        	$(`#gnd-sitenames-${modIndex}`).append(`<div class="checkbox"><label><input name="gnd-sitenames" type="checkbox" value="${sitename}" checked>${sitename}</label></div>`);
+					        } else {
+					        	$(`#gnd-sitenames-${modIndex}`).append(`<div class="checkbox"><label><input name="gnd-sitenames" type="checkbox" value="${sitename}">${sitename}</label></div>`);
+					        } 
 		                }
 		            }
 	                break;
@@ -1282,7 +1281,6 @@ function updateGndMeasTemplate(template) {
 }
 
 function displaySitesForGndMeasReminder(data) {
-	console.log(data);
 	$("#no-site-on-monitoring").hide();
     gnd_meas_overwrite = "new";
     ground_meas_reminder_data = data;
@@ -1307,15 +1305,14 @@ function displaySitesForGndMeasReminder(data) {
     $("#reminder-message").text(template);
     site_count = data.event_sites.length;
     for (var i = 0; i < data.event_sites.length; i++) {
+    	console.log();
         var modIndex = i % 6;
         sitename = data.event_sites[i].site_code.toUpperCase();
-        $(`#gnd-sitenames-${modIndex}`).append(`<div class="checkbox"><label><input name="gnd-sitenames" type="checkbox" value="${sitename}" checked>${sitename}</label></div>`);
-    }
-
-    for (var i = 0; i < data.cant_send_gndmeas.length; i++) {
-        var modIndex = i % 6;
-        sitename = data.cant_send_gndmeas[i].toUpperCase();
-        $(`#gnd-sitenames-${modIndex}`).append(`<div class="checkbox"><label><input name="gnd-sitenames" type="checkbox" value="${sitename}">${sitename}</label></div>`);
+        if ($.inArray(data.event_sites[i].site_code,data.cant_send_gndmeas) == -1) {
+        	$(`#gnd-sitenames-${modIndex}`).append(`<div class="checkbox"><label><input name="gnd-sitenames" type="checkbox" value="${sitename}" checked>${sitename}</label></div>`);
+        } else {
+        	$(`#gnd-sitenames-${modIndex}`).append(`<div class="checkbox"><label><input name="gnd-sitenames" type="checkbox" value="${sitename}">${sitename}</label></div>`);
+        } 
     }
 }
 
