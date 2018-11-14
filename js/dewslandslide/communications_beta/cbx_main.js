@@ -343,6 +343,7 @@ function displayConversationPanel(msg_data, full_data, recipients, titles, isOld
 		message_container = [];
 		recipient_container = [];
 		msg_data.reverse();
+	}	
     $("#messages").empty();
     $("#conversation-details").empty();
     $("#recent-activity-panel").hide(400);
