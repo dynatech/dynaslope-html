@@ -792,7 +792,7 @@ function displayImportantTags (data , is_loaded = false) {
 }
 
 function displayRoutineTemplate(template) {
-	$("#routine-default-message").val(template[0].template);
+	$("#routine-msg").val(template[0].template);
 }
 
 function addSitesActivity (sites) {
