@@ -1,0 +1,217 @@
+
+/****
+ *
+ *	Created by Kevin Dhale dela Cruz
+ *	CSS file for Early Warning Information Release Form [public_alert/alert_release_form.php]
+ *	[host]/public_alert/release_form
+ *	
+****/
+
+.btn-group-justified {
+    margin-bottom: 20px;
+}
+
+input[type="checkbox"] {
+    bottom: 6px;
+}
+
+
+#site_info_area #status {
+    font-size: 21px;
+    font-weight: 600;
+    border-right: 3px solid #777;
+}
+
+#site_info_area #current_alert { 
+    font-size: 21px;
+    font-weight: 600;
+}
+
+#site_info_area #details {
+    font-size: 14px;
+    border-right: 3px solid #777;
+}
+
+#site_info_area .panel-body b { 
+    color: red;
+    text-shadow: 1px 1px #aaa;
+}
+
+.highlight { color: red; } 
+
+.checkbox.a1d {
+    padding-left: 80px;
+}
+
+.checkbox.a1d label input {
+    margin-left: -40px;
+}
+
+.divider:not(:last-child) {
+    padding-right: 25px;
+}
+
+.hr-divider {
+    margin-top: 5px;
+}
+
+.no-padding-right {
+    padding-right: 0px;
+}
+
+#triggers_area {
+    text-align: center;
+    padding-top: 10px;
+}
+
+#errorLabel {
+    padding-bottom: 10px;
+}
+
+.area_label {
+    text-align: center;
+}
+
+.area_label h4 {
+    margin-top: 20px;
+}
+
+.previous_info {
+    position: relative;
+    float: right;
+    overflow: hidden;
+    white-space: nowrap;
+    background-color: white;
+    border-top: 1px solid black;
+    border-bottom: 1px solid black;
+    border-left: 1px solid black;
+    height: 68px;
+    width: 100px;
+    margin-top: -6px;
+    z-index: 5;
+    -webkit-transition: width 0s ease-out, position;
+}
+
+.previous_info:hover{
+    position: absolute;
+    width: 80%;
+    right: 0px;
+    -webkit-transition: width 0.5s ease-out, position;
+}
+
+.previous_info > div {
+    font-size: 22px;
+    text-shadow: 1px 1px #333;
+    color: #C9302C;
+    padding-top: 12px;
+    padding-left: 2px;
+    padding-right: 4px;
+}
+
+.previous_info span:first-child {
+    vertical-align: middle;
+    padding-right: inherit;
+    font-weight: bold;
+    font-size: 46px;
+    top: -3px;
+}
+
+.cbox_trigger_label {
+    font-size: 14px;
+    font-weight: bold;
+    padding-right: 40px;
+}
+
+.cbox_trigger, .cbox_trigger_switch {
+    top: -2px;
+}
+
+.cbox_ack {
+    top: 0;
+}
+
+.number {
+    padding-right: 0;
+}
+
+input[type="number"] {
+    padding-right: 12px !important;
+}
+
+.input-group-addon > input[type="checkbox"] {
+    margin-top: 4px;
+    margin-left: 2px;
+}
+
+#od_area label.checkbox-inline {
+    top: 8px;
+    font-size: 18px;
+    margin-right: 10px;
+}
+
+.no-data {
+    margin-top: 12px;
+    margin-bottom: 0;
+    font-size: 16px;
+}
+
+.below_input {
+    padding: 0 0;
+}
+
+.below_input label {
+    text-align: center;
+    padding-left: 0;
+    margin-top: -12px;
+}
+
+.below_input input {
+    top: 27px;
+    right: 40%;
+}
+
+label[data-toggle='tooltip'] { color: rgba(0,0,255,0.8); }
+
+div.tooltip { width: 200px; }
+
+#sites_area .panel-heading .btn-group {
+    left: 10px;
+    top: -1px;
+}
+
+#sites_area .panel-body {
+    margin-bottom: 0;
+}
+
+#sites_area .panel-body .row{
+    margin-bottom: 5px;
+}
+
+.routine-site {
+    font-weight: bold;
+    margin-right: 8px;
+    padding-left: 50px;
+}
+
+.routine-site input {
+    top: -4px;
+    left: 45px;
+}
+
+.alert-warning {
+    font-size: 16px;
+}
+
+.alert-danger li { 
+    font-size: 18px;
+    margin-top: 5px; 
+    margin-bottom: 5px;
+}
+
+.alert-warning a { margin-top: 8px; }
+
+.radio_checkbox_group label {
+    padding: 5px 0 0 23px;
+}
+
+.radio_checkbox_group input { margin-top: 11px; }

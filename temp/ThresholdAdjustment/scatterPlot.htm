@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title></title>
+    <script src="https://code.jquery.com/jquery-1.11.3.min.js"></script>
+	<script src="https://code.highcharts.com/highcharts.js"></script>
+	<script src="https://code.highcharts.com/modules/exporting.js"></script>
+    <script src="http://cdnjs.cloudflare.com/ajax/libs/moment.js/2.10.2/moment.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/4.1.2/papaparse.min.js"></script>
+</head>
+<body>
+	<div id="container" style="min-width: 310px; height: 400px; max-width: 800px; margin: 0 auto"></div>
+</body>
+<script type="text/javascript">
+    var rawL3 = [], 
+        rawL2_plus = [],
+        rawL2 = [];
+    var dataL3 = [], 
+        dataL2_plus = [],
+        dataL2 = [];
+
+    // var dataL3 = [{x: 1439942400000, y: 0.5625, z: "hello"},
+    //                 {x: 1450732600000, y: 1.375477596, z: "Pogi"}];
+
+    // var dataL2_plus = [{x: 1442366700000, y: 0.227272727, z: "eto"},
+    //                 {x: 1467192600000, y: 0.233463035, z: "mababa"}];
+
+    //Read the L3 CSV file
+    jQuery.get('L3.csv', function(data) {
+        var tempCSV = Papa.parse(data, {
+            dynamicTyping: true
+        });
+        rawL3 = tempCSV.data;
+
+        for (i=0; i < rawL3.length; i += 1) {
+            //convert the time format from CSV file to UTC
+            var tempTimeConv = moment(rawL3[i][0], "MM-DD-YYYY HH:mm").valueOf();
+            var tempJson = {x: tempTimeConv, y: rawL3[i][1], z: rawL3[i][2]};
+
+            dataL3.push(tempJson);
+        }
+
+        createChart();
+    });
+
+    //Read the L2 from L3 Sites CSV file
+    jQuery.get('L2-from-L3-sites.csv', function(data) {
+        var tempCSV = Papa.parse(data, {
+            dynamicTyping: true
+        });
+        rawL2_plus = tempCSV.data;
+
+        for (i=0; i < rawL2_plus.length; i += 1) {
+            //convert the time format from CSV file to UTC
+            var tempTimeConv = moment(rawL2_plus[i][0], "MM-DD-YYYY HH:mm").valueOf();
+            var tempJson = {x: tempTimeConv, y: rawL2_plus[i][1], z: rawL2_plus[i][2]};
+
+            dataL2_plus.push(tempJson);
+        }
+
+        createChart();
+    });
+
+    //Read the L3 CSV file
+    jQuery.get('L2.csv', function(data) {
+        var tempCSV = Papa.parse(data, {
+            dynamicTyping: true
+        });
+        rawL2 = tempCSV.data;
+
+        for (i=0; i < rawL2.length; i += 1) {
+            //convert the time format from CSV file to UTC
+            var tempTimeConv = moment(rawL2[i][0], "MM-DD-YYYY HH:mm").valueOf();
+            var tempJson = {x: tempTimeConv, y: rawL2[i][1], z: rawL2[i][2]};
+
+            dataL2.push(tempJson);
+        }
+
+        createChart();
+    });
+
+    function createChart() {
+        $('#container').highcharts({
+            chart: {
+                type: 'scatter',
+                zoomType: 'xy'
+            },
+            title: {
+                text: 'Time Versus Velocity of Cracks'
+            },
+            subtitle: {
+                text: 'A2 & A3 of Sites with L3 Signals'
+            },
+            xAxis: {
+    /*            title: {
+                    enabled: true,
+                    text: 'Timestamp'
+                },
+                startOnTick: true,
+                endOnTick: true,
+                showLastLabel: true*/
+
+                type: 'datetime',
+    /*            dateTimeLabelFormats: { // don't display the dummy year
+                    month: '%e. %b',
+                    year: '%b'
+                },*/
+                title: {
+                    text: 'Timestamp'
+                }
+            },
+            yAxis: {
+                title: {
+                    text: 'Velocity (cm/hour)'
+                }
+            },
+            legend: {
+                layout: 'vertical',
+                align: 'left',
+                verticalAlign: 'top',
+                x: 100,
+                y: 70,
+                floating: true,
+                backgroundColor: (Highcharts.theme && Highcharts.theme.legendBackgroundColor) || '#FFFFFF',
+                borderWidth: 1
+            },
+            plotOptions: {
+                scatter: {
+                    marker: {
+                        radius: 5,
+                        states: {
+                            hover: {
+                                enabled: true,
+                                lineColor: 'rgb(100,100,100)'
+                            }
+                        }
+                    },
+                    states: {
+                        hover: {
+                            marker: {
+                                enabled: false
+                            }
+                        }
+                    },
+                    tooltip: {
+                        headerFormat: '<b>{series.name}</b><br>',
+                        //pointFormat: '{point.x} cm, {point.y} kg'
+                        pointFormat: 'tag: {point.z}, vel: {point.y}'
+                    }
+                }
+            },
+            series: [{
+                name: 'L3',
+                color: 'rgba(223, 83, 83, .5)',
+                data: dataL3 
+            }, {
+                name: 'L2 (from L3 sites)',
+                color: 'rgba(119, 152, 191, .5)',
+                data: dataL2_plus
+            }, {
+                name: 'L2',
+                color: 'rgba(83, 223, 83, .5)',
+                data: dataL2
+            }]
+        });
+    }
+
+</script>
+</html>
+
+
+
+
+

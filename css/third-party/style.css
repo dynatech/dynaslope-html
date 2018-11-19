@@ -1,0 +1,152 @@
+body {
+	background: #f0f0f0 url(../../images/dews-l-logo.png);
+	background-blend-mode: overlay;
+	background-repeat: no-repeat;
+    background-attachment: fixed;
+    background-position: center; 
+    background-size:contain;
+	/*background-size: 100%;*/
+	opacity: 1;
+	margin: 0;
+	padding: 0;
+	font-family: Arial;
+}
+
+#login_form, #contact_form {
+	width: 300px;
+	background: #17536e;
+	border: 1px solid white;
+	margin: 13% auto 0;
+	padding: 1em;
+	-moz-border-radius: 10px;
+	-webkit-border-radius: 10px;
+}
+
+footer {
+	margin: 0 0 0;
+	text-align: center;
+}
+
+h1, h2, h3, h4, h5 {
+	margin-top: 0;
+	color: white;
+	font-family: "Arial Black", Arial;
+	text-align: center;
+}
+
+input[type=text], input[type=password], textarea {
+	display: block;
+	margin: 0 0 1em 0;
+	width: 280px;
+	border: 5px;
+	-moz-border-radius: 3px;
+	-webkit-border-radius: 3px;
+	padding: 1em;
+}
+
+input[type=submit], form a {
+	border: none;
+	margin-right: 1em;
+	padding: 6px;
+	text-decoration: none;
+	font-size: 12px;
+	-moz-border-radius: 4px;
+	-webkit-border-radius: 4px;
+	background: #ffc700;
+	color: black;
+	box-shadow: 0 1px 0 white;
+	-moz-box-shadow: 0 1px 0 white;
+	-webkit-box-shadow: 0 1px 0 white;	
+}
+
+input[type=submit]:hover, form a:hover {
+	background: #ffe073;
+	cursor: pointer;
+}
+
+.error {
+	color: #ff0d00;
+	font-size: 15px;
+}
+
+fieldset {
+	width: 300px;
+	margin: auto;
+	margin-bottom: 2em;
+	display:block;
+}
+
+h1 {
+	text-shadow: 2px 3px 3px black;
+}
+
+#tutInfo {
+	background: #E3E3E3;
+	border-top: 1px solid white;
+	position: absolute;
+	bottom: 0;
+	width: 100%;
+	padding: .7em .7em .7em 2em;
+}
+
+#container {
+	width: 600px;
+	margin: auto;
+}
+
+table {
+	width: 600px;
+	margin-bottom: 10px;
+}
+
+td {
+	border-right: 1px solid #ffffff;
+	padding: 1em;
+}
+
+td:last-child {
+	border-right: none;
+}
+
+th {
+	text-align: left;
+	padding: 1em;
+	background: #eeeeee;
+	border-bottom: 1px solid black;
+	border-right: 1px solid #aaaaaa;
+}
+
+#pagination a, #pagination strong {
+	background: #eeeeee;
+	padding: 4px 3px;
+	text-decoration: none;
+	border: 1px solid #aaaaaa;
+	color: #292929;
+	font-size: 13px;
+}
+
+#pagination strong, #pagination a:hover {
+	font-weight: normal;
+	background: #888888;
+	border: 1px solid #eeeeee;
+	color: #eeeeee;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

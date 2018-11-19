@@ -1,0 +1,92 @@
+
+/****
+ *
+ *	Created by Kevin Dhale dela Cruz
+ *	CSS file for Individual Site Pages
+ * 
+ *  P.S DO NOT EDIT any style in this CSS directly
+ *  on the CSS file! Edit the SCSS file located on the
+ *  SASS file folder and re-compile with the output path
+ *  set on the current path of the site_analysis.css folder. 
+ *	
+****/
+
+@import "variables";
+
+.fa-angle-double-left, .fa-angle-double-right {
+    font-size: 20px;
+    font-weight: 700;
+}
+
+.breadcrumb {
+    font-weight: 600;
+    background-color: $primary-blue;
+    color: white;
+}
+
+.section-title {
+    font-size: 24px;
+    font-weight: 600;
+    color: $primary-blue;
+}
+
+.section-subtitle {
+    font-size: 18px;
+    color: $primary-blue;
+}
+
+.section {
+    & > .row > hr {
+        border: 0;
+        margin-top: 10px;
+        background-color: $primary-blue !important;
+        height: 1px;
+    }
+}
+
+.plot-title {
+    h4 {
+        font-weight: 600;
+        text-indent: 2em;
+        color: $primary-blue;
+    }
+}
+
+.plot-title-hr {
+    margin-top: 10px;
+    margin-left: 20px;
+    border-color: $primary-blue;
+}
+
+#options-bar {
+    padding-left: 0;
+    padding-right: 20px;
+}
+
+.options-section-title {
+    font-weight: 600;
+    color: $primary-blue;
+
+    hr {
+        margin-top: 30px;
+    }
+}
+
+hr.options-divider {
+    margin-top: 10px;
+    margin-bottom: 10px;
+}
+
+// For surficial data
+// marker analysis chart tabs
+.no-click {
+    pointer-events: none;
+}
+
+.marker-chart-tab-group {
+    padding-left: 36px;
+}
+
+.tab-content > .tab-pane {
+    padding-top: 20px;
+}

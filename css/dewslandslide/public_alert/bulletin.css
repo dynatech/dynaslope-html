@@ -1,0 +1,72 @@
+/****
+ *
+ *  Created by Kevin Dhale dela Cruz
+ *  CSS file for the EWI Bulletin [public_alert/bulletin_builder.php]
+ *  [host]/bulletin/build/[release_id]
+ *  
+****/
+@font-face {
+  font-family: 'Arial';
+  src: url("/fonts/Arial/arial.ttf"), url("/fonts/Arial/ArialMT.otf"), url("/fonts/Arial/ArialMT.woff") format("woff");
+  font-weight: normal;
+  font-style: normal; }
+@font-face {
+  font-family: 'Arial';
+  src: url("/fonts/Arial/arialbd.ttf"), url("/fonts/Arial/Arial-BoldMT.otf"), url("/fonts/Arial/Arial-BoldMT.woff") format("woff");
+  font-weight: bold;
+  font-style: normal; }
+@font-face {
+  font-family: 'Arial';
+  src: url("/fonts/Arial/ariali.ttf"), url("/fonts/Arial/Arial-ItalicMT.otf"), url("/fonts/Arial/Arial-ItalicMT.woff") format("woff");
+  font-style: italic; }
+#bulletin-area {
+  margin: 0.5in;
+  font-family: 'Arial', sans-serif !important;
+  color: #000; }
+  #bulletin-area .center-text {
+    text-align: center; }
+  #bulletin-area #phivolcs, #bulletin-area #dost {
+    width: 66px;
+    height: 77.6px; }
+  #bulletin-area #header-text > div {
+    margin: 0px; }
+    #bulletin-area #header-text > div:nth-child(1) {
+      font-size: 10px;
+      font-weight: bold;
+      color: blue !important; }
+    #bulletin-area #header-text > div:nth-child(2) {
+      font-size: 12px;
+      font-weight: bold;
+      color: red !important; }
+    #bulletin-area #header-text > div:nth-child(3) {
+      font-size: 16px;
+      font-weight: bold;
+      color: #000080 !important; }
+    #bulletin-area #header-text > div:nth-child(4), #bulletin-area #header-text > div:nth-child(5), #bulletin-area #header-text > div:nth-child(6), #bulletin-area #header-text > div:nth-child(7) {
+      font-size: 8px;
+      color: blue !important; }
+  #bulletin-area #title {
+    margin-top: 10px;
+    margin-bottom: 10px; }
+  #bulletin-area .panel-default {
+    border-color: black; }
+  #bulletin-area #bulletin, #bulletin-area #areaSituation, #bulletin-area #footer {
+    font-size: 16px; }
+  #bulletin-area #bulletin .row {
+    margin: 8px 0; }
+  #bulletin-area #bulletin .col-sm-8 {
+    padding-left: 0;
+    font-weight: bold; }
+  #bulletin-area #areaSituation .row {
+    margin: 15px 0; }
+  #bulletin-area #areaSituation h3 {
+    font-size: 18px;
+    margin-top: 0; }
+  #bulletin-area #areaSituation p {
+    text-indent: 60px; }
+  #bulletin-area .rowIndent {
+    padding-left: 60px; }
+  #bulletin-area #footer {
+    margin-top: 15px; }
+
+/*# sourceMappingURL=bulletin.css.map */

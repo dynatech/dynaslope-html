@@ -1,0 +1,45 @@
+ .title {
+    font-size: 18pt;
+    fill: #4F4F4F;
+    font-weight: 300;
+  }
+ .dygraphDefaultAnnotation {
+        color:#000;
+    }
+    .annotationA1 {
+        background-color: #FFFF99;
+    }
+    .annotationA2 {
+        background-color:  #FFCC00;
+    }
+    .annotationA3 {
+        background-color:  #FF3333;
+    }
+    .annotationND {
+        background-color: #66FF99;
+    }
+    .annotationC {
+        background-color:  #66FFFF;
+    }
+    .annotationM {
+        background-color:   #FFFFCC;
+    }
+    #submit{     
+        height: 32px;
+        margin-top: 5px;
+        width: 100px;
+    }
+    #reportrange{
+        background: #fff;
+        cursor: pointer;
+        padding: 5px 10px;
+        border: 1px solid #ccc;
+        width: 226.22222px;
+    }
+    #sitegeneral{
+        width: auto;
+    }
+
+    #div-panel-body{
+        height: 1900;
+    }

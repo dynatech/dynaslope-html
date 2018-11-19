@@ -1,0 +1,86 @@
+.tooltip {
+  position: relative;
+  display: inline-block;
+  border-bottom: 1px dotted black;
+}
+
+.tooltip .tooltiptext {
+  visibility: hidden;
+  width: 120px;
+  background-color: black;
+  color: #fff;
+  text-align: center;
+  border-radius: 6px;
+  padding: 5px 0;
+
+  /* Position the tooltip */
+  position: absolute;
+  z-index: 1;
+}
+
+.tooltip:hover .tooltiptext {
+  visibility: visible;
+}
+
+.rainPlot {
+  margin-left: auto;
+  margin-right: auto;
+  min-width: 100%;
+  height: auto;
+}
+.server-action-menu {
+  font-size: 15px;
+  background-image: ;
+  border-radius:10px;
+  padding: 5px;
+}
+#green0{
+  background-image: linear-gradient(to bottom, #99ff99 0%, rgba(125, 185, 232, 0) 100%)
+}
+
+.dygraphDefaultAnnotation {
+  color:#000;
+
+}
+.annotationA1 {
+ background-color: #FFFF99;
+}
+.annotationA2 {
+ background-color:  #FFCC00;
+}
+.annotationA3 {
+ background-color:  #FF3333;
+}
+
+#ground_table thead tr th:nth-child(2) {
+  display: none;
+}
+
+#ground_table tbody tr td:nth-child(2){
+  display:none;
+}
+
+.annotationND {
+ background-color: #66FF99;
+}
+.annotationC {
+  background-color:  #66FFFF;
+}
+.annotationM {
+  background-color:   #FFFFCC;
+}
+#submit{     
+  height: 32px;
+  margin-top: 5px;
+  width: 156px;
+}
+#A0 {
+ background-color: #99ff99;
+}
+#A1 {
+ background-color: #ffb366;
+}
+
+#A2 {
+ background-color: #ff6666;
+}

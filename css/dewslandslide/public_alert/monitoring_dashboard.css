@@ -1,0 +1,116 @@
+
+/****
+ *
+ *	Created by Kevin Dhale dela Cruz
+ *	CSS file for Monitoring Dashboard [public_alert/monitoring_dashboard.php]
+ *	[host]/home or [host]/dashboard
+ *	
+****/
+
+table {
+	text-align: left;
+}
+
+#candidate th, #latest th, #extended th, #overdue th {
+	font-size: 11px;
+}
+
+.panel-heading {
+	font-weight: bold;
+}
+
+.panel-body {
+	vertical-align: middle;
+	color: black;
+}
+
+hr {
+	border-top: 2px solid #ddd;
+}
+
+.day-one {
+	background-color: rgba(97, 223, 223, 0.5);
+}
+
+.day-one-square {
+	color: rgba(97, 223, 223, 0.8);
+	background-color: rgba(97, 223, 223, 0.5);
+}
+
+.day-two {
+	background-color: rgba(107, 238, 111, 0.5);
+}
+
+.day-two-square {
+	color: rgba(107, 238, 111, 0.8);
+	background-color: rgba(107, 238, 111, 0.5);
+}
+
+.day-three {
+	background-color:  rgba(8, 139, 42, 0.5);
+}
+
+.day-three-square {
+	color:  rgba(8, 139, 42, 0.8);
+	background-color: rgba(8, 139, 42, 0.5);
+}
+
+.day-overdue {
+	background-color:  rgba(60, 60, 60, 0.5);
+}
+
+.day-overdue-square {
+	color:  rgba(60, 60, 60, 0.8);
+	background-color: rgba(60, 60, 60, 0.5);
+}
+
+#ewi-recipients-container {
+	display: inline-flex;
+	margin-bottom: 10px;
+}
+
+#ewi-recipients-container label{
+	padding-top: 5px;
+}
+
+.close { margin-top: -3px; }
+
+#send-btn-ewi-amd,#edit-btn-ewi-amd {
+    margin-top: 10px;
+}
+
+#additional-recipients {
+    margin-bottom: 5px;
+}
+
+#ewi-asap-modal, #success-ewi-modal {
+   width: 100%;
+}
+
+#primer { font-size: 13px; }
+#primer > ul { margin: 5px 0 0 20px; }
+
+.invalid_area { color: red; }
+
+.valid-square {
+	color: rgba(0,128,0,0.8);
+	background-color: rgba(0,128,0,0.5);
+}
+
+.partial-square {
+	color: rgba(255,165,0,0.8);
+	background-color: rgba(255,165,0,0.5);
+}
+
+.invalid-square {
+	color: rgba(255,0,0,0.8);
+	background-color: rgba(255,0,0,0.5);
+}
+
+#invalid-alerts-group .alert {
+	margin-bottom: 5px;
+}
+
+.panel table {
+	border: 0;
+}

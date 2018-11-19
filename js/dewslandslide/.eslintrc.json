@@ -1,0 +1,40 @@
+{
+    "env": {
+        "browser": true,
+        "es6": true,
+        "jquery": true
+    },
+    "extends": ["airbnb-standard"],
+    "parserOptions": {
+        "sourceType": "module"
+    },
+    "rules": {
+        "indent": [
+            "error",
+            4,
+            {
+                "SwitchCase": 1,
+                "MemberExpression": 0
+            }
+        ],
+        "linebreak-style": 0,
+        "quotes": [
+            "error",
+            "double"
+        ],
+        "semi": [
+            "error",
+            "always"
+        ],
+        "spaced-comment": ["error", "always", { "exceptions": ["*"] }],
+        "no-use-before-define": 0,
+        "camelcase": 0,
+        "prefer-arrow-callback": 1,
+        "no-undef": 1,
+        "no-var": 0,
+        "no-param-reassign": [
+            2,
+            {"props": true}
+        ]
+    }
+}

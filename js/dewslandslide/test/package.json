@@ -1,0 +1,16 @@
+{
+  "name": "js_unit_testing",
+  "version": "1.0.0",
+  "description": "",
+  "main": "release_form_test.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Kevin Dhale dela Cruz",
+  "license": "ISC",
+  "dependencies": {
+    "chai": "^4.1.2",
+    "mocha": "^5.0.0",
+    "sinon": "^4.2.2"
+  }
+}

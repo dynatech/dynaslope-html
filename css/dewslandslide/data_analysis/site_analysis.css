@@ -1,0 +1,117 @@
+/****
+ *
+ *	Created by Kevin Dhale dela Cruz
+ *	CSS file for Individual Site Pages
+ * 
+ *  P.S DO NOT EDIT any style in this CSS directly
+ *  on the CSS file! Edit the SCSS file located on the
+ *  SASS file folder and re-compile with the output path
+ *  set on the current path of the site_analysis.css folder. 
+ *	
+****/
+.fa-angle-double-left, .fa-angle-double-right {
+  font-size: 20px;
+  font-weight: 700; }
+
+.breadcrumb {
+  font-weight: 600;
+  background-color: #17526D;
+  color: white; }
+
+.section-title {
+  font-size: 24px;
+  font-weight: 600;
+  color: #17526D; }
+
+.section-subtitle {
+  font-size: 18px;
+  color: #17526D; }
+
+.section > .row > hr {
+  border: 0;
+  margin-top: 10px;
+  background-color: #17526D !important;
+  height: 1px; }
+
+.plot-title h4 {
+  font-weight: 600;
+  text-indent: 2em;
+  color: #17526D; }
+
+.plot-title-hr {
+  margin-top: 10px;
+  margin-left: 20px;
+  border-color: #17526D; }
+
+#options-bar {
+  padding-left: 0;
+  padding-right: 20px; }
+
+.options-section-title {
+  font-weight: 600;
+  color: #17526D; }
+  .options-section-title hr {
+    margin-top: 30px; }
+
+hr.options-divider {
+  margin-top: 10px;
+  margin-bottom: 10px; }
+
+.no-click {
+  pointer-events: none; }
+
+.marker-chart-tab-group {
+  padding-left: 36px; }
+
+.tab-content > .tab-pane {
+  padding-top: 20px; }
+
+h2 {
+    position: absolute;
+    left: 20px;
+    top: 0px;
+    z-index: -1;
+}
+
+.center {
+    position: absolute;
+    margin: auto;
+    top: 0;
+    right: -1230px;
+    bottom: 0;
+    left: 0;
+    /*z-index: 10000;*/
+}
+
+.menu {
+    width: 40px;
+    height: 40px;
+    z-index: 10000;
+}
+
+.title {
+    width: 300px;
+    height: 10px;
+    top: 60px;
+}
+
+.item {
+    position: absolute;
+    left: 0px;
+    top: 0px;
+    width: 40px;
+    height: 40px;
+    background-color: white;
+    -moz-border-radius: 50%;
+    -webkit-border-radius: 50%;
+    border-radius: 50%;
+    cursor: pointer;
+    text-align: center;
+    line-height: 40px;
+}
+
+i {
+    font-size: 0.6 * 40px;
+    color: #f7931e;
+}
+/*# sourceMappingURL=site_analysis.css.map */

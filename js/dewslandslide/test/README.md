@@ -1,0 +1,1 @@
+Make sure Node is install in your system then run "npm install" on command line to install unit testing dependencies

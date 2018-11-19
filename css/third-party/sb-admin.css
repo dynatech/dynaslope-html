@@ -1,0 +1,114 @@
+
+body {
+  margin-top: 100px;
+  background-color: #222222;
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+@media (min-width: 0px) {
+  body {
+    margin-top: 50px;
+  }
+}
+
+/**
+ * NAVIGATION AND FOOTER
+**/
+
+@media (min-width: 768px)
+{
+    .dropdown-nav .dropdown-toggle { pointer-events: none; }
+    .dropdown-nav .dropdown-menu > li > a {  color: white; }
+    .dropdown-nav:hover { background-color: #080808; }
+    .dropdown-nav:hover .dropdown-menu { 
+        display: block;
+        background-color: #2f2f2f;
+    }
+    .dropdown-nav .dropdown-menu > li > a:hover { background-image: -webkit-linear-gradient(top, #555555 0, #555555 50%); }
+}
+
+.navbar-fixed-top .container { padding: 0 0; }
+
+.navbar-brand img {
+    width: 49px; 
+    height: 34px;
+    margin-top: -6px
+}
+
+
+@media (max-width: 767px)
+{
+    .navbar .dropdown-toggle {
+      padding-left: 25px;
+    }
+
+    footer .navbar {
+        display: none; 
+    }
+}
+
+footer .navbar { min-height: 40px; }
+
+/*** END OF NAVIGATION AND FOOTER ***/
+  
+/* line 18, sass/scss/base/_base.scss */
+#wrapper {
+  padding-left: 0;
+}
+
+/* line 22, sass/scss/base/_base.scss */
+#page-wrapper {
+  width: 100%;
+  padding: 0;
+  background-color: white;
+}
+
+/* line 28, sass/scss/base/_base.scss */
+.huge {
+  font-size: 50px;
+  line-height: normal;
+}
+
+@media (min-width: 768px) {
+  /* line 34, sass/scss/base/_base.scss */
+  #wrapper {
+    padding-left: 225px;
+  }
+
+  /* line 38, sass/scss/base/_base.scss */
+  #page-wrapper {
+    padding: 50px 10px 60px;
+  }
+}
+
+/* line 1, sass/scss/modules/_publicrelease.scss */
+.alert_3 {
+  background-color: rgba(255, 50, 50, 0.5);
+  color: black;
+}
+
+/* line 5, sass/scss/modules/_publicrelease.scss */
+.alert_2 {
+  background-color: rgba(255, 165, 0, 0.5);
+  color: black;
+}
+
+/* line 9, sass/scss/modules/_publicrelease.scss */
+.alert_1 {
+  background-color: rgba(255, 255, 90, 0.5);
+  color: black;
+}
+
+/* line 17, sass/scss/modules/_publicrelease.scss */
+.alert_nd {
+  background-color: #e0ffb3;
+  color: black;
+}
+
+label.error {
+    font-size: 12px;
+    font-style: italic;
+    margin: 10px 0 0 10px;
+}
+
+#loading .modal-body { padding: 15px 15px 0; }

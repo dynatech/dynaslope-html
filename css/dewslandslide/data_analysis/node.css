@@ -1,0 +1,84 @@
+ .accel-div{
+        height: 230px;
+    }
+    #demodiv {
+        margin-left: auto;
+        margin-right: auto;
+        min-width: 90%;
+        height: auto;
+    }
+
+    #myFlashContent {
+        margin-left: auto;
+        margin-right: auto;
+        min-width: 50%;
+        min-height: 70%;		
+    }
+
+    #flashIE {
+        margin-left: auto;
+        margin-right: auto;
+        min-width: 50%;
+        min-height: 70%;		
+    }
+
+    .annotationA1 {
+        background-color: #FFFF99;
+    }
+    .annotationA2 {
+        background-color:  #FFCC00;
+    }
+    .annotationA3 {
+        background-color:  #FF3333;
+    }
+    .annotationND {
+        background-color: #66FF99;
+    }
+    .annotationC {
+        background-color:  #66FFFF;
+    }
+    .annotationM {
+        background-color:   #FFFFCC;
+    }
+    .in{
+        margin-bottom: 0px;
+    }
+    #submit{     
+        height: 32px;
+        margin-top: 5px;
+        width: 156px;
+    }
+    .off,.btn-primary{
+        width: 166px;
+        height: 34px;
+    }
+    #addAnn{         
+        margin-right: 190px;
+        width: 276px;
+    }
+    #reportrange{
+        width: 260px;
+        margin-bottom: 10px;
+        margin-right: 20px;
+    }
+    #submit{     
+        height: 32px;
+        margin-top: 5px;
+        width: 156px;
+    }
+    #reportrange{
+        background: #fff;
+        cursor: pointer;
+        padding: 5px 10px;
+        border: 1px solid #ccc;
+        width: 226.22222px;
+    }
+    #sitegeneral{
+        width: auto;
+    }
+    #submit{
+        width: 226.22222px;
+    }
+    #node{
+        width: auto; 
+    }
