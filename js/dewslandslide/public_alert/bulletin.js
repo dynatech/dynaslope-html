@@ -21,7 +21,9 @@ $(document).ready(() => {
     $LOADING = $("#loading");
     $RESULT_MODAL = $("#bulletin-result-modal");
     reposition("#bulletin-result-modal");
+    console.log(form);
 
+    $(".modal-header").find("#site-name").text("erarearea");
     $("#edit-bulletin").click(() => {
         on_edit = on_edit !== true;
         edit(on_edit);
@@ -44,7 +46,7 @@ function loadBulletin (id1, id2) {
         $("#bulletin-modal").modal({ backdrop: "static", keyboard: false, show: true });
     })
     .catch((x) => {
-        sendBulletinError(`error loading bulletin\n${x.responseText}`, release_id);
+        sendBulletinError(`error loading bulletin\n${x.responseText}`);
         showErrorModal(x, "loading bulletin");
     });
 }
@@ -55,6 +57,8 @@ function postBulletinModal (release_id) {
 
 function processBulletinModal (modal_html, bulletin_div) {
     $(bulletin_div).html(modal_html);
+    const site_name = $(bulletin_div).find("#title").text().slice(50, 53);
+    $("#site-name").text(site_name);
 
     const loc = $("#location").text().replace(/\s+/g, " ").trim();
     const alert = $("#alert_level_released").text().replace(/\s+/g, " ").trim()
@@ -190,8 +194,8 @@ function sendBulletinAccuracyReport (release_id, edited_field_values, original_f
         metric_name: "bulletin_accuracy",
         module_name: "Bulletin",
         report_message: remarks_str,
-        reference_id: release_id,
-        reference_table: "public_alert_release"
+        reference_id: "public_alert_release",
+        reference_table: "release_id"
     };
 
     PMS.send(report);
@@ -231,7 +235,7 @@ function tagBulletin (release_id, edited_field_values, original_field_values) {
     );
 }
 
-function sendMail (text, subject, filename, recipients, release_id) {
+function sendMail (text, subject, filename, recipients) {
 	$LOADING.find(".progress-bar").text("Sending EWI and Bulletin...");
 	const is_test = HOSTNAME.includes("dynaslope.phivolcs.dost") ? false : true;    const form = {
         text,
@@ -240,8 +244,6 @@ function sendMail (text, subject, filename, recipients, release_id) {
         recipients,
         is_test
     };
-
-    console.log(text, subject, filename);
 
     mailBulletin(form)
     .then((data) => {
@@ -262,9 +264,7 @@ function sendMail (text, subject, filename, recipients, release_id) {
                 type: "timeliness",
                 metric_name: "bulletin_timeliness",
                 module_name: "Bulletin",
-                execution_time: exec_time,
-		reference_id: release_id,
-        	reference_table: "public_alert_release"
+                execution_time: exec_time
             };
 
             PMS.send(report);
@@ -320,14 +320,12 @@ function insertNarrative (recipients) {
     return $.post("/../../accomplishment/insertNarratives", { narratives: JSON.stringify(narratives) });
 }
 
-function sendBulletinError (message, release_id) {
+function sendBulletinError (message) {
     const report = {
         type: "error_logs",
         metric_name: "bulletin_error_logs",
         module_name: "Bulletin",
-        report_message: message,
-	reference_id: release_id,
-	reference_table: "public_alert_release"
+        report_message: message
     };
 
     PMS.send(report);
