@@ -9,7 +9,7 @@
 ****/
 
 const finalHostname = window.location.hostname.split(":");
-const wsUri = `ws://${finalHostname[0]}:5070`;
+const wsUri = `ws://${finalHostname[0]}:5170`;
 
 console.log("WS Hostname");
 console.log(wsUri);
