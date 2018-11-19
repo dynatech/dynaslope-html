@@ -16,14 +16,13 @@ let bulletin_timestamp = null;
 const HOSTNAME = window.location.hostname;
 let $LOADING;
 let $RESULT_MODAL;
+let SITE_NAME;
 
 $(document).ready(() => {
     $LOADING = $("#loading");
     $RESULT_MODAL = $("#bulletin-result-modal");
     reposition("#bulletin-result-modal");
-    console.log(form);
 
-    $(".modal-header").find("#site-name").text("erarearea");
     $("#edit-bulletin").click(() => {
         on_edit = on_edit !== true;
         edit(on_edit);
@@ -57,8 +56,8 @@ function postBulletinModal (release_id) {
 
 function processBulletinModal (modal_html, bulletin_div) {
     $(bulletin_div).html(modal_html);
-    const site_name = $(bulletin_div).find("#title").text().slice(50, 53);
-    $("#site-name").text(site_name);
+    SITE_NAME = $(bulletin_div).find("#title").text().slice(50, 53);
+    $("#site-name").text(SITE_NAME);
 
     const loc = $("#location").text().replace(/\s+/g, " ").trim();
     const alert = $("#alert_level_released").text().replace(/\s+/g, " ").trim()
@@ -257,6 +256,7 @@ function sendMail (text, subject, filename, recipients) {
 
         if (data === "Sent.") {
             console.log("Email sent");
+            $(".modal-header").find("#site-name").text(SITE_NAME);
 
             // const baseline = moment(bulletin_timestamp).add(20, "minutes");
             const exec_time = moment().diff(bulletin_timestamp);
