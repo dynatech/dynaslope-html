@@ -10,7 +10,7 @@ function connectWS() {
 		console.log("trying to connect to web socket server");
 		let url = window.location.host;
 		let split_url = url.split(":");
-		let update_url = `ws://${split_url[0]}:5050`;
+		let update_url = `ws://${split_url[0]}:5150`;
 		var wssConnection = new WebSocket(update_url);
 		
 		wssConnection.onopen = function(e) {
