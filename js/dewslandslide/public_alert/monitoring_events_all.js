@@ -1,11 +1,18 @@
 
 /****
- *  Created by Kevin Dhale dela Cruz
+ *  File Created by Kevin Dhale dela Cruz
  *  JS file for Monitoring Events Table [public_alert/monitoring_events_all.php]
  *  [host]/public_alert/monitoring_events
  ****/
 
 $(document).ready(() => {
+    // Initializers
+    initializeCurrentAlertsTable();
+    initializeHistoryViewOnClick();
+    initializeTimestamps();
+});
+
+function initializeCurrentAlertsTable () {
     const table = $("#table").DataTable({
         columnDefs: [
             { className: "text-right", targets: [4, 5] },
@@ -119,4 +126,216 @@ $(document).ready(() => {
     function reloadTable (val) {
         table.ajax.reload();
     }
-});
+}
+
+/****
+ *  JavaScripts to handle events in Monitoring Events History
+ *
+ *  @author John Louie Nepomuceno, 2018
+ ****/
+
+function initializeTimestamps () {
+    $(".datetime").datetimepicker({
+        format: "YYYY-MM-DD HH:mm:00",
+        allowInputToggle: true,
+        widgetPositioning: {
+            horizontal: "right",
+            vertical: "bottom"
+        }
+    })
+    .on("dp.show", (e) => {
+        $(this).data("DateTimePicker").maxDate(moment().second(0));
+        setTimeout(() => {
+            $(".bootstrap-datetimepicker-widget").css({ left: -17 });
+        }, 50);
+    });
+}
+
+function initializeHistoryViewOnClick () {
+    // $("#history-tab").click(() => {
+    $("a[data-toggle='tab']").on("shown.bs.tab", () => {
+        $("#loading .progress-bar").text("Loading Events History...");
+        $("#loading").modal("show");
+        initializeAnalysisPlotButtonOnClick();
+        loadDefaultValues();
+    });
+}
+
+function loadDefaultValues () {
+    // Initialize default date form values
+    $("#start-time").val(moment().subtract(1, "months").format("YYYY-MM-DD HH:mm:ss"));
+    $("#end-time").val(moment().format("YYYY-MM-DD HH:mm:ss"));
+    setTimeout(() => {
+        $("#analysis-plot-btn").trigger("click");
+    }, 3000);
+}
+
+function initializeAnalysisPlotButtonOnClick () {
+    $("#analysis-plot-btn").click(({ currentTarget }) => {
+    // $("#alert-level").change(({ currentTarget }) => {
+        $("#loading .progress-bar").text("Loading Events History...");
+        $("#loading").modal("show");
+        prepareFilters();
+    });
+}
+
+function prepareFilters () {
+    const alert_level = $("#alert-level").val();
+    const start_time = $("#start-time").val();
+    const end_time = $("#end-time").val();
+
+    getEventsPerAlertLevelHistory(alert_level, start_time, end_time);
+}
+
+function getEventsPerAlertLevelHistory (alert_level, start_time, end_time) {
+    $.getJSON(`../pubrelease/getEventsPerAlertLevelHistory/${alert_level}/${start_time}/${end_time}`)
+    .then((data) => {
+        displaySites(data);        
+        return data;
+    })
+    .done((data2) => {
+        $("#loading").modal("hide");
+        $("#site-count-per-alert").text(data2.length);
+        setEventCountHeader(data2);
+        plotPieChart();
+    })
+    .catch((error) => {
+        // Place PMS HERE
+        console.log(error);
+    });
+}
+
+function displaySites (table_data) {
+    $("#history-table").empty();
+    history_table = $("#history-table").DataTable({
+        destroy: true,
+        data: table_data,
+        autoWidth: false,
+        columns: [
+            {
+                data: "event_id",
+                title: "Event ID",
+                render (data, type, full, meta) {
+                    return `<a href='/../monitoring/events/${data}'>${data} <span class="fa fa-link"></span></a>`;
+                }
+            },
+            {
+                data: "site_code",
+                title: "Site Code",
+                render (data, type, full, meta) {
+                    return `${data.toUpperCase()}`;
+                }
+            },
+            {
+                data: "internal_alert_level",
+                title: "Internal Alert Level"
+            },
+            {
+                data: "data_timestamp",
+                title: "Data Timestamp"
+            }
+        ]
+    });
+}
+
+function setEventCountHeader (data) {
+    const header = $("#alert-level option:selected").text();
+
+    if (header !== "ALL") {
+        if (data.length === 1) {
+            $("#event-count-header").text(`${header} EVENT`);
+        } else if (data.length > 1) {
+            $("#event-count-header").text(`${header} EVENTS`);
+        } else {
+            $("#event-count-header").text("NO EVENT");
+        }
+    } else {
+        $("#event-count-header").text("EVENTS");
+    }
+}
+
+function plotPieChart () {
+    var chart = Highcharts.chart("pie-chart-container", {
+        chart: {
+            plotBackgroundColor: null,
+            plotBorderWidth: null,
+            plotShadow: false,
+            type: "pie"
+        },
+        title: {
+            text: ""
+        },
+        tooltip: {
+            pointFormat: "{series.name}: <b>{point.percentage:.1f}%</b>"
+        },
+        plotOptions: {
+            pie: {
+                allowPointSelect: true,
+                cursor: "pointer",
+                dataLabels: {
+                    enabled: true,
+                    format: "<b>{point.name}</b>: {point.percentage:.1f} %",
+                    style: {
+                        color: (Highcharts.theme && Highcharts.theme.contrastTextColor) || "black"
+                    }
+                }
+            }
+        },
+        series: [{
+            name: "Public Alert",
+            colorByPoint: true,
+            data: [{
+                name: "Alert 0",
+                y: 60,
+                sliced: true,
+                selected: true
+            }, {
+                name: "Alert 1",
+                y: 25
+            }, {
+                name: "Alert 2",
+                y: 10
+            }, {
+                name: "Alert 3",
+                y: 5
+            }]
+        }],
+        responsive: {
+            rules: [{
+                condition: {
+                    maxWidth: 500
+                },
+                chartOptions: {
+                    legend: {
+                        align: "center",
+                        verticalAlign: "bottom",
+                        layout: "horizontal"
+                    },
+                    yAxis: {
+                        labels: {
+                            align: "left",
+                            x: 0,
+                            y: -5
+                        },
+                        title: {
+                            text: null
+                        }
+                    },
+                    subtitle: {
+                        text: null
+                    },
+                    credits: {
+                        enabled: false
+                    }
+                }
+            }]
+        }
+    });
+    chart.setSize(450, 248);
+}
+
+/****
+ *
+ *  End of Monitoring Events History Script
+ *
+ ****/
