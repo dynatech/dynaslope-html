@@ -17,16 +17,16 @@ $(document).ready(function () {
         if (event_data[0].length == 0 && extended_data[0].length == 0) {
             initializeOnGoingAndExtended().then((data) => {
                 for (let counter = 0; counter < data.extended.length; counter++) {
-                    initializeRecipients("extended",data.extended[counter]);
+                    initializeRecipients("extended",data.extended[counter],false);
                 }
 
                 for (counter = 0; counter < data.latest.length; counter++) {
-                    initializeRecipients("event",data.latest[counter]);
+                    initializeRecipients("event",data.latest[counter],false);
                 }
             });
         } else {
-            console.log(event_data);
-            console.log(extended_data);
+            initializeRecipients("event", event_data[0], true);
+            initializeRecipients("extended", extended_data[0], true);
         }
     })
     initializeRoutineQA();
@@ -45,36 +45,61 @@ function getSavedSettings() {
 }
 
 function saveSettings(category, site_data, recipients_data) {
+    let data = formatSettings(category, site_data, recipients_data);
+    $.post("qa_tally/save_settings ", data, function(data) {
+        console.log(data);
+    });
+    
+}
+
+function formatSettings(category, site_data, recipients_data) {
     let status = "";
+    let ts = null;
+    if (site_data.data_timestamp == null) {ts = site_data.ts} else {ts = site_data.data_timestamp}
     let data = {
         "event_category": category,
         "ewi_expected": recipients_data[0].length*3,
         "ewi_actual": 0,
         "event_id": site_data.event_id,
-        "ts": site_data.data_timestamp,
+        "ts": ts,
+        "site_id": site_data.site_id,
         "status": 1
     };
-    $.post("qa_tally/save_settings ", data, function(data) {
-        console.log(data);
-    });
+    return data;
 }
 
-function initializeRecipients(category,site_data) {
+function initializeRecipients(category,site_data, isOld) {
     let site_ids_container = [];
-    $.post("../qa_tally/get_default_recipients", {site_ids : site_data.site_id})
-    .done(function(data) {
-        saveSettings(category, site_data, JSON.parse(data));
-        if (category == "event") {
-            displayEvents(JSON.parse(data));
-        } else if (category == "extended") {
-            displayExtendeds(JSON.parse(data));
-        } else {
-            // Routine
+    if (isOld == true) {
+        for (let counter = 0; counter < site_data.length; counter++) {
+            $.post("../qa_tally/get_default_recipients", {site_ids : site_data[counter].site_id})
+            .done(function(data) {
+                if (category == "event") {
+                    displayEvents(formatSettings(category,site_data[counter],JSON.parse(data)), JSON.parse(data));
+                } else if (category == "extended") {
+                    displayExtendeds(formatSettings(category,site_data[counter],JSON.parse(data)),JSON.parse(data));
+                } else {
+                    // Routine
+                }
+            });
         }
-    });
+    } else {
+        $.post("../qa_tally/get_default_recipients", {site_ids : site_data.site_id})
+        .done(function(data) {
+            saveSettings(category, site_data, JSON.parse(data));
+            if (category == "event") {
+                displayEvents(formatSettings(category,site_data[counter],JSON.parse(data)),JSON.parse(data));
+            } else if (category == "extended") {
+                displayExtendeds(formatSettings(category,site_data[counter],JSON.parse(data)),JSON.parse(data));
+            } else {
+                // Routine
+            }
+        });
+    }
 }
 
-function displayEvents(event_data) {
+function displayEvents(settings,event_data) {
+    console.log(settings);
     let site_container = [];
     let recipient_container = [];
     let data = [];
@@ -109,7 +134,7 @@ function displayEvents(event_data) {
     $("#event-qa-display").html(tally_panel_html);
 }
 
-function displayExtendeds(extended_data) {
+function displayExtendeds(settings,extended_data) {
     let site_container = [];
     let recipient_container = [];
     let data = [];
