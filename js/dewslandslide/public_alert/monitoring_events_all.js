@@ -9,6 +9,7 @@ $(document).ready(() => {
     // Initializers
     initializeCurrentAlertsTable();
     initializeHistoryViewOnClick();
+    initializeAnalysisPlotButtonOnClick();
     initializeTimestamps();
 });
 
@@ -153,10 +154,9 @@ function initializeTimestamps () {
 
 function initializeHistoryViewOnClick () {
     // $("#history-tab").click(() => {
-    $("a[data-toggle='tab']").on("shown.bs.tab", () => {
+    $("a[href='#history-tab']").on("shown.bs.tab", () => {
         $("#loading .progress-bar").text("Loading Events History...");
         $("#loading").modal("show");
-        initializeAnalysisPlotButtonOnClick();
         loadDefaultValues();
     });
 }
@@ -190,7 +190,7 @@ function prepareFilters () {
 function getEventsPerAlertLevelHistory (alert_level, start_time, end_time) {
     $.getJSON(`../pubrelease/getEventsPerAlertLevelHistory/${alert_level}/${start_time}/${end_time}`)
     .then((data) => {
-        displaySites(data);        
+        displaySites(data);
         return data;
     })
     .done((data2) => {
@@ -201,7 +201,7 @@ function getEventsPerAlertLevelHistory (alert_level, start_time, end_time) {
     })
     .catch((error) => {
         // Place PMS HERE
-        console.log(error);
+        console.error(error);
     });
 }
 
