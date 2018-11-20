@@ -767,7 +767,7 @@ function initializeManifestationRelatedDOM () {
 
         $(`${name_list} li:not([data-value='new'])`).remove();
         if (feature_type !== "" && feature_type !== "none") {
-            const site_id = $("subsurface").val();
+            const site_id = $("#site_id").val();
             $.get(`/../../pubrelease/getFeatureNames/${site_id}/${feature_type}`, (data) => {
                 $(name_list).siblings("button").prop("disabled", false);
                 data.forEach(({ feature_name, feature_id }) => {
