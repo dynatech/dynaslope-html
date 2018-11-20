@@ -643,9 +643,11 @@ function prepareEwiCard (release_data, $template, validity, event_start, status)
         release_time, internal_alert_level,
         data_timestamp, release_triggers,
         reporter_id_mt, reporter_id_ct,
-        comments, release_id
+        comments, release_id, extra_manifestations
     } = release_data;
-    const [qualifier, is_extended] = selectEwiCardQualifier(data_timestamp, validity, event_start, status);
+    const [
+        qualifier, is_extended
+    ] = selectEwiCardQualifier(data_timestamp, validity, event_start, status);
 
     if (is_extended) $template.find(".timeline-panel").addClass("extended-card");
 
@@ -657,6 +659,8 @@ function prepareEwiCard (release_data, $template, validity, event_start, status)
     $template.find(".release_time").text(moment.utc(release_time, "HH:mm").format("hh:mm A"));
     $template.find(".internal_alert_level").text(internal_alert_level);
 
+    const $trigger_ul = $template.find(".triggers > ul");
+
     if (release_triggers.length === 0) $template.find(".triggers").prop("hidden", true);
     else {
         release_triggers.forEach((trigger) => {
@@ -665,7 +669,6 @@ function prepareEwiCard (release_data, $template, validity, event_start, status)
             const $trigger_li = $("<li>").text(trigger_info);
             const $tech_info_li = $(`<ul><li>${info}</li></ul>`);
 
-            const $trigger_ul = $template.find(".triggers > ul");
             $trigger_ul.append($trigger_li);
             $trigger_ul.append($tech_info_li);
 
@@ -675,6 +678,16 @@ function prepareEwiCard (release_data, $template, validity, event_start, status)
                 $trigger_ul.append($div);
             }
         });
+    }
+
+    if (extra_manifestations.length !== 0) {
+        $template.find(".triggers").prop("hidden", false);
+        const $div = prepareManifestationInfo(extra_manifestations, true);
+        $trigger_ul.after($div);
+        if (release_triggers.length !== 0) {
+            const $hr = $("<div>", { class: "row" }).append("<hr/>");
+            $template.find(".triggers > ul:first").after($hr);
+        }
     }
 
     if (comments === "" || comments === null) $template.find(".comments-div").prop("hidden", true);
@@ -689,7 +702,7 @@ function prepareEwiCard (release_data, $template, validity, event_start, status)
     return $template;
 }
 
-function prepareManifestationInfo (manifestation_info_arr) {
+function prepareManifestationInfo (manifestation_info_arr, is_non_triggering = false) {
     const $first_ul = $("<ul>");
 
     manifestation_info_arr.forEach((man) => {
@@ -698,7 +711,8 @@ function prepareManifestationInfo (manifestation_info_arr) {
 
         const { feature_type, feature_name, op_trigger } = man;
         const type = makeUpperCaseFirstChar(feature_type);
-        const feature_str = `Feature: ${type} ${feature_name} (M${op_trigger})`;
+        const feature_mod = is_non_triggering ? "Non-Triggering " : "";
+        const feature_str = `${feature_mod}Feature: ${type} ${feature_name} (M${op_trigger})`;
         const $features = $(`<ul><li>${feature_str}</li><ul>`);
         $first_ul.append($features);
 
@@ -714,10 +728,16 @@ function prepareManifestationInfo (manifestation_info_arr) {
     });
 
     const [{ validator }] = manifestation_info_arr;
-    const { first_name, last_name } = STAFF_LIST.find(element => element.id === validator);
+    let obj;
+    if (validator !== null) obj = STAFF_LIST.find(element => element.id === validator);
+    else {
+        obj = { first_name: "Shift", last_name: "IOMP" };
+    }
+    const { first_name, last_name } = obj;
     const $validator = $("<li>").text(`Validator: ${first_name} ${last_name}`);
-    $first_ul.children("ul").append($validator);
+    $first_ul.children("ul:last-child").append($validator);
 
+    if (is_non_triggering) return $first_ul.html();
     return $first_ul;
 }
 
