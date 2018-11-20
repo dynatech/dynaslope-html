@@ -184,20 +184,59 @@ function prepareFilters () {
     const start_time = $("#start-time").val();
     const end_time = $("#end-time").val();
 
-    getEventsPerAlertLevelHistory(alert_level, start_time, end_time);
+    // getEventsPerAlertLevelHistory(alert_level, start_time, end_time);
+    getEventsBasedOnDate(alert_level, start_time, end_time);
 }
 
-function getEventsPerAlertLevelHistory (alert_level, start_time, end_time) {
-    $.getJSON(`../pubrelease/getEventsPerAlertLevelHistory/${alert_level}/${start_time}/${end_time}`)
+// function getEventsPerAlertLevelHistory (alert_level, start_time, end_time) {
+//     $.getJSON(`../pubrelease/getEventsPerAlertLevelHistory/${alert_level}/${start_time}/${end_time}`)
+//     .then((data) => {
+//         displaySites(data);
+//         return data;
+//     })
+//     .done((data2) => {
+//         $("#loading").modal("hide");
+//         $("#site-count-per-alert").text(data2.length);
+//         setEventCountHeader(data2);
+//         plotPieChart();
+//     })
+//     .catch((error) => {
+//         // Place PMS HERE
+//         console.error(error);
+//     });
+// }
+
+function getEventsBasedOnDate (alert_level, start_time, end_time) {
+    $.getJSON(`../pubrelease/getEventsBasedOnDate/${start_time}/${end_time}`)
     .then((data) => {
-        displaySites(data);
-        return data;
+        const filtered_data = filterData(data);
+        return filtered_data;
     })
-    .done((data2) => {
+    .then((filtered_data) => {
+        let table_data = "";
+        switch (alert_level) {
+            case "all":
+                table_data = filtered_data.all;
+                break;
+            case "A1":
+                table_data = filtered_data.alert_1;
+                break;
+            case "A2":
+                table_data = filtered_data.alert_2;
+                break;
+            case "A3":
+                table_data = filtered_data.alert_3;
+                break;
+            default:
+                console.error("Error! Undefined alert level.");
+        }
+        displaySites(table_data);
+        setEventCountHeader(table_data);
+        return filtered_data;
+    })
+    .done((plot_data) => {
         $("#loading").modal("hide");
-        $("#site-count-per-alert").text(data2.length);
-        setEventCountHeader(data2);
-        plotPieChart();
+        plotPieChart(plot_data);
     })
     .catch((error) => {
         // Place PMS HERE
@@ -205,9 +244,31 @@ function getEventsPerAlertLevelHistory (alert_level, start_time, end_time) {
     });
 }
 
+function filterData (data) {
+    const a1 = data.filter(({ public_alert_level }) => {
+        let pal = public_alert_level;
+        if (public_alert_level === "ND") pal = "A1";
+
+        return pal === "A1";
+    });
+
+    const a2 = data.filter(({ public_alert_level }) => public_alert_level === "A2");
+
+    const a3 = data.filter(({ public_alert_level }) => public_alert_level === "A3");
+
+    const filtered = {
+        all: data,
+        alert_1: a1,
+        alert_2: a2,
+        alert_3: a3
+    };
+
+    return filtered;
+}
+
 function displaySites (table_data) {
     $("#history-table").empty();
-    history_table = $("#history-table").DataTable({
+    const history_table = $("#history-table").DataTable({
         destroy: true,
         data: table_data,
         autoWidth: false,
@@ -227,6 +288,10 @@ function displaySites (table_data) {
                 }
             },
             {
+                data: "public_alert_level",
+                title: "Public Alert"
+            },
+            {
                 data: "internal_alert_level",
                 title: "Internal Alert Level"
             },
@@ -240,21 +305,22 @@ function displaySites (table_data) {
 
 function setEventCountHeader (data) {
     const header = $("#alert-level option:selected").text();
+    $("#site-count-per-alert").text(data.length);
 
     if (header !== "ALL") {
         if (data.length === 1) {
-            $("#event-count-header").text(`${header} EVENT`);
+            $("#event-count-header").text(`${header} Event`);
         } else if (data.length > 1) {
-            $("#event-count-header").text(`${header} EVENTS`);
+            $("#event-count-header").text(`${header} Events`);
         } else {
-            $("#event-count-header").text("NO EVENT");
+            $("#event-count-header").text(`No ${header} Event`);
         }
     } else {
-        $("#event-count-header").text("EVENTS");
+        $("#event-count-header").text("Events");
     }
 }
 
-function plotPieChart () {
+function plotPieChart ({ alert_1, alert_2, alert_3 }) {
     var chart = Highcharts.chart("pie-chart-container", {
         chart: {
             plotBackgroundColor: null,
@@ -285,19 +351,17 @@ function plotPieChart () {
             name: "Public Alert",
             colorByPoint: true,
             data: [{
-                name: "Alert 0",
-                y: 60,
-                sliced: true,
-                selected: true
-            }, {
                 name: "Alert 1",
-                y: 25
+                y: alert_1.length,
+                color: "rgba(252, 199, 17, 0.5)"
             }, {
                 name: "Alert 2",
-                y: 10
+                y: alert_2.length,
+                color: "rgba(248, 153, 29, 0.7)"
             }, {
                 name: "Alert 3",
-                y: 5
+                y: alert_3.length,
+                color: "rgba(201, 48, 44, 0.5)"
             }]
         }],
         responsive: {
