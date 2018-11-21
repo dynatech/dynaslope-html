@@ -4,7 +4,6 @@ let recent_sites_collection = [];
 let samar_sites_details = [];
 let last_outbox_ts = null;
 let last_inbox_ts = null;
-
 let message_position = null;
 
 $(document).ready(function() {
@@ -19,6 +18,8 @@ $(document).ready(function() {
 	getEmployeeContactGroups();
 	initializeOnSubmitEmployeeContactForm();
 	initializeOnSubmitCommunityContactForm();
+    initializeOnSubmitUnregisteredEmployeeContactForm();
+    initializeOnSubmitUnregisteredCommunityContactForm();
 });
 
 
@@ -41,6 +42,7 @@ function initialize() {
                 initializeContactSuggestion("");
                 initializeOnClickUpdateEmployeeContact();
                 initializeOnClickUpdateCommunityContact();
+                initializeOnClickUpdateUnregisteredContact();
                 getSiteSelection();
                 getLatestAlert()
                 getOrganizationSelection();
@@ -275,6 +277,32 @@ function initializeOnClickUpdateCommunityContact () {
 	});
 }
 
+function initializeOnClickUpdateUnregisteredContact () {
+    $('#unregistered-contact-container').on('click', 'tr:has(td)', function(){
+
+        $('#unregistered-contact-container_wrapper').hide(300);
+        $('#unregistered-wrapper').show(300);
+        let table = $('#unregistered-contact-container').DataTable();
+        let table_data = table.row(this).data();
+        let label = table_data.unknown_label;
+        label = label.split(", ");
+
+        $("#emp_unregistered_user_id").val(table_data.user_id);
+        $("#emp_unregistered_first_name").val(label[0]);
+        $("#emp_unregistered_lastname").val(label[1]);
+        $("#comm_unregistered_user_id").val(table_data.user_id);
+        $("#comm_unregistered_firstname").val(label[0]);
+        $("#comm_unregistered_lastname").val(label[1]);
+
+        let msg = {
+            'type': 'loadUnregisteredMobileNumber',
+            'data': table_data.user_id
+        }; 
+        console.log(msg);
+        wss_connect.send(JSON.stringify(msg));
+    });
+}
+
 function initLoadLatestAlerts (data) {
     initCheckboxColors();
     if (data == null) {
@@ -418,6 +446,18 @@ function initializeOnSubmitCommunityContactForm () {
 	});
 }
 
+function initializeOnSubmitUnregisteredEmployeeContactForm (){
+    $('#emp_unregistered_save').on('click',function(){
+        unregisteredEmployeeContactFormValidation();
+    });
+}
+
+function initializeOnSubmitUnregisteredCommunityContactForm (){
+    $('#comm_unregistered_save').on('click',function(){
+        unregisteredCommunityContactFormValidation();
+    });
+}
+
 function employeeContactFormValidation() {
 	$("#employee-contact-form").validate({
         debug: true,
@@ -476,7 +516,69 @@ function employeeContactFormValidation() {
             submitEmployeeInformation();
             initializeContactSuggestion("");
             getEmployeeContact();
-            console.log("success");
+        }
+    });
+}
+
+function unregisteredEmployeeContactFormValidation() {
+    $("#employee-unregistered-form").validate({
+        debug: true,
+        rules: {
+            emp_unregistered_first_name: "required",
+            emp_unregistered_lastname: "required",
+            emp_unregistered_middlename: "required",
+            emp_unregistered_gender: "required",
+            emp_unregistered_birthdate: "required",
+            emp_unregistered_email: "required",
+            emp_unregistered_active_status: "required",
+            emp_unregistered_team: "required"
+        },
+        messages: { comments: "" },
+        errorPlacement (error, element) {
+            const placement = $(element).closest(".form-group");
+            if ($(element).hasClass("cbox_trigger_switch")) {
+                $("#errorLabel").append(error).show();
+            } else if (placement) {
+                $(placement).append(error);
+            } else {
+                error.insertAfter(placement);
+            } // remove on success
+
+            element.parents(".form-group").addClass("has-feedback");
+
+            // Add the span element, if doesn't exists, and apply the icon classes to it.
+            const $next_span = element.next("span");
+            if (!$next_span[0]) {
+                if (element.is("select") || element.is("textarea")) $next_span.css({ top: "25px", right: "25px" });
+            }
+        },
+        success (label, element) {
+            // Add the span element, if doesn't exists, and apply the icon classes to it.
+            if (!$(element).next("span")) {
+                $("<span class='glyphicon glyphicon-ok form-control-feedback' style='top:0px; right:37px;'></span>").insertAfter($(element));
+            }
+
+            $(element).closest(".form-group").children("label.error").remove();
+        },
+        highlight (element, errorClass, validClass) {
+            $(element).parents(".form-group").addClass("has-error").removeClass("has-success");
+            if ($(element).parent().is(".datetime") || $(element).parent().is(".time")) {
+                $(element).nextAll("span.glyphicon").remove();
+                $("<span class='glyphicon glyphicon-remove form-control-feedback' style='top:0px; right:37px;'></span>").insertAfter($(element));
+            } else $(element).next("span").addClass("glyphicon-remove").removeClass("glyphicon-ok");
+        },
+        unhighlight (element, errorClass, validClass) {
+            $(element).parents(".form-group").addClass("has-success").removeClass("has-error");
+            if ($(element).parent().is(".datetime") || $(element).parent().is(".time")) {
+                $(element).nextAll("span.glyphicon").remove();
+                $("<span class='glyphicon glyphicon-ok form-control-feedback' style='top:0px; right:37px;'></span>").insertAfter($(element));
+            } else $(element).next("span").addClass("glyphicon-ok").removeClass("glyphicon-remove");
+        },
+        submitHandler (form) {
+            submitUnregisteredEmployeeInformation();
+            initializeContactSuggestion("");
+            getEmployeeContact();
+            // console.log("success");
         }
     });
 }
@@ -548,10 +650,13 @@ function communityContactFormValidation () {
 			$("#org-and-site-alert").hide(300);
 			if (site_selected.length === 0 && organization_selected.length === 0) {
 				$("#selection-feedback").text("site and organization selection");
+                $("#org-and-site-alert").show(300);
 			} else if (site_selected.length === 0) {
 				$("#selection-feedback").text("site selection");
+                $("#org-and-site-alert").show(300);
 			} else if (organization_selected.length === 0) {
 				$("#selection-feedback").text("organization selection");
+                $("#org-and-site-alert").show(300);
 			} else {
 				$("#org-and-site-alert").hide(300);
 				//success function here
@@ -564,6 +669,90 @@ function communityContactFormValidation () {
     });
 }
 
+function unregisteredCommunityContactFormValidation () {
+
+    $("#community-unregistered-form").validate({
+        debug: true,
+        rules: {
+            comm_unregistered_firstname: "required",
+            comm_unregistered_lastname: "required",
+            comm_unregistered_gender: "required",
+            comm_unregistered_birthdate: "required",
+            comm_unregistered_active_status: "required",
+            comm_unregistered_ewi_recipient: "required"
+        },
+        messages: { comments: "" },
+        errorPlacement (error, element) {
+            const placement = $(element).closest(".form-group");
+            if ($(element).hasClass("cbox_trigger_switch")) {
+                $("#errorLabel").append(error).show();
+            } else if (placement) {
+                $(placement).append(error);
+            } else {
+                error.insertAfter(placement);
+            } // remove on success
+
+            element.parents(".form-group").addClass("has-feedback");
+
+            // Add the span element, if doesn't exists, and apply the icon classes to it.
+            const $next_span = element.next("span");
+            if (!$next_span[0]) {
+                if (element.is("select") || element.is("textarea")) $next_span.css({ top: "25px", right: "25px" });
+            }
+        },
+        success (label, element) {
+            // Add the span element, if doesn't exists, and apply the icon classes to it.
+            if (!$(element).next("span")) {
+                $("<span class='glyphicon glyphicon-ok form-control-feedback' style='top:0px; right:37px;'></span>").insertAfter($(element));
+            }
+
+            $(element).closest(".form-group").children("label.error").remove();
+        },
+        highlight (element, errorClass, validClass) {
+            $(element).parents(".form-group").addClass("has-error").removeClass("has-success");
+            if ($(element).parent().is(".datetime") || $(element).parent().is(".time")) {
+                $(element).nextAll("span.glyphicon").remove();
+                $("<span class='glyphicon glyphicon-remove form-control-feedback' style='top:0px; right:37px;'></span>").insertAfter($(element));
+            } else $(element).next("span").addClass("glyphicon-remove").removeClass("glyphicon-ok");
+        },
+        unhighlight (element, errorClass, validClass) {
+            $(element).parents(".form-group").addClass("has-success").removeClass("has-error");
+            if ($(element).parent().is(".datetime") || $(element).parent().is(".time")) {
+                $(element).nextAll("span.glyphicon").remove();
+                $("<span class='glyphicon glyphicon-ok form-control-feedback' style='top:0px; right:37px;'></span>").insertAfter($(element));
+            } else $(element).next("span").addClass("glyphicon-ok").removeClass("glyphicon-remove");
+        },
+        submitHandler (form) {
+            site_selected = [];
+            organization_selected = [];
+            $('#unregistered-site-selection-div input:checked').each(function() {
+                site_selected.push($(this).attr('value'));
+            });
+
+            $('#unregistered-organization-selection-div input:checked').each(function() {
+                organization_selected.push($(this).attr('value'));
+            });
+
+            $("#unregistered-org-and-site-alert").hide(300);
+            if (site_selected.length === 0 && organization_selected.length === 0) {
+                $("#unregistered-selection-feedback").text("site and organization selection");
+                $("#unregistered-org-and-site-alert").show(300);
+            } else if (site_selected.length === 0) {
+                $("#unregistered-selection-feedback").text("site selection");
+                $("#unregistered-org-and-site-alert").show(300);
+            } else if (organization_selected.length === 0) {
+                $("#unregistered-selection-feedback").text("organization selection");
+                $("#unregistered-org-and-site-alert").show(300);
+            } else {
+                $("#unregistered-org-and-site-alert").hide(300);
+                submitUnregisteredCommunityContactForm(site_selected, organization_selected);
+                initializeContactSuggestion("");
+                getCommunityContact();
+            }
+            
+        }
+    });
+}
 
 function recentActivityInitializer() {
     $("#routine-actual-option").on("click", function () {

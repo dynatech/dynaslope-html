@@ -42,6 +42,7 @@ $(document).ready(function() {
 	initializeOnClickAddMobileForEmployee();
 	initializeOnClickAddMobileForCommunity();
 	initializeOnClickUnregistered();
+	getUnregisteredNumber();
 });
 
 function initializeOnClickSendRoutine () {
@@ -49,9 +50,9 @@ function initializeOnClickSendRoutine () {
 	let offices = [];
 	let sites_on_routine = [];
 
-	$('#send-routine-msg').click(() => {
+	$('#send-routine-message').click(() => {
 		$("#chatterbox-loader-modal").modal("show");
-	    if ($(".btn.btn-primary.active").val() == "Reminder Message") {
+	    if ($("#routine-tabs li.active a").text() == "Reminder Message") {
 	        offices = ["LEWC"];
 	    } else {
 	        offices = ["LEWC", "MLGU", "BLGU"];
@@ -74,7 +75,7 @@ function getRoutineMobileIDs(offices, sites_on_routine) {
 }
 
 function sendRoutineSMSToLEWC(raw) { // To be refactored to accomodate custom routine message per site
-	let message = $("#routine-msg").val();
+	let message = $("#routine-default-message").val();
 	let sender = " - " + $("#user_name").html() + " from PHIVOLCS-DYNASLOPE";
 	console.log("hereSend");
 	raw.data.forEach(function(contact) {
@@ -110,7 +111,7 @@ function sendRoutineSMSToLEWC(raw) { // To be refactored to accomodate custom ro
 					console.log(err);
 					// Add PMS here
 				}
-				message = $("#routine-msg").val();
+				message = $("#routine-default-message").val();
 			}
 		});
 	});
@@ -163,23 +164,37 @@ function initializeSettingsOnSelectDesign () {
 
 function initializeContactCategoryOnChange () {
 	$('#contact-category').on('change',function(){
-		$('#contact-result').remove();
-		if ($('#contact-category').val() != 'default') {
-			$('#contact-category').css("border-color", "#3c763d");
-			$('#contact-category').css("background-color", "#dff0d8");
-		}
-		$('#settings-cmd').prop('disabled', false);
-		$('#settings-cmd option').prop('selected', function() {
-			$('#settings-cmd').css("border-color", "#d6d6d6");
-			$('#settings-cmd').css("background-color", "inherit");
-			return this.defaultSelected;
-		});
+		if($('#contact-category').val() == 'unregistered'){
+			$("#settings-cmd").prop('disabled', true);
+			$('#emp-response-contact-container_wrapper').hide();
+			$('#comm-response-contact-container_wrapper').hide();
+			$('#employee-contact-wrapper').hide();
+			$('#community-contact-wrapper').hide();
+			$("#unregistered-wrapper").hide();
+			$('#unregistered-contact-container').show();
+			$('#unregistered-contact-container_wrapper').show();
+		}else{
+			$('#contact-result').remove();
+			if ($('#contact-category').val() != 'default') {
+				$('#contact-category').css("border-color", "#3c763d");
+				$('#contact-category').css("background-color", "#dff0d8");
+			}
+			$('#settings-cmd').prop('disabled', false);
+			$('#settings-cmd option').prop('selected', function() {
+				$('#settings-cmd').css("border-color", "#d6d6d6");
+				$('#settings-cmd').css("background-color", "inherit");
+				return this.defaultSelected;
+			});
 
-		$('#update-contact-container').prop('hidden',true);
-		$('#comm-response-contact-container_wrapper').prop('hidden',true);
-		$('#emp-response-contact-container_wrapper').prop('hidden',true);
-		$('#employee-contact-wrapper').prop('hidden', true);
-		$('#community-contact-wrapper').prop('hidden', true);
+			$('#update-contact-container').hide();
+			$('#comm-response-contact-container_wrapper').hide();
+			$('#emp-response-contact-container_wrapper').hide();
+			$('#employee-contact-wrapper').hide();
+			$('#community-contact-wrapper').hide();
+			$('#unregistered-wrapper').hide();
+			$('#unregistered-contact-container').hide();
+			$('#unregistered-contact-container_wrapper').hide();
+		}
 	});
 }
 
@@ -248,7 +263,7 @@ function initializeContactSettingsOnChange () {
 			} else {
 				console.log('Invalid Request');
 			}
-		} else {
+		}else {
 			console.log('Invalid Request');
 		}
 	});
@@ -414,9 +429,81 @@ function initializeOnClickAddMobileForEmployee () {
 		
 	});
 
+	$("#emp_unregistered_add_mobile").click(function(){
+		if (employee_input_count <= 4) {
+			$("#emp_unregistered_mobile_div").append(
+			"<div class='row'>"+
+		    "<div class='col-md-4'>"+
+		    "<div class='form-group hideable'>"+
+			"<label class='control-label' for='employee_mobile_number_"+employee_input_count+"'>Mobile #</label>"+
+			"<input type='number' class='form-control employee_mobile_number' id='employee_mobile_number_"+employee_input_count+"' name='employee_mobile_number_"+employee_input_count+"' value='' required/>"+
+			"</div>"+
+			"</div>"+
+			"<div class='col-md-4' hidden>"+
+			"<label>Mobile ID #:</label>"+
+			"<input type='text' id='employee_mobile_id_"+employee_input_count+"' class='form-control employee_mobile_id' disabled>"+
+			"</div>"+
+			"<div class='col-md-4'>"+
+			"<div class='form-group hideable'>"+
+			"<label class='control-label' for='employee_mobile_status_"+employee_input_count+"'>Mobile # Status</label>"+
+			"<select class='form-control' id='employee_mobile_status_"+employee_input_count+"' name='employee_mobile_status_"+employee_input_count+"' class='form-control employee_mobile_status' value='' required>"+
+			"<option value='1'>Active</option>"+
+			"<option value='0'>Inactive</option>"+
+			"</select>"+
+			"</div>"+
+			"</div>"+
+			"<div class='col-md-4'>"+
+		    "<div class='form-group hideable'>"+
+			"<label class='control-label' for='employee_mobile_priority_"+employee_input_count+"'>Mobile # Priority</label>"+
+			"<select id='employee_mobile_priority_"+employee_input_count+"'' name='employee_mobile_priority_"+employee_input_count+"' class='form-control employee_mobile_priority' value='' required>"+
+			"<option value=''>--------</option>"+
+			"<option value='1'>1</option>"+
+			"<option value='2'>2</option>"+
+			"<option value='3'>3</option>"+
+			"<option value='4'>4</option>"+
+			"<option value='5'>5</option>"+
+			"</select>"+
+			"</div>"+
+			"</div>"+
+			"</div>");
+			employee_input_count +=1;
+		} else {
+			$.notify("Reach the maximum entry for mobile number", "warn");
+		}
+		
+	});
+
 	$("#employee-add-landline").click(function(){
 		if (employee_input_count_landline <= 4) {
 			$("#landline-div").append(
+			"<div class='row'>"+
+		    "<div class='col-md-6'>"+
+			"<div class='form-group hideable'>"+
+	        "<label class='control-label' for='employee_landline_number_"+employee_input_count_landline+"'>Landline #</label>"+
+			"<input type='number' class='form-control' id='employee_landline_number_"+employee_input_count_landline+"' name='employee_landline_number_"+employee_input_count_landline+"' required/>"+
+			"</div>"+
+			"</div>"+
+			"<div class='col-md-4' hidden>"+
+			"<label>Landline ID #:</label>"+
+			"<input type='text' id='employee_landline_id_"+employee_input_count_landline+"' class='form-control' value='' disabled>"+
+			"</div>"+
+			"<div class='col-md-6'>"+
+			"<div class='form-group hideable'>"+
+			"<label class='control-label' for='employee_landline_remarks_"+employee_input_count_landline+"'>Remarks</label>"+
+			"<input type='text' class='form-control' id='employee_landline_remarks_"+employee_input_count_landline+"' name='employee_landline_remarks_"+employee_input_count_landline+"' required/>"+
+			"</div>"+
+			"</div>"+
+			"</div>");
+			employee_input_count_landline +=1;
+		} else {
+			$.notify("Reach the maximum entry for landile number", "warn");
+		}
+		
+	});
+
+	$("#emp_unregistered_add_landline").click(function(){
+		if (employee_input_count_landline <= 4) {
+			$("#emp_unregistered_landline_div").append(
 			"<div class='row'>"+
 		    "<div class='col-md-6'>"+
 			"<div class='form-group hideable'>"+
@@ -586,6 +673,75 @@ function submitEmployeeInformation () {
 	wss_connect.send(JSON.stringify(message));
 }
 
+function submitUnregisteredEmployeeInformation () {
+	const save_type = "updatecontact";
+	let message_type = null;
+	let team_inputted = $("#emp_unregistered_team").val();
+	let email_inputted = $("#emp_unregistered_email").val();
+	let mobile_numbers = [];
+	let landline_numbers = [];
+
+	//for mobile number
+	const employee_mobile = $("#emp_unregistered_mobile_div :input").length / 4;
+	for (let counter = 1; counter < employee_input_count; counter +=1) {
+		const mobile_number_raw = {
+			"user_id": $("#emp_unregistered_user_id").val(),
+			"mobile_id": $("#employee_mobile_id_"+counter).val(),
+			"mobile_number": $("#employee_mobile_number_"+counter).val(),
+			"mobile_status": $("#employee_mobile_status_"+counter).val(),
+			"mobile_priority": $("#employee_mobile_priority_"+counter).val()
+		};
+		mobile_numbers.push(mobile_number_raw);
+	}
+	
+	//for landline number
+	for (let counter = 1; counter < employee_input_count_landline; counter +=1) {
+		const landline_number_raw = {
+			"user_id": $("#emp_unregistered_user_id").val(),
+			"id": $("#employee_landline_id_"+counter).val(),
+			"landline_number": $("#employee_landline_number_"+counter).val(),
+			"landline_remarks": $("#employee_landline_remarks_"+counter).val()
+		};
+		landline_numbers.push(landline_number_raw);
+	}
+
+	contact_data = {
+		"id": $("#emp_unregistered_user_id").val(),
+		"salutation": $("#emp_unregistered_salutation").val(),
+		"firstname": $("#emp_unregistered_first_name").val(),
+		"middlename": $("#emp_unregistered_middlename").val(),
+		"lastname": $("#emp_unregistered_lastname").val(),
+		"nickname": $("#emp_unregistered_nickname").val(),
+		"birthdate": $("#emp_unregistered_birthdate").val(),
+		"gender": $("#emp_unregistered_gender").val(),
+		"contact_active_status": $("#emp_unregistered_active_status").val(),
+		"teams": team_inputted,
+		"email_address": email_inputted,
+		"numbers": mobile_numbers,
+		"landline": landline_numbers
+	}
+
+	console.log(contact_data);
+	
+	if (save_type === "updatecontact") {
+		message_type = "updateDewslContact";
+	}else {
+		message_type = "newDewslContact";
+	}
+	console.log(contact_data);
+	message = {
+		type: message_type,
+		data: contact_data
+	}
+	// $('#emp-response-contact-container_wrapper').show();
+	// $('#employee-contact-wrapper').hide();
+	
+	// console.log(mobile_numbers);
+	wss_connect.send(JSON.stringify(message));
+	$("#employee-unregistered-form")[0].reset();
+	getUnregisteredNumber();
+}
+
 function submitCommunityContactForm (sites, organizations) {
 	const save_type = $("#settings-cmd").val();
 	let message_type = null;
@@ -647,6 +803,72 @@ function submitCommunityContactForm (sites, organizations) {
 
 	$('#comm-response-contact-container_wrapper').show();
 	$('#community-contact-wrapper').hide();
+
+	wss_connect.send(JSON.stringify(message));
+}
+
+function submitUnregisteredCommunityContactForm (sites, organizations) {
+	const save_type = "updatecontact";
+	let message_type = null;
+	let mobile_numbers = [];
+	let landline_numbers = [];
+
+	//for mobile number
+	for (let counter = 1; counter < community_input_count; counter +=1) {
+		const mobile_number_raw = {
+			"user_id": $("#user_id_cc").val(),
+			"mobile_id": $("#community_mobile_id_"+counter).val(),
+			"mobile_number": $("#community_mobile_number_"+counter).val(),
+			"mobile_status": $("#community_mobile_status_"+counter).val(),
+			"mobile_priority": $("#community_mobile_priority_"+counter).val()
+		};
+		mobile_numbers.push(mobile_number_raw);
+	}
+
+	//for landline number
+	for (let counter = 1; counter < community_input_count_landline; counter +=1) {
+		const landline_number_raw = {
+			"user_id": $("#user_id_cc").val(),
+			"landline_id": $("#community_landline_id_"+counter).val(), 
+			"landline_number": $("#community_landline_number_"+counter).val(),
+			"landline_remarks": $("#community_landline_remarks_"+counter).val()
+		};
+		landline_numbers.push(landline_number_raw);
+	}
+
+	contact_data = {
+		"user_id": $("#comm_unregistered_user_id").val(),
+		"salutation": $("#comm_unregistered_salutation").val(),
+		"firstname": $("#comm_unregistered_firstname").val(),
+		"middlename": $("#comm_unregistered_middlename").val(),
+		"lastname": $("#comm_unregistered_lastname").val(),
+		"nickname": $("#comm_unregistered_nickname").val(),
+		"birthdate": $("#comm_unregistered_birthdate").val(),
+		"gender": $("#comm_unregistered_gender").val(),
+		"contact_active_status": $("#comm_unregistered_active_status").val(),
+		"ewi_recipient": $("#comm_unregistered_ewi_recipient").val(),
+		"numbers": mobile_numbers,
+		"landline": landline_numbers,
+		"sites": site_selected,
+		"organizations": organization_selected
+	}
+
+
+	// console.log(contact_data);
+
+	if (save_type === "updatecontact") {
+		message_type = "updateCommunityContact";
+	}else {
+		message_type = "newCommunityContact";
+	}
+
+	const message = {
+		type: message_type,
+		data: contact_data
+	}
+	console.log(message);
+	// $('#comm-response-contact-container_wrapper').show();
+	// $('#community-contact-wrapper').hide();
 
 	wss_connect.send(JSON.stringify(message));
 }

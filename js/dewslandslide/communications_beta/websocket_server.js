@@ -40,6 +40,9 @@ function connectWS() {
 					displayUnregisteredInboxMain(msg_data.data);
 					// displayDataTableUnregisteredContacts(msg_data.data);
 					break;
+				case "allUnregisteredNumbers":
+					displayDataTableUnregisteredContacts(msg_data.data);
+					break;	
 				case "latestAlerts":
 					initLoadLatestAlerts(msg_data.data);
 					break;					
@@ -74,6 +77,9 @@ function connectWS() {
 					break;
 				case "fetchedSelectedCmmtyContact":
 					displayUpdateCommunityDetails(msg_data.data);
+					break;	
+				case "unregisteredNumber":
+					displayUnregisteredMobiles(msg_data.data);
 					break;	
 				case "newCommunityContact":
 					displayAddCommunityContactMessage(msg_data);

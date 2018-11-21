@@ -86,6 +86,18 @@ function getCommunityContact(){
 	}
 }
 
+function getUnregisteredNumber(){
+	try {
+		let community_details = {
+			'type': 'loadAllUnregisteredNumber'
+		};
+		wss_connect.send(JSON.stringify(community_details));
+	} catch(err) {
+		console.log(err);
+		// Add PMS here
+	}
+}
+
 function displaySitesSelection(data) {
 	let sitenames = data;
 	let sitename, site_id, psgc;
@@ -141,7 +153,6 @@ function displayQuickInboxMain(msg_data) {
 }
 
 function displayUnregisteredInboxMain(msg_data) {
-	console.log(msg_data);
 	try {
 		try {
 			for (let counter = 0; counter < msg_data.length; counter++) {
@@ -221,8 +232,10 @@ function displayOrgSelection(data){
 function displayContactSettingsMenu() {
 	$('#employee-contact-wrapper').prop('hidden', true);
 	$('#community-contact-wrapper').prop('hidden', true);
+	$('#unregistered-contact-container').prop('hidden', true);
 	$('#comm-response-contact-container_wrapper').prop('hidden',true);
 	$('#emp-response-contact-container_wrapper').prop('hidden',true);
+	$('#unregistered-contact-container_wrapper').prop('hidden',true);
 	$('#update-contact-container').prop('hidden',true);
 	$('#contact-result').remove();
 	// fetchSiteAndOffice();
@@ -268,12 +281,10 @@ function displayDataTableUnregisteredContacts (unregistered_data){
 		destroy: true,
 		data: unregistered_data,
 		columns: [
-		{ "data": "mobile_id", "title": "Mobile ID"},
-		{ "data": "sms_id", "title": "SMS ID"},
-		{ "data": "full_name", "title": "Label"},
-		{ "data": "network", "title": "Network"},
-		{ "data": "user_number", "title": "Mobile Number"},
-		{ "data": "ts_received", "title": "Timestamp Received"}
+			{ "data": "user_id", "title": "Unknown ID"},
+			{ "data": "unknown_label", "title": "Label"},
+			{ "data": "mobile_id", "title": "Mobile ID"},
+			{ "data": "user_number", "title": "User Number"}
 		]
 	});
 	$('#unregistered-contact-container').prop('hidden',false);
@@ -284,12 +295,14 @@ function displaySiteSelection (sites,psgc_source = []) {
 	$('#new-site').remove();
 	for (var counter = 0; counter < column_count; counter++) {
 		$('#sitenames-cc-'+counter).empty();
+		$('#unregistered-sitenames-cc-'+counter).empty();
 	}
 	// console.log(psgc_source[1].psgc);
 	for (var i = 0; i < sites.length; i++) {
 		var modIndex = i % 6;
 		var site = sites[i];
 		$("#sitenames-cc-"+modIndex).append('<div class="checkbox"><label><input type="checkbox" id="id_'+site.psgc_source+'" name="sites" class="form-group site-checkbox" value="'+site.site_code+'">'+site.site_code.toUpperCase()+'</label></div>');
+		$("#unregistered-sitenames-cc-"+modIndex).append('<div class="checkbox"><label><input type="checkbox" id="id_'+site.psgc_source+'" name="sites" class="form-group site-checkbox" value="'+site.site_code+'">'+site.site_code.toUpperCase()+'</label></div>');
 
 		for (var counter = 0; counter < psgc_source.length; counter++) {
 			// TODO : OPTIMIZE BETTER LOGIC FOR THIS.
@@ -312,6 +325,7 @@ function displaySiteSelection (sites,psgc_source = []) {
 			if (psgc_source[counter].site_code.toLowerCase() == site.site_code) {
 				console.log(psgc_source[counter].site_code +"|"+ site.site_code);
 				$("#sitenames-cc-"+modIndex).find(".checkbox").find("[value="+site.site_code+"]").prop('checked',true);
+				$("#unregistered-sitenames-cc-"+modIndex).find(".checkbox").find("[value="+site.site_code+"]").prop('checked',true);
 			}
 		}
 	}
@@ -323,6 +337,7 @@ function displayOrganizationSelection (orgs,user_orgs = []) {
 	$('#new-org').remove();
 	for (var counter = 0; counter < column_count; counter++) {
 		$('#orgs-cc-'+counter).empty();
+		$('#unregistered-orgs-cc-'+counter).empty();
 	}
 
 	for (var i = 0; i < orgs.length; i++) {
@@ -330,10 +345,12 @@ function displayOrganizationSelection (orgs,user_orgs = []) {
 		let org = orgs[i];
 		let formatted_office_id = org.org_name.replace(": ", "_");
 		$("#orgs-cc-"+modIndex).append('<div class="checkbox"><label><input type="checkbox" id="id_'+formatted_office_id+'" name="orgs" class="form-group organization-checkbox" value="'+org.org_name+'">'+org.org_name.toUpperCase()+'</label></div>');
+		$("#unregistered-orgs-cc-"+modIndex).append('<div class="checkbox"><label><input type="checkbox" id="id_'+formatted_office_id+'" name="orgs" class="form-group organization-checkbox" value="'+org.org_name+'">'+org.org_name.toUpperCase()+'</label></div>');
 		for (var counter = 0; counter < user_orgs.length; counter++) {
 			if (user_orgs[counter].org_name.toUpperCase() == org.org_name.toUpperCase()) {
 				let formatted_office_value = org.org_name.replace(": ", "_");
 				$("#orgs-cc-"+modIndex).find(".checkbox").find("#id_"+formatted_office_value).prop('checked',true);
+				$("#unregistered-orgs-cc-"+modIndex).find(".checkbox").find("#id_"+formatted_office_value).prop('checked',true);
 			}
 		}
 	}
@@ -580,6 +597,24 @@ function displayUpdateCommunityDetails (community_data) {
 	displayOrganizationSelection(community_data.list_of_orgs, community_data.org_data);
 }
 
+function displayUnregisteredMobiles(data){
+	console.log(data);
+	for (let counter = 0; counter < data.length; counter+=1) {
+		if(data[counter].user_number != null){
+
+			const number_count = counter + 1;
+			const mobile_data = {
+				"mobile_number" : data[counter].user_number,
+				"mobile_status" : data[counter].mobile_status,
+				"mobile_priority" : data[counter].priority,
+				"mobile_id" : data[counter].mobile_id
+			}
+			appendContactForms("Mobile", number_count, "emp_unregistered_mobile", mobile_data);
+			appendContactForms("Mobile", number_count, "comm_unregistered_mobile", mobile_data);
+		}
+	}
+}
+
 function appendContactForms (type, number_count, category, data) {
 	let container = "";
 	if (category == "employee_mobile") {
@@ -590,6 +625,18 @@ function appendContactForms (type, number_count, category, data) {
 		container = "#mobile-div-cc";
 	} else if (category == "community_landline"){
 		container = "#landline-div-cc";
+	} else if (category == "emp_unregistered_mobile") {
+		category = "employee_mobile";
+		container = "#emp_unregistered_mobile_div";
+	} else if (category == "emp_unregistered_landline") {
+		category = "employee_landline";
+		container = "#emp_unregistered_landline_div";
+	} else if (category == "comm_unregistered_mobile") {
+		category = "community_mobile";
+		container = "#comm_unregistered_mobile_div";
+	} else if (category == "comm_unregistered_landline") {
+		category = "community_landline";
+		container = "#comm_unregistered_landline_div";
 	}
 
 	if(number_count === 1) // Empty the container if first append. If not, just continue appending the next contact number.
@@ -716,7 +763,7 @@ function siteConversation(){
 }
 
 function getRoutineMsgFromCBXMain() {
-	var routine_msg = $("#routine-msg").val();
+	var routine_msg = $("#routine-default-message").val();
 	return routine_msg;
 }
 
@@ -794,7 +841,7 @@ function displayImportantTags (data , is_loaded = false) {
 }
 
 function displayRoutineTemplate(template) {
-	$("#routine-msg").val(template[0].template);
+	$("#routine-default-message").val(template[0].template);
 }
 
 function addSitesActivity (sites) {
