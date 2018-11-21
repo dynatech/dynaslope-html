@@ -12,6 +12,7 @@ let routine_qa_html = routine_qa_template();
 
 $(document).ready(function () {
     getSavedSettings().then((saved_data) => {
+        console.log(saved_data);
         let event_data = saved_data[0];
         let extended_data = saved_data[1];
         if (event_data[0].length == 0 && extended_data[0].length == 0) {
@@ -65,7 +66,7 @@ function formatSettings(category, site_data, recipients_data) {
     let data = {
         "event_category": category,
         "ewi_expected": recipients_data[0].length*3,
-        "ewi_actual": 0,
+        "ewi_actual": site_data.ewi_actual,
         "event_id": site_data.event_id,
         "ts": ts,
         "site_id": site_data.site_id,
@@ -136,8 +137,6 @@ function displayEvents(settings,event_data) {
         "ewi_expected": settings.ewi_expected,
         "last_ts": settings.ts
     };
-
-    console.log(data);
 
     event_details.unshift(data);
     tally_panel_html = event_qa_template({'tally_data': event_details});
