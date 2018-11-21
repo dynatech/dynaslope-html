@@ -236,7 +236,7 @@ function tagBulletin (release_id, edited_field_values, original_field_values) {
 
 function sendMail (text, subject, filename, recipients, release_id) {
     $LOADING.find(".progress-bar").text("Sending EWI and Bulletin...");
-    const is_test = HOSTNAME.includes("dynaslope.phivolcs.dost");
+    const is_test = !HOSTNAME.includes("dynaslope.phivolcs.dost");
     const form = {
         text,
         subject,
