@@ -55,7 +55,13 @@ function saveSettings(category, site_data, recipients_data) {
 function formatSettings(category, site_data, recipients_data) {
     let status = "";
     let ts = null;
-    if (site_data.data_timestamp == null) {ts = site_data.ts} else {ts = site_data.data_timestamp}
+    let id_category = "";
+    if (site_data.data_timestamp == undefined) {
+        ts = site_data.ts
+    } else {
+        ts = site_data.data_timestamp
+    }
+
     let data = {
         "event_category": category,
         "ewi_expected": recipients_data[0].length*3,
@@ -88,9 +94,9 @@ function initializeRecipients(category,site_data, isOld) {
         .done(function(data) {
             saveSettings(category, site_data, JSON.parse(data));
             if (category == "event") {
-                displayEvents(formatSettings(category,site_data[counter],JSON.parse(data)),JSON.parse(data));
+                displayEvents(formatSettings(category,site_data,JSON.parse(data)),JSON.parse(data));
             } else if (category == "extended") {
-                displayExtendeds(formatSettings(category,site_data[counter],JSON.parse(data)),JSON.parse(data));
+                displayExtendeds(formatSettings(category,site_data,JSON.parse(data)),JSON.parse(data));
             } else {
                 // Routine
             }
@@ -99,7 +105,6 @@ function initializeRecipients(category,site_data, isOld) {
 }
 
 function displayEvents(settings,event_data) {
-    console.log(settings);
     let site_container = [];
     let recipient_container = [];
     let data = [];
@@ -126,8 +131,13 @@ function displayEvents(settings,event_data) {
     data = {
         "site_name": trimmed_site_name,
         "site_code": event_data[0][0].site_code,
-        "recipients": recipient_container
+        "recipients": recipient_container,
+        "ewi_actual": settings.ewi_actual,
+        "ewi_expected": settings.ewi_expected,
+        "last_ts": settings.ts
     };
+
+    console.log(data);
 
     event_details.unshift(data);
     tally_panel_html = event_qa_template({'tally_data': event_details});
@@ -161,9 +171,12 @@ function displayExtendeds(settings,extended_data) {
     data = {
         "site_name": trimmed_site_name,
         "site_code": extended_data[0][0].site_code,
-        "recipients": recipient_container
+        "recipients": recipient_container,
+        "ewi_actual": settings.ewi_actual,
+        "ewi_expected": settings.ewi_expected,
+        "last_ts": settings.ts
     };
-
+    console.log(data)
     extended_details.unshift(data);
     tally_panel_html = extended_qa_template({'tally_data': extended_details});
     $("#extended-qa-display").html(tally_panel_html);
