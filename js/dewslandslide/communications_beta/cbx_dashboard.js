@@ -3,6 +3,7 @@ let ewi_site_id = null;
 let ewi_timestamp = null;
 let ewi_data_timestamp = null;
 let ewi_event_start = null;
+let event_category = null;
 let temp_ewi_button_container = null;
 $(document).ready(() => {
 	let temp_ewi_template_holder = "";
@@ -33,7 +34,7 @@ function initializeEwiPhoneButton() {
         	"event_category": "event",
         	"data": current_row
         };
-
+        event_category = request.event_category;
 		wss_connect.send(JSON.stringify(request));
     });
 }
@@ -50,13 +51,12 @@ function initializeEwiPhoneExtendedButton() {
         ewi_event_id = current_row.event_id;
         ewi_site_id = current_row.site_id;
         ewi_data_timestamp = moment(current_row.data_timestamp).add(30, "m").format('YYYY-MM-DD H:mm:ss');
-        console.log(current_row);
         let request = {
         	"type": "getEwiDetailsViaDashboard",
         	"event_category": 'extended',
         	"data": current_row
         };
-
+        event_category = request.event_category;
 		wss_connect.send(JSON.stringify(request));
     });
 }
@@ -98,8 +98,10 @@ function initializeEditUndoButtons() {
 function initializeSendButton() {
 	let dashboard_sms_signature = ` - ${first_name} from PHIVOLCS-DYNASLOPE`;
 	$("#send-btn-ewi-amd").click(function() {
+        console.log(event_category);
 		let request = {
 			"type": "sendEwiViaDashboard",
+            "event_category": event_category,
 			"event_id": ewi_event_id,
 			"site_id": ewi_site_id,
 			"timestamp": ewi_timestamp,

@@ -12,7 +12,6 @@ let routine_qa_html = routine_qa_template();
 
 $(document).ready(function () {
     getSavedSettings().then((saved_data) => {
-        console.log(saved_data);
         let event_data = saved_data[0];
         let extended_data = saved_data[1];
         if (event_data[0].length == 0 && extended_data[0].length == 0) {
@@ -29,7 +28,7 @@ $(document).ready(function () {
             initializeRecipients("event", event_data[0], true);
             initializeRecipients("extended", extended_data[0], true);
         }
-    })
+    });
     initializeRoutineQA();
 });
 
@@ -57,21 +56,40 @@ function formatSettings(category, site_data, recipients_data) {
     let status = "";
     let ts = null;
     let id_category = "";
+    let ewi_expected = 0;
+    let ewi_actual = 0;
+    let gnd_meas_reminder_expected = 0;
+    let gnd_meas_reminder_actual = 0;
     if (site_data.data_timestamp == undefined) {
         ts = site_data.ts
     } else {
         ts = site_data.data_timestamp
     }
 
+    if (category == "event") {
+        ewi_expected = recipients_data[0].length*3;
+        gnd_meas_reminder_expected = recipients_data[0].length*2;
+        // add filter for am and pm shifts
+    } else if (category == "extended") {
+        ewi_expected = recipients_data[0].length;
+        gnd_meas_reminder_expected = recipients_data[0].length;
+    }
+
+    if (site_data.ewi_actual != undefined || site_data.ewi_actual != null) {ewi_actual = site_data.ewi_actual;}
+    if (site_data.gndmeas_reminder_actual != undefined || site_data.gndmeas_reminder_actual != null) {gnd_meas_reminder_actual = site_data.gndmeas_reminder_actual;}
+    
     let data = {
         "event_category": category,
-        "ewi_expected": recipients_data[0].length*3,
-        "ewi_actual": site_data.ewi_actual,
+        "ewi_expected": ewi_expected,
+        "ewi_actual": ewi_actual,
+        "gndmeas_reminder_expected": gnd_meas_reminder_expected,
+        "gndmeas_reminder_actual": gnd_meas_reminder_actual,
         "event_id": site_data.event_id,
         "ts": ts,
         "site_id": site_data.site_id,
         "status": 1
     };
+
     return data;
 }
 
@@ -135,12 +153,18 @@ function displayEvents(settings,event_data) {
         "recipients": recipient_container,
         "ewi_actual": settings.ewi_actual,
         "ewi_expected": settings.ewi_expected,
-        "last_ts": settings.ts
+        "gndmeas_expected": settings.gndmeas_expected,
+        "gndmeas_actual": settings.gndmeas_actual,
+        "gndmeas_reminder_expected": settings.gndmeas_reminder_expected,
+        "gndmeas_reminder_actual": settings.gndmeas_reminder_actual,
+        "last_ts": settings.ts,
+        "event_id": settings.event_id
     };
 
     event_details.unshift(data);
     tally_panel_html = event_qa_template({'tally_data': event_details});
     $("#event-qa-display").html(tally_panel_html);
+    initializeEvaluateEvent();
 }
 
 function displayExtendeds(settings,extended_data) {
@@ -173,14 +197,32 @@ function displayExtendeds(settings,extended_data) {
         "recipients": recipient_container,
         "ewi_actual": settings.ewi_actual,
         "ewi_expected": settings.ewi_expected,
-        "last_ts": settings.ts
+        "gndmeas_expected": settings.gndmeas_expected,
+        "gndmeas_actual": settings.gndmeas_actual,
+        "gndmeas_reminder_expected": settings.gndmeas_reminder_expected,
+        "gndmeas_reminder_actual": settings.gndmeas_reminder_actual,
+        "last_ts": settings.ts,
+        "event_id": settings.event_id
     };
-    console.log(data)
     extended_details.unshift(data);
     tally_panel_html = extended_qa_template({'tally_data': extended_details});
     $("#extended-qa-display").html(tally_panel_html);
+    initializeEvaluateExtended();
+        
 }
 
 function displayRoutines() {
     $("#routine-qa-display").html(routine_qa_html);
+}
+
+function initializeEvaluateEvent() {
+    $(".evaluate-event").on("click",function() {
+        console.log($(this).val());
+    });
+}
+
+function initializeEvaluateExtended() {
+    $(".evaluate-extended").on("click",function() {
+        console.log($(this).val());
+    });
 }
