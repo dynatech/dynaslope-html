@@ -48,7 +48,6 @@ function saveSettings(category, site_data, recipients_data) {
     let data = formatSettings(category, site_data, recipients_data);
     $.post("qa_tally/save_settings ", data, function(data) {
     });
-    
 }
 
 function formatSettings(category, site_data, recipients_data) {
@@ -227,12 +226,18 @@ function displayRoutines() {
 
 function initializeEvaluateEvent() {
     $(".evaluate-event").on("click",function() {
-        console.log($(this).val());
+        let event_id = $(this).val();
+        $.post("qa_tally/evaluate_site", event_id, function(data) {
+            console.log(data);
+        });
     });
 }
 
 function initializeEvaluateExtended() {
     $(".evaluate-extended").on("click",function() {
-        console.log($(this).val());
+        let event_id = $(this).val();
+        $.post("qa_tally/evaluate_site", event_id, function(data) {
+            console.log(data);
+        });
     });
 }
