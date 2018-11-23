@@ -47,13 +47,11 @@ function getSavedSettings() {
 function saveSettings(category, site_data, recipients_data) {
     let data = formatSettings(category, site_data, recipients_data);
     $.post("qa_tally/save_settings ", data, function(data) {
-        console.log(data);
     });
     
 }
 
 function formatSettings(category, site_data, recipients_data) {
-    console.log(site_data);
     let status = "";
     let ts = null;
     let id_category = "";
@@ -61,6 +59,8 @@ function formatSettings(category, site_data, recipients_data) {
     let ewi_actual = 0;
     let gnd_meas_reminder_expected = 0;
     let gnd_meas_reminder_actual = 0;
+    let temp = 0;
+
     if (site_data.data_timestamp == undefined) {
         ts = site_data.ts
     } else {
@@ -69,11 +69,20 @@ function formatSettings(category, site_data, recipients_data) {
 
     if (category == "event") {
         ewi_expected = recipients_data[0].length*3;
-        gnd_meas_reminder_expected = recipients_data[0].length*2;
-        // add filter for am and pm shifts
+        for (let counter = 0; counter < recipients_data[0].length; counter++) {
+            if (recipients_data[0][counter].org_name.toUpperCase() == "LEWC") {
+                temp++;
+            } 
+        }
+        gnd_meas_reminder_expected = temp*2;
     } else if (category == "extended") {
         ewi_expected = recipients_data[0].length;
-        gnd_meas_reminder_expected = recipients_data[0].length;
+        for (let counter = 0; counter < recipients_data[0].length; counter++) {
+            if (recipients_data[0][counter].org_name.toUpperCase() == "LEWC") {
+                temp++;
+            }  
+        }
+        gnd_meas_reminder_expected = temp;
     }
 
     if (site_data.ewi_actual != undefined || site_data.ewi_actual != null) {ewi_actual = site_data.ewi_actual;}
