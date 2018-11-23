@@ -20,7 +20,7 @@ $(document).ready(() => {
             }
         });
     })(jQuery, undefined);
-    
+
     // Instantiate All Dropdown Instances
     $(".dropdown-toggle").dropdown();
 
@@ -33,16 +33,14 @@ $(document).ready(() => {
     });
 
     (($) => {
-        $(".container-line-text.timeline-head-text").each((i, elem) => {
-            recenterTimelineHeadText();
-        });
+        recenterTimelineHeadText(".container-line-text.timeline-head-text");
     })(jQuery, undefined);
 });
 
-function recenterTimelineHeadText () {
-    $(".container-line-text.timeline-head-text").each((i, elem) => {
+function recenterTimelineHeadText (class_name, adjustment = 0) {
+    $(class_name).each((i, elem) => {
         const width = $(elem).outerWidth();
         const parent_width = $(elem).parent().width();
-        $(elem).css("left", (parent_width / 2) - (width / 2));
+        $(elem).css("left", (parent_width / 2) - (width / 2) + adjustment);
     });
 }
