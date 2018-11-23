@@ -331,6 +331,9 @@ select option:disabled {
   .container-line.section-head {
     margin-top: 50px;
     margin-bottom: 60px; }
+  .container-line.bottom-line {
+    margin-top: 20px;
+    margin-bottom: 30px; }
 
 .circle {
   display: inline-block;

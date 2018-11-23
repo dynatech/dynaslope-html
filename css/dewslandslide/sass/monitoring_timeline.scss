@@ -193,8 +193,18 @@ hr { margin: 10px 0 10px; }
     				border-left: 14px solid #16526D;
     			}
     		}
+
+    		&.eos-card .fa-ellipsis-v,
+    		&.ewi-card .fa-ellipsis-v {
+    			font-size: 24px;
+    			padding-top: 8px;
+    		}
     	}
     }
+
+    & ul.dropdown-menu {
+		z-index: 4;
+	}
 }
 
 %timeline-before-shared {
@@ -317,7 +327,7 @@ hr { margin: 10px 0 10px; }
     text-transform: uppercase;
     font-size: 1.5rem;
     font-weight: 600;
-    letter-spacing: 1.5px;
+    letter-spacing: 1px;
     margin: 0;
     padding-top: 10px;
     line-height: 0rem;
@@ -440,4 +450,36 @@ span.fa.fa-angle-double-up {
 
 .reporters {
     font-weight: bold;
+}
+
+.date-tag {
+	margin-bottom: 0 !important;
+	padding-top: 15px;
+}
+
+.date-tag-line {
+    margin-top: 20px;
+    margin-bottom: 20px;
+    left: 50%;
+    height: 3px;
+    background-color: $primary-blue;
+    position: relative;
+
+    &.date-tag-head {
+    	z-index: 3;
+        margin-top: 30px;
+        margin-bottom: 40px;
+    }
+}
+
+.date-tag-text {
+    @extend .base-section-div-text;
+    top: -18px;
+    /*left: 50%;*/
+}
+
+.base-section-div-text {
+    font-size: 18px;
+    font-weight: 600;
+    padding: 0 10px;
 }
