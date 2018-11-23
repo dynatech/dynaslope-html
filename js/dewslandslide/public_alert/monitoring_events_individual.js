@@ -407,6 +407,7 @@ function initializeSortTimelineButton () {
         $("#timeline ul.timeline").empty();
         delegateCardsToTimeline(TIMELINE_ARRAY, is_sort_desc);
         $LOADING_BAR.modal("hide");
+        recenterTimelineHeadText(".date-tag-text", 14);
         $("#anchor-div-am > button").not("#anchor-link-template").remove();
         $("#anchor-div-pm > button").not("#anchor-link-template").remove();
         $("#page-wrapper .dropdown-toggle").dropdown();
