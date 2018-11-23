@@ -53,6 +53,7 @@ function saveSettings(category, site_data, recipients_data) {
 }
 
 function formatSettings(category, site_data, recipients_data) {
+    console.log(site_data);
     let status = "";
     let ts = null;
     let id_category = "";
