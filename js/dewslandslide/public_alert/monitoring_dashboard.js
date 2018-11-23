@@ -406,7 +406,10 @@ function initializeCandidateTriggersIconOnClick () {
             // Search candidate trigger if existing on latest and overdue
             const { latest, overdue, extended } = ongoing;
             merged_arr = [...latest, ...overdue];
-            const index = merged_arr.map(x => x.site_code).indexOf(site_code);
+            const index = merged_arr.filter(x => x.status === "on-going")
+            .map(x => x.site_code)
+            .indexOf(site_code);
+
             let previous = null;
             let enableReleaseButton = false;
 
@@ -423,16 +426,19 @@ function initializeCandidateTriggersIconOnClick () {
 
                 entry.event_id = previous.event_id;
             } else {
-                const index_ex = extended.map(x => x.site_code).indexOf(site_code);
+                const day_0_extended_events = latest.filter(x => x.status === "extended");
+                const extended_events = [...extended, ...day_0_extended_events];
+
+                const index_ex = extended_events.map(x => x.site_code).indexOf(site_code);
                 entry.trigger_list = showModalTriggers(current_row, null);
                 enableReleaseButton = true;
 
                 if (status === "extended") {
                     entry.status = "extended";
-                    entry.event_id = extended[index_ex].event_id;
+                    entry.event_id = extended_events[index_ex].event_id;
                 } else {
                     // Search if candidate trigger exists on extended
-                    if (index_ex > -1) entry.previous_event_id = extended[index_ex].event_id;
+                    if (index_ex > -1) entry.previous_event_id = extended_events[index_ex].event_id;
                     entry.status = "new";
                 }
             }
