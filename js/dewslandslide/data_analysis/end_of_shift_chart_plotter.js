@@ -18,7 +18,7 @@ function initializeChartData () {
     const category = values[6]; // if rain, suficial or subsurface
     const site_detail = values[7];
     const end_date = values[9].replace("%20", " ");
-    const end = moment(end_date).subtract(1, "hour").format("YYYY-MM-DDTHH:mm:ss");
+    const end = moment(end_date).subtract(30, "minutes").format("YYYY-MM-DDTHH:mm:ss");
     const start = eosGetStartDate(category, end_date);
 
     let site_code = null;
