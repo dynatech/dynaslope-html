@@ -405,9 +405,8 @@ function initializeCandidateTriggersIconOnClick () {
 
             // Search candidate trigger if existing on latest and overdue
             const { latest, overdue, extended } = ongoing;
-            merged_arr = [...latest, ...overdue];
-            const index = merged_arr.filter(x => x.status === "on-going")
-            .map(x => x.site_code)
+            merged_arr = [...latest, ...overdue].filter(x => x.status === "on-going");
+            const index = merged_arr.map(x => x.site_code)
             .indexOf(site_code);
 
             let previous = null;
