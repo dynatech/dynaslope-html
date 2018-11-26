@@ -28,20 +28,29 @@ $(document).ready(function () {
         let extended_data = saved_data[1];
         if (event_data[0].length == 0 && extended_data[0].length == 0) {
             initializeOnGoingAndExtended().then((data) => {
-                console.log(data.latest.length);
-                for (let counter = 0; counter < data.extended.length; counter++) {
-                    initializeRecipients("extended",data.extended[counter],false);
+                if (data.extended.length == 0) {
+                    $('#extended-qa-display').append("<strong><span>No sites under extended monitoring.</span></strong>");
+                } else {
+                    for (let counter = 0; counter < data.extended.length; counter++) {
+                        initializeRecipients("extended",data.extended[counter],false);
+                    }
                 }
 
-                for (counter = 0; counter < data.latest.length; counter++) {
-                    initializeRecipients("event",data.latest[counter],false);
-                }
+                if (data.latest.length == 0) {
+                    $('#event-qa-display').append("<strong><span>No sites under event monitoring.</span></strong>");
+                } else {
+                    console.log(data.latest);
+                    for (counter = 0; counter < data.latest.length; counter++) {
+                        initializeRecipients("event",data.latest[counter],false);
+                    }
+                }  
             });
         } else {
 
             if (event_data[0].length == 0) {
                 $('#event-qa-display').append("<strong><span>No sites under event monitoring.</span></strong>");
             } else {
+                console.log(event_data[0]);
                 initializeRecipients("event", event_data[0], true);
             }
 
@@ -258,7 +267,11 @@ function displayRoutines() {
 function initializeEvaluateEvent() {
     $(".evaluate-event").on("click",function() {
         let event_id = $(this).val();
-        $.post("qa_tally/evaluate_site", {id: event_id}, function(data) {
+        let request = {
+            id: event_id,
+            category: "event"
+        }
+        $.post("qa_tally/evaluate_site", {data: request}, function(data) {
             console.log(data);
         });
     });
@@ -267,8 +280,15 @@ function initializeEvaluateEvent() {
 function initializeEvaluateExtended() {
     $(".evaluate-extended").on("click",function() {
         let event_id = $(this).val();
-        $.post("qa_tally/evaluate_site", {id: event_id}, function(data) {
-            console.log(data);
+        let request = {
+            id: event_id,
+            category: "extended"
+        }
+        $.post("qa_tally/evaluate_site", {data: request}, function(data) {
+            if (data == true) {
+                $.notify("Evaluate success!","success");
+                $("."+event_id).fadeOut(500, function(){$(this).remove();});
+            }
         });
     });
 }
