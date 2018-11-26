@@ -515,12 +515,12 @@
 
 						post.img = img;
 						post.note = $('#feedback-note').val();
-                        var report_data = {report_message: JSON.stringify(post.note),screenshot: post.img};
+                        var report_data = {report_message: post.note, screenshot: post.img};
                         var data = {
                         	type: "accuracy",
                         	metric_name: "chatterbox_accuracy",
                         	module_name: "Communications",
-                        	report_message: report_data,
+                        	report_message: JSON.stringify(report_data),
                         	reference_table: "",
             				reference_id: 0
                         };
