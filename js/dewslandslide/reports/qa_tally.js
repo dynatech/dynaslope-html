@@ -62,7 +62,54 @@ $(document).ready(function () {
         }
     });
     initializeRoutineQA();
+    initializeTimestamps();
 });
+
+function initializeTimestamps () {
+    $(() => {
+        $(".timestamp").datetimepicker({
+            format: "YYYY-MM-DD HH:mm:00",
+            allowInputToggle: true,
+            widgetPositioning: {
+                horizontal: "right",
+                vertical: "bottom"
+            }
+        });
+
+        $(".shift_start").datetimepicker({
+            format: "YYYY-MM-DD HH:30:00",
+            enabledHours: [7, 19],
+            allowInputToggle: true,
+            widgetPositioning: {
+                horizontal: "right",
+                vertical: "bottom"
+            }
+        });
+
+        $(".shift_end").datetimepicker({
+            format: "YYYY-MM-DD HH:30:00",
+            allowInputToggle: true,
+            widgetPositioning: {
+                horizontal: "right",
+                vertical: "bottom"
+            },
+            useCurrent: false // Important! See issue #1075
+        });
+
+        $(".shift_start").on("dp.change", (e) => {
+            $(".shift_end").data("DateTimePicker").minDate(e.date);
+        });
+
+        $(".shift_end").on("dp.change", (e) => {
+            $(".shift_start").data("DateTimePicker").maxDate(e.date);
+        });
+    });
+
+    $("#shift_start").focusout(({ currentTarget }) => {
+        if (currentTarget.value === "") $("#generate").prop("disabled", true).removeClass("btn-info").addClass("btn-danger");
+        else $("#generate").prop("disabled", false).removeClass("btn-danger").addClass("btn-info");
+    });
+}
 
 function initializeOnGoingAndExtended() {
     return $.getJSON("../monitoring/getOnGoingAndExtended");
