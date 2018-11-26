@@ -201,7 +201,16 @@ function displayQuickInboxMain(msg_data) {
 			}
 			
 		} catch(err) {
-			console.log(err);
+			const report = {
+		        type: "error_logs",
+		        metric_name: "quick_inbox_error_log",
+		        module_name: "Communications",
+		        report_message: `${err}`,
+		        reference_table: "",
+		        reference_id: 0
+		    };
+
+		    PMS.send(report);
 		}
 
 		quick_inbox_html = quick_inbox_template({'quick_inbox_messages': quick_inbox_registered});
@@ -210,7 +219,16 @@ function displayQuickInboxMain(msg_data) {
 		$("#quick-inbox-display").scrollTop(0);
 	} catch (err) {
 		console.log(err);
-		//Add PMS here
+		const report = {
+            type: "error_logs",
+            metric_name: "quick_inbox_error_log",
+            module_name: "Communications",
+            report_message: `${err}`,
+            reference_table: "",
+            reference_id: 0
+        };
+
+        PMS.send(report);
 	}
 }
 
@@ -223,6 +241,7 @@ function displayUnregisteredInboxMain(msg_data) {
 			
 		} catch(err) {
 			console.log(err);
+			
 		}
 
 		quick_inbox_html = quick_unregistered_template({'quick_unregistered_inbox_messages': quick_inbox_unregistered});
