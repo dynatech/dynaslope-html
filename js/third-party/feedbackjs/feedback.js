@@ -522,7 +522,8 @@
                         	module_name: "Communications",
                         	report_message: JSON.stringify(report_data),
                         	reference_table: "",
-            				reference_id: 0
+            				reference_id: 0,
+            				submetrics: []
                         };
                         console.log(data);
                         PMS.send(data);
