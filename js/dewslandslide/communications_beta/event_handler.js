@@ -66,12 +66,26 @@ function initializeOnClickSendRoutine () {
 }
 
 function getRoutineMobileIDs(offices, sites_on_routine) {
-    const lewc_details_request = {
-    	type: "getRoutineMobileIDsForRoutine",
-    	sites: sites_on_routine,
-    	offices: offices
-    }
-    wss_connect.send(JSON.stringify(lewc_details_request));	
+	try {
+	    const lewc_details_request = {
+	    	type: "getRoutineMobileIDsForRoutine",
+	    	sites: sites_on_routine,
+	    	offices: offices
+	    }
+    	wss_connect.send(JSON.stringify(lewc_details_request));	
+	} catch(err) {
+		console.log(err);
+		const report = {
+            type: "error_logs",
+            metric_name: "routine_mobile_id_error_logs",
+            module_name: "Communications",
+            report_message: `${err}`,
+            reference_table: "user_organization",
+            reference_id: 8
+        };
+
+        PMS.send(report);
+	}
 }
 
 function sendRoutineSMSToLEWC(raw) { // To be refactored to accomodate custom routine message per site
@@ -607,270 +621,329 @@ function initializeOnClickAddMobileForCommunity () {
 }
 
 function submitEmployeeInformation () {
-	const save_type = $("#settings-cmd").val();
-	let message_type = null;
-	let team_inputted = $("#team_ec").val();
-	let email_inputted = $("#email_ec").val();
-	let mobile_numbers = [];
-	let landline_numbers = [];
+	try {
+		const save_type = $("#settings-cmd").val();
+		let message_type = null;
+		let team_inputted = $("#team_ec").val();
+		let email_inputted = $("#email_ec").val();
+		let mobile_numbers = [];
+		let landline_numbers = [];
 
-	//for mobile number
-	const employee_mobile = $("#mobile-div :input").length / 4;
-	for (let counter = 1; counter < employee_input_count; counter +=1) {
-		const mobile_number_raw = {
-			"user_id": $("#user_id_ec").val(),
-			"mobile_id": $("#employee_mobile_id_"+counter).val(),
-			"mobile_number": $("#employee_mobile_number_"+counter).val(),
-			"mobile_status": $("#employee_mobile_status_"+counter).val(),
-			"mobile_priority": $("#employee_mobile_priority_"+counter).val()
-		};
-		mobile_numbers.push(mobile_number_raw);
+		//for mobile number
+		const employee_mobile = $("#mobile-div :input").length / 4;
+		for (let counter = 1; counter < employee_input_count; counter +=1) {
+			const mobile_number_raw = {
+				"user_id": $("#user_id_ec").val(),
+				"mobile_id": $("#employee_mobile_id_"+counter).val(),
+				"mobile_number": $("#employee_mobile_number_"+counter).val(),
+				"mobile_status": $("#employee_mobile_status_"+counter).val(),
+				"mobile_priority": $("#employee_mobile_priority_"+counter).val()
+			};
+			mobile_numbers.push(mobile_number_raw);
+		}
+		
+		//for landline number
+		for (let counter = 1; counter < employee_input_count_landline; counter +=1) {
+			const landline_number_raw = {
+				"user_id": $("#user_id_ec").val(),
+				"id": $("#employee_landline_id_"+counter).val(),
+				"landline_number": $("#employee_landline_number_"+counter).val(),
+				"landline_remarks": $("#employee_landline_remarks_"+counter).val()
+			};
+			landline_numbers.push(landline_number_raw);
+		}
+
+		contact_data = {
+			"id": $("#user_id_ec").val(),
+			"salutation": $("#salutation_ec").val(),
+			"firstname": $("#firstname_ec").val(),
+			"middlename": $("#middlename_ec").val(),
+			"lastname": $("#lastname_ec").val(),
+			"nickname": $("#nickname_ec").val(),
+			"birthdate": $("#birthdate_ec").val(),
+			"gender": $("#gender_ec").val(),
+			"contact_active_status": $("#active_status_ec").val(),
+			"teams": team_inputted,
+			"email_address": email_inputted,
+			"numbers": mobile_numbers,
+			"landline": landline_numbers
+		}
+
+		console.log(contact_data);
+		
+		if (save_type === "updatecontact") {
+			message_type = "updateDewslContact";
+		}else {
+			message_type = "newDewslContact";
+		}
+
+		message = {
+			type: message_type,
+			data: contact_data
+		}
+		$('#emp-response-contact-container_wrapper').show();
+		$('#employee-contact-wrapper').hide();
+		
+		// console.log(mobile_numbers);
+		wss_connect.send(JSON.stringify(message));
+	} catch(err) {
+		console.log(err);
+		const report = {
+            type: "error_logs",
+            metric_name: "save_employee_error_logs",
+            module_name: "Communications",
+            report_message: `${err}`,
+            reference_table: "users",
+            reference_id: 9
+        };
+
+        PMS.send(report);
 	}
 	
-	//for landline number
-	for (let counter = 1; counter < employee_input_count_landline; counter +=1) {
-		const landline_number_raw = {
-			"user_id": $("#user_id_ec").val(),
-			"id": $("#employee_landline_id_"+counter).val(),
-			"landline_number": $("#employee_landline_number_"+counter).val(),
-			"landline_remarks": $("#employee_landline_remarks_"+counter).val()
-		};
-		landline_numbers.push(landline_number_raw);
-	}
-
-	contact_data = {
-		"id": $("#user_id_ec").val(),
-		"salutation": $("#salutation_ec").val(),
-		"firstname": $("#firstname_ec").val(),
-		"middlename": $("#middlename_ec").val(),
-		"lastname": $("#lastname_ec").val(),
-		"nickname": $("#nickname_ec").val(),
-		"birthdate": $("#birthdate_ec").val(),
-		"gender": $("#gender_ec").val(),
-		"contact_active_status": $("#active_status_ec").val(),
-		"teams": team_inputted,
-		"email_address": email_inputted,
-		"numbers": mobile_numbers,
-		"landline": landline_numbers
-	}
-
-	console.log(contact_data);
-	
-	if (save_type === "updatecontact") {
-		message_type = "updateDewslContact";
-	}else {
-		message_type = "newDewslContact";
-	}
-
-	message = {
-		type: message_type,
-		data: contact_data
-	}
-	$('#emp-response-contact-container_wrapper').show();
-	$('#employee-contact-wrapper').hide();
-	
-	// console.log(mobile_numbers);
-	wss_connect.send(JSON.stringify(message));
 }
 
 function submitUnregisteredEmployeeInformation () {
-	const save_type = "updatecontact";
-	let message_type = null;
-	let team_inputted = $("#emp_unregistered_team").val();
-	let email_inputted = $("#emp_unregistered_email").val();
-	let mobile_numbers = [];
-	let landline_numbers = [];
+	try {
+		const save_type = "updatecontact";
+		let message_type = null;
+		let team_inputted = $("#emp_unregistered_team").val();
+		let email_inputted = $("#emp_unregistered_email").val();
+		let mobile_numbers = [];
+		let landline_numbers = [];
 
-	//for mobile number
-	const employee_mobile = $("#emp_unregistered_mobile_div :input").length / 4;
-	for (let counter = 1; counter < employee_input_count; counter +=1) {
-		const mobile_number_raw = {
-			"user_id": $("#emp_unregistered_user_id").val(),
-			"mobile_id": $("#employee_mobile_id_"+counter).val(),
-			"mobile_number": $("#employee_mobile_number_"+counter).val(),
-			"mobile_status": $("#employee_mobile_status_"+counter).val(),
-			"mobile_priority": $("#employee_mobile_priority_"+counter).val()
-		};
-		mobile_numbers.push(mobile_number_raw);
+		//for mobile number
+		const employee_mobile = $("#emp_unregistered_mobile_div :input").length / 4;
+		for (let counter = 1; counter < employee_input_count; counter +=1) {
+			const mobile_number_raw = {
+				"user_id": $("#emp_unregistered_user_id").val(),
+				"mobile_id": $("#employee_mobile_id_"+counter).val(),
+				"mobile_number": $("#employee_mobile_number_"+counter).val(),
+				"mobile_status": $("#employee_mobile_status_"+counter).val(),
+				"mobile_priority": $("#employee_mobile_priority_"+counter).val()
+			};
+			mobile_numbers.push(mobile_number_raw);
+		}
+		
+		//for landline number
+		for (let counter = 1; counter < employee_input_count_landline; counter +=1) {
+			const landline_number_raw = {
+				"user_id": $("#emp_unregistered_user_id").val(),
+				"id": $("#employee_landline_id_"+counter).val(),
+				"landline_number": $("#employee_landline_number_"+counter).val(),
+				"landline_remarks": $("#employee_landline_remarks_"+counter).val()
+			};
+			landline_numbers.push(landline_number_raw);
+		}
+
+		contact_data = {
+			"id": $("#emp_unregistered_user_id").val(),
+			"salutation": $("#emp_unregistered_salutation").val(),
+			"firstname": $("#emp_unregistered_first_name").val(),
+			"middlename": $("#emp_unregistered_middlename").val(),
+			"lastname": $("#emp_unregistered_lastname").val(),
+			"nickname": $("#emp_unregistered_nickname").val(),
+			"birthdate": $("#emp_unregistered_birthdate").val(),
+			"gender": $("#emp_unregistered_gender").val(),
+			"contact_active_status": $("#emp_unregistered_active_status").val(),
+			"teams": team_inputted,
+			"email_address": email_inputted,
+			"numbers": mobile_numbers,
+			"landline": landline_numbers
+		}
+
+		console.log(contact_data);
+		
+		if (save_type === "updatecontact") {
+			message_type = "updateDewslContact";
+		}else {
+			message_type = "newDewslContact";
+		}
+		console.log(contact_data);
+		message = {
+			type: message_type,
+			data: contact_data
+		}
+		// $('#emp-response-contact-container_wrapper').show();
+		// $('#employee-contact-wrapper').hide();
+		
+		// console.log(mobile_numbers);
+		wss_connect.send(JSON.stringify(message));
+		$("#employee-unregistered-form")[0].reset();
+		getUnregisteredNumber();
+	} catch(err) {
+		console.log(err);
+		const report = {
+            type: "error_logs",
+            metric_name: "save_employee_error_logs",
+            module_name: "Communications",
+            report_message: `${err}`,
+            reference_table: "users",
+            reference_id: 9
+        };
+
+        PMS.send(report);
 	}
 	
-	//for landline number
-	for (let counter = 1; counter < employee_input_count_landline; counter +=1) {
-		const landline_number_raw = {
-			"user_id": $("#emp_unregistered_user_id").val(),
-			"id": $("#employee_landline_id_"+counter).val(),
-			"landline_number": $("#employee_landline_number_"+counter).val(),
-			"landline_remarks": $("#employee_landline_remarks_"+counter).val()
-		};
-		landline_numbers.push(landline_number_raw);
-	}
-
-	contact_data = {
-		"id": $("#emp_unregistered_user_id").val(),
-		"salutation": $("#emp_unregistered_salutation").val(),
-		"firstname": $("#emp_unregistered_first_name").val(),
-		"middlename": $("#emp_unregistered_middlename").val(),
-		"lastname": $("#emp_unregistered_lastname").val(),
-		"nickname": $("#emp_unregistered_nickname").val(),
-		"birthdate": $("#emp_unregistered_birthdate").val(),
-		"gender": $("#emp_unregistered_gender").val(),
-		"contact_active_status": $("#emp_unregistered_active_status").val(),
-		"teams": team_inputted,
-		"email_address": email_inputted,
-		"numbers": mobile_numbers,
-		"landline": landline_numbers
-	}
-
-	console.log(contact_data);
-	
-	if (save_type === "updatecontact") {
-		message_type = "updateDewslContact";
-	}else {
-		message_type = "newDewslContact";
-	}
-	console.log(contact_data);
-	message = {
-		type: message_type,
-		data: contact_data
-	}
-	// $('#emp-response-contact-container_wrapper').show();
-	// $('#employee-contact-wrapper').hide();
-	
-	// console.log(mobile_numbers);
-	wss_connect.send(JSON.stringify(message));
-	$("#employee-unregistered-form")[0].reset();
-	getUnregisteredNumber();
 }
 
 function submitCommunityContactForm (sites, organizations) {
-	const save_type = $("#settings-cmd").val();
-	let message_type = null;
-	let mobile_numbers = [];
-	let landline_numbers = [];
+	try {
+		const save_type = $("#settings-cmd").val();
+		let message_type = null;
+		let mobile_numbers = [];
+		let landline_numbers = [];
 
-	//for mobile number
-	for (let counter = 1; counter < community_input_count; counter +=1) {
-		const mobile_number_raw = {
+		//for mobile number
+		for (let counter = 1; counter < community_input_count; counter +=1) {
+			const mobile_number_raw = {
+				"user_id": $("#user_id_cc").val(),
+				"mobile_id": $("#community_mobile_id_"+counter).val(),
+				"mobile_number": $("#community_mobile_number_"+counter).val(),
+				"mobile_status": $("#community_mobile_status_"+counter).val(),
+				"mobile_priority": $("#community_mobile_priority_"+counter).val()
+			};
+			mobile_numbers.push(mobile_number_raw);
+		}
+
+		//for landline number
+		for (let counter = 1; counter < community_input_count_landline; counter +=1) {
+			const landline_number_raw = {
+				"user_id": $("#user_id_cc").val(),
+				"landline_id": $("#community_landline_id_"+counter).val(), 
+				"landline_number": $("#community_landline_number_"+counter).val(),
+				"landline_remarks": $("#community_landline_remarks_"+counter).val()
+			};
+			landline_numbers.push(landline_number_raw);
+		}
+
+		contact_data = {
 			"user_id": $("#user_id_cc").val(),
-			"mobile_id": $("#community_mobile_id_"+counter).val(),
-			"mobile_number": $("#community_mobile_number_"+counter).val(),
-			"mobile_status": $("#community_mobile_status_"+counter).val(),
-			"mobile_priority": $("#community_mobile_priority_"+counter).val()
-		};
-		mobile_numbers.push(mobile_number_raw);
+			"salutation": $("#salutation_cc").val(),
+			"firstname": $("#firstname_cc").val(),
+			"middlename": $("#middlename_cc").val(),
+			"lastname": $("#lastname_cc").val(),
+			"nickname": $("#nickname_cc").val(),
+			"birthdate": $("#birthdate_cc").val(),
+			"gender": $("#gender_cc").val(),
+			"contact_active_status": $("#active_status_cc").val(),
+			"ewi_recipient": $("#ewirecipient_cc").val(),
+			"numbers": mobile_numbers,
+			"landline": landline_numbers,
+			"sites": site_selected,
+			"organizations": organization_selected
+		}
+
+		// console.log(contact_data);
+
+		if (save_type === "updatecontact") {
+			message_type = "updateCommunityContact";
+		}else {
+			message_type = "newCommunityContact";
+		}
+
+		const message = {
+			type: message_type,
+			data: contact_data
+		}
+
+		$('#comm-response-contact-container_wrapper').show();
+		$('#community-contact-wrapper').hide();
+
+		wss_connect.send(JSON.stringify(message));
+	} catch(err) {
+		console.log(err);
+		const report = {
+            type: "error_logs",
+            metric_name: "save_community_error_logs",
+            module_name: "Communications",
+            report_message: `${err}`,
+            reference_table: "users",
+            reference_id: 9
+        };
+
+        PMS.send(report);
 	}
-
-	//for landline number
-	for (let counter = 1; counter < community_input_count_landline; counter +=1) {
-		const landline_number_raw = {
-			"user_id": $("#user_id_cc").val(),
-			"landline_id": $("#community_landline_id_"+counter).val(), 
-			"landline_number": $("#community_landline_number_"+counter).val(),
-			"landline_remarks": $("#community_landline_remarks_"+counter).val()
-		};
-		landline_numbers.push(landline_number_raw);
-	}
-
-	contact_data = {
-		"user_id": $("#user_id_cc").val(),
-		"salutation": $("#salutation_cc").val(),
-		"firstname": $("#firstname_cc").val(),
-		"middlename": $("#middlename_cc").val(),
-		"lastname": $("#lastname_cc").val(),
-		"nickname": $("#nickname_cc").val(),
-		"birthdate": $("#birthdate_cc").val(),
-		"gender": $("#gender_cc").val(),
-		"contact_active_status": $("#active_status_cc").val(),
-		"ewi_recipient": $("#ewirecipient_cc").val(),
-		"numbers": mobile_numbers,
-		"landline": landline_numbers,
-		"sites": site_selected,
-		"organizations": organization_selected
-	}
-
-	// console.log(contact_data);
-
-	if (save_type === "updatecontact") {
-		message_type = "updateCommunityContact";
-	}else {
-		message_type = "newCommunityContact";
-	}
-
-	const message = {
-		type: message_type,
-		data: contact_data
-	}
-
-	$('#comm-response-contact-container_wrapper').show();
-	$('#community-contact-wrapper').hide();
-
-	wss_connect.send(JSON.stringify(message));
+	
 }
 
 function submitUnregisteredCommunityContactForm (sites, organizations) {
-	const save_type = "updatecontact";
-	let message_type = null;
-	let mobile_numbers = [];
-	let landline_numbers = [];
+	try {
+		const save_type = "updatecontact";
+		let message_type = null;
+		let mobile_numbers = [];
+		let landline_numbers = [];
 
-	//for mobile number
-	for (let counter = 1; counter < community_input_count; counter +=1) {
-		const mobile_number_raw = {
-			"user_id": $("#user_id_cc").val(),
-			"mobile_id": $("#community_mobile_id_"+counter).val(),
-			"mobile_number": $("#community_mobile_number_"+counter).val(),
-			"mobile_status": $("#community_mobile_status_"+counter).val(),
-			"mobile_priority": $("#community_mobile_priority_"+counter).val()
-		};
-		mobile_numbers.push(mobile_number_raw);
+		//for mobile number
+		for (let counter = 1; counter < community_input_count; counter +=1) {
+			const mobile_number_raw = {
+				"user_id": $("#user_id_cc").val(),
+				"mobile_id": $("#community_mobile_id_"+counter).val(),
+				"mobile_number": $("#community_mobile_number_"+counter).val(),
+				"mobile_status": $("#community_mobile_status_"+counter).val(),
+				"mobile_priority": $("#community_mobile_priority_"+counter).val()
+			};
+			mobile_numbers.push(mobile_number_raw);
+		}
+
+		//for landline number
+		for (let counter = 1; counter < community_input_count_landline; counter +=1) {
+			const landline_number_raw = {
+				"user_id": $("#user_id_cc").val(),
+				"landline_id": $("#community_landline_id_"+counter).val(), 
+				"landline_number": $("#community_landline_number_"+counter).val(),
+				"landline_remarks": $("#community_landline_remarks_"+counter).val()
+			};
+			landline_numbers.push(landline_number_raw);
+		}
+
+		contact_data = {
+			"user_id": $("#comm_unregistered_user_id").val(),
+			"salutation": $("#comm_unregistered_salutation").val(),
+			"firstname": $("#comm_unregistered_firstname").val(),
+			"middlename": $("#comm_unregistered_middlename").val(),
+			"lastname": $("#comm_unregistered_lastname").val(),
+			"nickname": $("#comm_unregistered_nickname").val(),
+			"birthdate": $("#comm_unregistered_birthdate").val(),
+			"gender": $("#comm_unregistered_gender").val(),
+			"contact_active_status": $("#comm_unregistered_active_status").val(),
+			"ewi_recipient": $("#comm_unregistered_ewi_recipient").val(),
+			"numbers": mobile_numbers,
+			"landline": landline_numbers,
+			"sites": site_selected,
+			"organizations": organization_selected
+		}
+
+
+		// console.log(contact_data);
+
+		if (save_type === "updatecontact") {
+			message_type = "updateCommunityContact";
+		}else {
+			message_type = "newCommunityContact";
+		}
+
+		const message = {
+			type: message_type,
+			data: contact_data
+		}
+		console.log(message);
+		// $('#comm-response-contact-container_wrapper').show();
+		// $('#community-contact-wrapper').hide();
+
+		wss_connect.send(JSON.stringify(message));
+	} catch(err) {
+		console.log(err);
+		const report = {
+            type: "error_logs",
+            metric_name: "save_community_error_logs",
+            module_name: "Communications",
+            report_message: `${err}`,
+            reference_table: "users",
+            reference_id: 9
+        };
+
+        PMS.send(report);
 	}
-
-	//for landline number
-	for (let counter = 1; counter < community_input_count_landline; counter +=1) {
-		const landline_number_raw = {
-			"user_id": $("#user_id_cc").val(),
-			"landline_id": $("#community_landline_id_"+counter).val(), 
-			"landline_number": $("#community_landline_number_"+counter).val(),
-			"landline_remarks": $("#community_landline_remarks_"+counter).val()
-		};
-		landline_numbers.push(landline_number_raw);
-	}
-
-	contact_data = {
-		"user_id": $("#comm_unregistered_user_id").val(),
-		"salutation": $("#comm_unregistered_salutation").val(),
-		"firstname": $("#comm_unregistered_firstname").val(),
-		"middlename": $("#comm_unregistered_middlename").val(),
-		"lastname": $("#comm_unregistered_lastname").val(),
-		"nickname": $("#comm_unregistered_nickname").val(),
-		"birthdate": $("#comm_unregistered_birthdate").val(),
-		"gender": $("#comm_unregistered_gender").val(),
-		"contact_active_status": $("#comm_unregistered_active_status").val(),
-		"ewi_recipient": $("#comm_unregistered_ewi_recipient").val(),
-		"numbers": mobile_numbers,
-		"landline": landline_numbers,
-		"sites": site_selected,
-		"organizations": organization_selected
-	}
-
-
-	// console.log(contact_data);
-
-	if (save_type === "updatecontact") {
-		message_type = "updateCommunityContact";
-	}else {
-		message_type = "newCommunityContact";
-	}
-
-	const message = {
-		type: message_type,
-		data: contact_data
-	}
-	console.log(message);
-	// $('#comm-response-contact-container_wrapper').show();
-	// $('#community-contact-wrapper').hide();
-
-	wss_connect.send(JSON.stringify(message));
 }
 
 function emptyEmployeeContactForm () {
@@ -928,13 +1001,28 @@ function initializeOnAvatarClickForTagging() {
 }
 
 function getSmsTags (sms_id, mobile_id) {
-	const message = {
-		type: "getSmsTags",
-		data: sms_id,
-		mobile_id: mobile_id
-	}
+	try {
+		const message = {
+			type: "getSmsTags",
+			data: sms_id,
+			mobile_id: mobile_id
+		}
 
-	wss_connect.send(JSON.stringify(message));
+		wss_connect.send(JSON.stringify(message));
+	} catch(err) {
+		console.log(err);
+		const report = {
+            type: "error_logs",
+            metric_name: "get_sms_tag_error_logs",
+            module_name: "Communications",
+            report_message: `${err}`,
+            reference_table: "gintags_reference",
+            reference_id: 10
+        };
+
+        PMS.send(report);
+	}
+	
 }
 
 function initializeEWITemplateModal() {
@@ -950,10 +1038,25 @@ function initializeEWITemplateModal() {
             text: "------------"
         }));
 
-        const alert_status = {
-        	type: "getAlertStatus"
-        };
-        wss_connect.send(JSON.stringify(alert_status));
+    	try {
+			const alert_status = {
+	        	type: "getAlertStatus"
+	        };
+	        wss_connect.send(JSON.stringify(alert_status));
+		} catch(err) {
+			console.log(err);
+			const report = {
+	            type: "error_logs",
+	            metric_name: "get_alert_status_error_logs",
+	            module_name: "Communications",
+	            report_message: `${err}`,
+	            reference_table: "alert_status",
+	            reference_id: 11
+	        };
+
+        	PMS.send(report);
+		}
+        
 	});
 }
 
@@ -1029,11 +1132,26 @@ function addNewTags (message_details, new_tag, is_important, site_code, recipien
 	}
 
 	console.log(details_data);
-	const message = {
-		type: "gintaggedMessage",
-		data: details_data
+	try {
+		const message = {
+			type: "gintaggedMessage",
+			data: details_data
+		}
+		wss_connect.send(JSON.stringify(message));
+	} catch(err) {
+		console.log(err);
+		const report = {
+            type: "error_logs",
+            metric_name: "gintagged_message_error_logs",
+            module_name: "Communications",
+            report_message: `${err}`,
+            reference_table: "gintags",
+            reference_id: 12
+        };
+
+    	PMS.send(report);
 	}
-	wss_connect.send(JSON.stringify(message));
+	
 }
 
 function initializeOnClickConfirmNarrative () {
@@ -1082,7 +1200,7 @@ function displayConversationTags (conversation_tags) {
 function displaySitesToTag(sites) {
 	console.log(sites);
 	$("#tag_sites").empty();
-	for (var i = 0; i < sites.length; i++) {
+	for (let i = 0; i < sites.length; i++) {
 		sitename = sites[i].site_code;
 		site_id = sites[i].site_id;
 		if (i == 0) {
@@ -1095,11 +1213,26 @@ function displaySitesToTag(sites) {
 
 function initializeAlertStatusOnChange() {
 	$("#alert_status").on("change", function () {
-        const alert_request = {
-        	type: "getEWITemplateSettings",
-        	data: $(this).val()
-        }
-        wss_connect.send(JSON.stringify(alert_request));
+		try {
+			const alert_request = {
+	        	type: "getEWITemplateSettings",
+	        	data: $(this).val()
+	        }
+	        wss_connect.send(JSON.stringify(alert_request));
+		} catch(err) {
+			console.log(err);
+			const report = {
+	            type: "error_logs",
+	            metric_name: "get_ewi_error_logs",
+	            module_name: "Communications",
+	            report_message: `${err}`,
+	            reference_table: "ewi_template",
+	            reference_id: 13
+	        };
+
+	    	PMS.send(report);
+		}
+        
     });
 }
 function initializeQuickSearchModal () {
@@ -1234,12 +1367,28 @@ function initializeConfirmEWITemplateViaChatterbox() {
                 formatted_data_timestamp: moment($("#ewi-date-picker input").val()).format('MMMM D, YYYY h:MM A'),
                 data_timestamp: $("#ewi-date-picker input").val()
         	};
-        	
-            let template_request = {
-            	type: "fetchTemplateViaLoadTemplateCbx",
-                data: template_container
-            };
-            wss_connect.send(JSON.stringify(template_request));
+
+        	tr
+        	try {
+				let template_request = {
+	            	type: "fetchTemplateViaLoadTemplateCbx",
+	                data: template_container
+	            };
+	            wss_connect.send(JSON.stringify(template_request));
+			} catch(err) {
+				console.log(err);
+				const report = {
+		            type: "error_logs",
+		            metric_name: "load_template_error_logs",
+		            module_name: "Communications",
+		            report_message: `${err}`,
+		            reference_table: "ewi_template",
+		            reference_id: 13
+		        };
+
+		    	PMS.send(report);
+			}
+            
         }
     });
 }
@@ -1255,11 +1404,17 @@ function initializeLoadSearchedKeyMessage() {
         	table_source: data[3]
         };
         console.log(msg_data);
-        const search_request = {
-        	type: "loadSearchedMessageKey",
-        	data: msg_data
-        };
-        wss_connect.send(JSON.stringify(search_request));
+    	try {
+			const search_request = {
+	        	type: "loadSearchedMessageKey",
+	        	data: msg_data
+	        };
+	        wss_connect.send(JSON.stringify(search_request));
+		} catch(err) {
+			console.log(err);
+			// Add PMS here
+		}
+        
         $(".recent_activities").hide();
         $("#quick-search-modal").modal("hide");
     });
@@ -1267,10 +1422,25 @@ function initializeLoadSearchedKeyMessage() {
 
 function initializeEmployeeContactGroupSending() {
 	$("#emp-grp-flag").click(function() {
-        const employee_teams = {
-        	type: "fetchTeams"
-        };
-    	wss_connect.send(JSON.stringify(employee_teams));
+		try {
+			const employee_teams = {
+	        	type: "fetchTeams"
+	        };
+	    	wss_connect.send(JSON.stringify(employee_teams));
+		} catch(err) {
+			console.log(err);
+			const report = {
+	            type: "error_logs",
+	            metric_name: "fetch_teams_error_logs",
+	            module_name: "Communications",
+	            report_message: `${err}`,
+	            reference_table: "dewsl_teams",
+	            reference_id: 14
+	        };
+
+	    	PMS.send(report);
+		}
+        
 	});
 }
 
@@ -1282,10 +1452,26 @@ function initializeSemiAutomatedGroundMeasurementReminder() {
         for (let counter = special_case_length-1; counter >=0; counter--) {
             $("#clone-special-case-"+counter).remove();
         }
-        var data = {
-            type: "getGroundMeasDefaultSettings"
-        };
-        wss_connect.send(JSON.stringify(data));
+
+    	try {
+			let data = {
+	            type: "getGroundMeasDefaultSettings"
+	        };
+	        wss_connect.send(JSON.stringify(data));
+		} catch(err) {
+			console.log(err);
+			const report = {
+	            type: "error_logs",
+	            metric_name: "ground_meas_settings_error_logs",
+	            module_name: "Communications",
+	            report_message: `${err}`,
+	            reference_table: "ground_meas_reminder_automation",
+	            reference_id: 15
+	        };
+
+	    	PMS.send(report);
+		}
+        
     });
 }
 
@@ -1319,36 +1505,48 @@ function initializeGndMeasSaveButton() {
 	                        $(".gndmeas-reminder-site-container .gndmeas-reminder-site .checkbox label").find("input[value="+this.value+"]").prop("checked", false);
 	                    });
 
-			            let special_case_settings = {
-	                        type: "setGndMeasReminderSettings",
-	                        send_time: time_of_sending,
-	                        sites: special_case_sites,
-	                        category: $("#gnd-meas-category").val(),
-	                        altered: 1,
-	                        template: $("#special-case-message-"+counter).val(),
-	                        overwrite: false,
-	                        modified: first_name
-	                    };
-                    	wss_connect.send(JSON.stringify(special_case_settings));
+                    	try {
+							let special_case_settings = {
+		                        type: "setGndMeasReminderSettings",
+		                        send_time: time_of_sending,
+		                        sites: special_case_sites,
+		                        category: $("#gnd-meas-category").val(),
+		                        altered: 1,
+		                        template: $("#special-case-message-"+counter).val(),
+		                        overwrite: false,
+		                        modified: first_name
+		                    };
+	                    	wss_connect.send(JSON.stringify(special_case_settings));
+	            			$.notify('Ground measurement settings saved for special case!','success');
+						} catch(err) {
+							console.log(err);
+							// Add PMS here
+						}
+			            
 		            }
-	            	$.notify('Ground measurement settings saved for special case!','success');
             	}
             	$("input[name=\"gnd-sitenames\"]:checked").each(function () {
 	                gnd_sitenames.push(this.value);
 	            });
 
-            	let gnd_meas_settings = {
-	                type: "setGndMeasReminderSettings",
-	                send_time: time_of_sending,
-	                sites: gnd_sitenames,
-	                altered: 0,
-	                category: $("#gnd-meas-category").val(),
-	                template: $("#reminder-message").val(),
-	                overwrite: false,
-	                modified: first_name
-	            };
-	            wss_connect.send(JSON.stringify(gnd_meas_settings));
-            	$.notify('Ground measurement settings saved!','success');
+        		try {
+					let gnd_meas_settings = {
+		                type: "setGndMeasReminderSettings",
+		                send_time: time_of_sending,
+		                sites: gnd_sitenames,
+		                altered: 0,
+		                category: $("#gnd-meas-category").val(),
+		                template: $("#reminder-message").val(),
+		                overwrite: false,
+		                modified: first_name
+		            };
+		            wss_connect.send(JSON.stringify(gnd_meas_settings));
+	            	$.notify('Ground measurement settings saved!','success');
+				} catch(err) {
+					console.log(err);
+					// Add PMS here
+				}
+            	
           
             }
             $(".special-case-site-container .gndmeas-reminder-site .checkbox label").closest("input").text();
@@ -1360,40 +1558,49 @@ function initializeGndMeasSaveButton() {
                 if (gnd_sitenames == 0) {
 	            	$.notify('Please check at least one site','error');
 	            } else {
-
-	                let gnd_meas_settings = {
-	                    type: "setGndMeasReminderSettings",
-	                    send_time: time_of_sending,
-	                    sites: gnd_sitenames,
-	                    altered: 0,
-	                    category: $("#gnd-meas-category").val(),
-	                    template: $("#reminder-message").text(),
-	                    overwrite: true,
-	                    modified: first_name
-	                };
-
-	                // wss_connect.send(JSON.stringify(gnd_meas_settings));
-
+            		try {
+						let gnd_meas_settings = {
+		                    type: "setGndMeasReminderSettings",
+		                    send_time: time_of_sending,
+		                    sites: gnd_sitenames,
+		                    altered: 0,
+		                    category: $("#gnd-meas-category").val(),
+		                    template: $("#reminder-message").text(),
+		                    overwrite: true,
+		                    modified: first_name
+		                };
+		                wss_connect.send(JSON.stringify(gnd_meas_settings));
+					} catch(err) {
+						console.log(err);
+						// Add PMS here
+					}
+	                
 	                if (special_case_length > 0) {
 	                    for (let counter = 0; counter < special_case_length.length; counter++) {
 	                        gnd_sitenames = [];
 	                        $("input[name=\"gnd-sitenames-"+counter+"\"]:checked").each(function () {
 	                            gnd_sitenames.push(this.value);
 	                        });
-
-	                        let gnd_meas_settings = {
-	                            type: "setGndMeasReminderSettings",
-	                            send_time: time_of_sending,
-	                            sites: gnd_sitenames,
-	                            altered: 1,
-	                            category: $("#gnd-meas-category").val(),
-	                            template: $("#special-case-message-"+counter).text(),
-	                            overwrite: true,
-	                            modified: first_name
-	                        };
-	                        // wss_connect.send(JSON.stringify(gnd_meas_settings));              
+                        	try {
+								let gnd_meas_settings = {
+		                            type: "setGndMeasReminderSettings",
+		                            send_time: time_of_sending,
+		                            sites: gnd_sitenames,
+		                            altered: 1,
+		                            category: $("#gnd-meas-category").val(),
+		                            template: $("#special-case-message-"+counter).text(),
+		                            overwrite: true,
+		                            modified: first_name
+		                        };
+		                        wss_connect.send(JSON.stringify(gnd_meas_settings));  
+		                        $.notify('Ground measurement settings saved!','success');       
+							} catch(err) {
+								console.log(err);
+								// Add PMS here
+							}
+	                             
 	                    }
-	                	$.notify('Ground measurement settings saved!','success');
+	                	
 		            } else {
 		            	// $.notify('Please check at least on site on special cases','error');
 		            }
@@ -1425,10 +1632,25 @@ function resetSpecialCases() {
         $("#clone-special-case-"+counter).remove();
     }
     resetCaseDiv();
-    var data = {
-        type: "getGroundMeasDefaultSettings"
-    };
-    wss_connect.send(JSON.stringify(data));
+	try {
+		let data = {
+	        type: "getGroundMeasDefaultSettings"
+	    };
+	    wss_connect.send(JSON.stringify(data));
+	} catch(err) {
+		console.log(err);
+		const report = {
+            type: "error_logs",
+            metric_name: "ground_meas_settings_error_logs",
+            module_name: "Communications",
+            report_message: `${err}`,
+            reference_table: "ground_meas_reminder_automation",
+            reference_id: 15
+        };
+
+    	PMS.send(report);
+	}
+    
 }
 
 function loadSiteConvoViaQacess() {
@@ -1438,13 +1660,28 @@ function loadSiteConvoViaQacess() {
     	let site_code = [$(this).closest("li").find("#site_code").val().toUpperCase()];
     	conversation_details_label = $(this).closest("li").find(".friend-name").text().toUpperCase();
     	$("#conversation-details").append(conversation_details_label);
-    	let convo_request = {
-			'type': 'loadSmsForSites',
-			'organizations': ['LEWC','BLGU','MLGU','PLGU'],
-			'sitenames': site_names,
-			'site_code': site_code
-		};
-		wss_connect.send(JSON.stringify(convo_request));
+		try {
+			let convo_request = {
+				'type': 'loadSmsForSites',
+				'organizations': ['LEWC','BLGU','MLGU','PLGU'],
+				'sitenames': site_names,
+				'site_code': site_code
+			};
+			wss_connect.send(JSON.stringify(convo_request));
+		} catch(err) {
+			console.log(err);
+			const report = {
+	            type: "error_logs",
+	            metric_name: "load_sms_sites_error_logs",
+	            module_name: "Communications",
+	            report_message: `${err}`,
+	            reference_table: "user_mobile",
+	            reference_id: 16
+	        };
+
+	    	PMS.send(report);
+		}
+    	
     });
 
 }

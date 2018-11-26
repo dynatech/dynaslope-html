@@ -5,7 +5,6 @@ let samar_sites_details = [];
 let last_outbox_ts = null;
 let last_inbox_ts = null;
 let message_position = null;
-
 $(document).ready(function() {
 	$('#chatterbox-loader-modal').modal({backdrop: 'static', keyboard: false});
 	// $('#ground-meas-reminder-modal').modal({backdrop: 'static', keyboard: false});
@@ -20,6 +19,7 @@ $(document).ready(function() {
 	initializeOnSubmitCommunityContactForm();
     initializeOnSubmitUnregisteredEmployeeContactForm();
     initializeOnSubmitUnregisteredCommunityContactForm();
+    initializeDataTaggingButton();
 });
 
 
@@ -205,10 +205,25 @@ function initializeQuickInboxMessages () {
 }
 
 function getQuickInboxMain () {
-	let msg = {
-		type: 'smsloadquickinboxrequest'
-	}
-	wss_connect.send(JSON.stringify(msg));
+    try {
+        let msg = {
+            type: 'smsloadquickinboxrequest'
+        }
+        wss_connect.send(JSON.stringify(msg));
+    } catch(err) {
+        console.log(err);
+        const report = {
+            type: "error_logs",
+            metric_name: "load_quick_inbox_error_logs",
+            module_name: "Communications",
+            report_message: `${err}`,
+            reference_table: "sms_inbox",
+            reference_id: 7
+        };
+
+        PMS.send(report);
+    }
+	
 }
 
 function getQuickInboxEvent() {
@@ -216,10 +231,25 @@ function getQuickInboxEvent() {
 }
 
 function getQuickInboxUnregistered() {
-    let msg = {
-        type: 'smsloadquickunknowninbox'
+    try {
+        let msg = {
+            type: 'smsloadquickunknowninbox'
+        }
+        wss_connect.send(JSON.stringify(msg));
+    } catch(err) {
+        console.log(err);
+        const report = {
+            type: "error_logs",
+            metric_name: "load_unregistered_inbox_error_logs",
+            module_name: "Communications",
+            report_message: `${err}`,
+            reference_table: "sms_inbox",
+            reference_id: 7
+        };
+
+        PMS.send(report);
     }
-    wss_connect.send(JSON.stringify(msg));
+    
 }
 
 function getQuickInboxDataLogger() {
@@ -253,11 +283,26 @@ function initializeOnClickUpdateEmployeeContact () {
 		$("#emp-settings-cmd").hide();
 		var table = $('#emp-response-contact-container').DataTable();
 		var data = table.row(this).data();
-		var msg = {
-			'type': 'loadDewslContact',
-			'data': data.user_id
-		};	
-		wss_connect.send(JSON.stringify(msg));
+        try {
+            var msg = {
+                'type': 'loadDewslContact',
+                'data': data.user_id
+            };  
+            wss_connect.send(JSON.stringify(msg));
+        } catch(err) {
+            console.log(err);
+            const report = {
+                type: "error_logs",
+                metric_name: "load_employee_details_error_logs",
+                module_name: "Communications",
+                report_message: `${err}`,
+                reference_table: "users",
+                reference_id: 9
+            };
+
+            PMS.send(report);
+        }
+		
 	});
 }
 
@@ -269,11 +314,26 @@ function initializeOnClickUpdateCommunityContact () {
 		$("#comm-settings-cmd").hide();
 		var table = $('#comm-response-contact-container').DataTable();
 		var data = table.row(this).data();
-		var msg = {
-			'type': 'loadCommunityContact',
-			'data': data.user_id
-		};	
-		wss_connect.send(JSON.stringify(msg));
+        try {
+            var msg = {
+                'type': 'loadCommunityContact',
+                'data': data.user_id
+            };  
+            wss_connect.send(JSON.stringify(msg));
+        } catch(err) {
+            console.log(err);
+            const report = {
+                type: "error_logs",
+                metric_name: "load_community_details_error_logs",
+                module_name: "Communications",
+                report_message: `${err}`,
+                reference_table: "users",
+                reference_id: 9
+            };
+
+            PMS.send(report);
+        }
+		
 	});
 }
 
@@ -293,13 +353,27 @@ function initializeOnClickUpdateUnregisteredContact () {
         $("#comm_unregistered_user_id").val(table_data.user_id);
         $("#comm_unregistered_firstname").val(label[0]);
         $("#comm_unregistered_lastname").val(label[1]);
+        try {
+            let msg = {
+                'type': 'loadUnregisteredMobileNumber',
+                'data': table_data.user_id
+            }; 
+            console.log(msg);
+            wss_connect.send(JSON.stringify(msg));
+        } catch(err) {
+            console.log(err);
+            const report = {
+                type: "error_logs",
+                metric_name: "load_unregistered_details_error_logs",
+                module_name: "Communications",
+                report_message: `${err}`,
+                reference_table: "users",
+                reference_id: 9
+            };
 
-        let msg = {
-            'type': 'loadUnregisteredMobileNumber',
-            'data': table_data.user_id
-        }; 
-        console.log(msg);
-        wss_connect.send(JSON.stringify(msg));
+            PMS.send(report);
+        }
+        
     });
 }
 
@@ -373,32 +447,93 @@ function initCheckboxColors () {
 }
 
 function getSiteSelection() {
-	let msg = {
-		type: 'getAllSitesConSet'
-	}
-	wss_connect.send(JSON.stringify(msg));
+    try {
+        let msg = {
+            type: 'getAllSitesConSet'
+        }
+        wss_connect.send(JSON.stringify(msg));
+    } catch(err) {
+        console.log(err);
+        const report = {
+            type: "error_logs",
+            metric_name: "sites_error_logs",
+            module_name: "Communications",
+            report_message: `${err}`,
+            reference_table: "sites",
+            reference_id: 5
+        };
+
+        PMS.send(report);
+    }
+	
 }
 
+
 function getOrganizationSelection() {
-	let msg = {
-		type: 'getAllOrgsConSet'
-	}
-	wss_connect.send(JSON.stringify(msg));
+    try {
+        let msg = {
+            type: 'getAllOrgsConSet'
+        }
+        wss_connect.send(JSON.stringify(msg));
+    } catch(err) {
+        console.log(err);
+        const report = {
+            type: "error_logs",
+            metric_name: "orgs_error_logs",
+            module_name: "Communications",
+            report_message: `${err}`,
+            reference_table: "organization",
+            reference_id: 6
+        };
+
+        PMS.send(report);
+    }
+	
 }
 
 function initializeContactSuggestion(name_query) {
-	let msg = {
-		'type': 'requestnamesuggestions',
-		'namequery': name_query
-	}
-	wss_connect.send(JSON.stringify(msg));
+    try {
+        let msg = {
+            'type': 'requestnamesuggestions',
+            'namequery': name_query
+        }
+        wss_connect.send(JSON.stringify(msg));
+    } catch(err) {
+        console.log(err);
+        const report = {
+            type: "error_logs",
+            metric_name: "request_name_suggestion_error_logs",
+            module_name: "Communications",
+            report_message: `${err}`,
+            reference_table: "users",
+            reference_id: 9
+        };
+
+        PMS.send(report);
+    }
+	
 }
 
 function getImportantTags () {
-	let msg = {
-		type: 'getImportantTags'
-	}
-	wss_connect.send(JSON.stringify(msg));
+    try {
+        let msg = {
+            type: 'getImportantTags'
+        }
+        wss_connect.send(JSON.stringify(msg));
+    } catch(err) {
+        console.log(err);
+        const report = {
+            type: "error_logs",
+            metric_name: "get_important_tags_error_logs",
+            module_name: "Communications",
+            report_message: `${err}`,
+            reference_table: "gintag_reference",
+            reference_id: 12
+        };
+
+        PMS.send(report);
+    }
+	
 }
 
 function getEmployeeContactGroups () {
@@ -831,17 +966,47 @@ function getRecentActivity () {
 
 
 function getRoutineSites() {
-	let msg = {
-		type: 'getRoutineSites'
-	};
-	wss_connect.send(JSON.stringify(msg));
+    try {
+        let msg = {
+            type: 'getRoutineSites'
+        };
+        wss_connect.send(JSON.stringify(msg));
+    } catch(err) {
+        console.log(err);
+        const report = {
+            type: "error_logs",
+            metric_name: "get_routine_sites_error_logs",
+            module_name: "Communications",
+            report_message: `${err}`,
+            reference_table: "",
+            reference_id: 0
+        };
+
+        PMS.send(report);
+    }
+	
 }
 
 function getRoutineReminder() {
-	let msg = {
-		type: 'getRoutineReminder'
-	};
-	wss_connect.send(JSON.stringify(msg));
+    try {
+        let msg = {
+            type: 'getRoutineReminder'
+        };
+        wss_connect.send(JSON.stringify(msg));
+    } catch(err) {
+        console.log(err);
+        const report = {
+            type: "error_logs",
+            metric_name: "get_routine_reminder_error_logs",
+            module_name: "Communications",
+            report_message: `${err}`,
+            reference_table: "ewi_backbone_template",
+            reference_id: 20
+        };
+
+        PMS.send(report);
+    }
+	
 }
 
 function initializeOnClickGetRoutineReminder() {
@@ -851,19 +1016,46 @@ function initializeOnClickGetRoutineReminder() {
 }
 
 function getRoutineTemplate() {
-	// $("#routine-actual-option").on("click", () => {
-	let msg = {
-		type: 'getRoutineTemplate'
-	};
-	wss_connect.send(JSON.stringify(msg));
-	// });
+    try {
+        let msg = {
+            type: 'getRoutineTemplate'
+        };
+        wss_connect.send(JSON.stringify(msg));
+    } catch(err) {
+        console.log(err);
+        const report = {
+            type: "error_logs",
+            metric_name: "get_routine_template_error_logs",
+            module_name: "Communications",
+            report_message: `${err}`,
+            reference_table: "ewi_backbone_template",
+            reference_id: 20
+        };
+
+        PMS.send(report);
+    }
 }
 
 function getLatestAlert() {
-    var msg = {
-        type: 'latestAlerts'
-    };
-    wss_connect.send(JSON.stringify(msg));
+    try {
+        var msg = {
+            type: 'latestAlerts'
+        };
+        wss_connect.send(JSON.stringify(msg));  
+    } catch(err) {
+        console.log(err);
+        const report = {
+            type: "error_logs",
+            metric_name: "latest_alerts_error_logs",
+            module_name: "Communications",
+            report_message: `${err}`,
+            reference_table: "public_alert",
+            reference_id: 21
+        };
+
+        PMS.send(report);
+    }
+    
 }
 
 function displayRoutineReminder(sites,template) {
@@ -996,10 +1188,16 @@ function initializeMiscButtons() {
 }
 
 function initializeSamarSites() {
-    let msg = {
-        type: "getSiteDetails"
-    };
-    wss_connect.send(JSON.stringify(msg));
+    try {
+        let msg = {
+            type: "getSiteDetails"
+        };
+        wss_connect.send(JSON.stringify(msg));
+    } catch(err) {
+        console.log(err);
+        // Add PMS here
+    }
+    
 }
 
 function initializeScrollOldMessages() {
@@ -1023,14 +1221,202 @@ function initializeScrollOldMessages() {
         recipient_container = recipient_container.filter(function (el) {
           return el != null;
         });
-
-        let msg = {
-            type: "loadOldMessages",
-            recipients: recipient_container,
-            last_outbox_ts: last_outbox_ts,
-            last_inbox_ts: last_inbox_ts
-        };
-        wss_connect.send(JSON.stringify(msg));
+        try {
+            let msg = {
+                type: "loadOldMessages",
+                recipients: recipient_container,
+                last_outbox_ts: last_outbox_ts,
+                last_inbox_ts: last_inbox_ts
+            };
+            wss_connect.send(JSON.stringify(msg));
+        } catch(err) {
+            console.log(err);
+            // Add PMS here
+        }
+        
       }
     });
 }
+
+
+function initializeDataTaggingButton () {
+    let timeOut;
+
+    class Item {
+        constructor(icon, backgroundColor) {
+            this.$element = $(document.createElement("div"));
+            this.icon = icon;
+            this.$element.addClass("item");
+            this.$element.css("background-color", backgroundColor);
+            let i = document.createElement("i");
+            $(i).addClass("fa fa-" + icon);
+            this.$element.append(i);
+            this.prev = null;
+            this.next = null;
+            this.isMoving = false;
+            let element = this;
+            this.$element.on("mousemove", function() {
+                clearTimeout(timeOut);
+                timeOut = setTimeout(function() {
+                    if (element.next && element.isMoving) {
+                        element.next.moveTo(element);
+                    } 
+                }, 10);
+            });
+        }
+        
+        moveTo(item) {
+            anime({
+                targets: this.$element[0],
+                left: item.$element.css("left"),
+                top: item.$element.css("top"),
+                duration: 700,
+                elasticity: 500
+            });
+            if (this.next) {
+                this.next.moveTo(item);
+            }
+        }
+
+        updatePosition() {    
+            anime({
+                targets: this.$element[0],
+                left: this.prev.$element.css("left"),
+                top: this.prev.$element.css("top"),
+                duration: 200
+            });
+            
+            if (this.next) {
+                this.next.updatePosition();
+            }
+        }
+    }
+
+    class Menu {
+        constructor(menu) {
+            this.$element = $(menu);
+            this.size = 0;
+            this.first = null;
+            this.last = null;
+            this.timeOut = null;
+            this.hasMoved = false;
+            this.status = "closed";
+        }
+        
+        add(item) {
+            let menu = this;
+            if (this.first == null) {
+                this.first = item;
+                this.last = item;
+                this.first.$element.on("mouseup", function() {
+                    if (menu.first.isMoving) {
+                        menu.first.isMoving = false;        
+                    } else {
+                        menu.click();
+                    }
+                }); 
+                item.$element.draggable(
+                    {
+                        start: function() {
+                            menu.close();
+                            item.isMoving = true;
+                        }  
+                    },
+                    {
+                        drag: function() {
+                            if (item.next) {
+                                item.next.updatePosition();
+                            }
+                        }
+                    },
+                    {
+                        // stop: function() {
+                        //     item.isMoving = false;
+                        //     item.next.moveTo(item);
+                        // }
+                    }
+                );
+            } else {
+                this.last.next = item;
+                item.prev = this.last;
+                this.last = item;
+            }
+            this.$element.after(item.$element);
+            
+            
+        }
+        
+        open() {
+            this.status = "open";
+            let current = this.first.next;
+            let iterator = 1;
+            let head = this.first;
+            let sens = head.$element.css("left") < head.$element.css("right") ? 1 : -1;
+            while (current != null) {
+                anime({
+                    targets: current.$element[0],
+                    left: parseInt(head.$element.css("left"), 10) + (sens * (iterator * 50)),
+                    top: head.$element.css("top"),
+                    duration: 500
+                });
+                iterator++;
+                current = current.next;
+            }    
+        }
+        
+        close() {
+            this.status = "closed";
+            let current = this.first.next;
+            let head = this.first;
+            let iterator = 1;
+            while (current != null) {
+                anime({
+                    targets: current.$element[0],
+                    left: head.$element.css("left"),
+                    top: head.$element.css("top"),
+                    duration: 500
+                });
+                iterator++;
+                current = current.next;
+            }
+        }
+        
+        click() {
+            if (this.status == "closed") {
+                this.open();
+            } else {
+                this.close();
+            }
+        }
+        
+    }
+
+    let menu = new Menu("#data-tagging");
+    let item2 = new Item("bug", "#F8991D");
+
+    menu.add(item2);
+    $(document).delay(50).queue(function(next) {
+        menu.open();
+        next();
+        $(document).delay(1000).queue(function(next) {
+            menu.close();
+            next();
+        });
+    });  
+}
+
+// function initializeOnClickReportBugButton(){
+//     $('#data-tagging-container').on('click',function(){
+//         // $("#bug-report-modal").modal("show");
+//     });
+// }
+
+// function initializeOnClickEnableBugReportButton(){
+//     $('#enable-bug-report-button').on('click',function(){
+//         $("#bug-report-modal").modal("hide");
+//         $("#report-quick-access").show();
+//         $("#report-quick-inbox").show();
+//         $("#report-recent-activity").show();
+//         $("#report-conversation").show();
+//     });
+// }
