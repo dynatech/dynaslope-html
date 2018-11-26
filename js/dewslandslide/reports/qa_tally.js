@@ -1,14 +1,26 @@
-let event_qa_template = Handlebars.compile($('#event-qa-template').html());
-let extended_qa_template = Handlebars.compile($('#extended-qa-template').html());
-let routine_qa_template = Handlebars.compile($('#routine-qa-template').html());
+let event_qa_template = null;
+let extended_qa_template = null;
+let routine_qa_template = null;
+
 let event_data = null;
 let event_details = [];
 let extended_details = [];
 let extended_data = null;
 
-let event_qa_html = event_qa_template();
-let extended_qa_html = extended_qa_template();
-let routine_qa_html = routine_qa_template();
+let event_qa_html = null;
+let extended_qa_html = null;
+let routine_qa_html = null;
+
+try {
+    event_qa_template = Handlebars.compile($('#event-qa-template').html());
+    extended_qa_template = Handlebars.compile($('#extended-qa-template').html());
+    routine_qa_template = Handlebars.compile($('#routine-qa-template').html());
+    event_qa_html = event_qa_template();
+    extended_qa_html = extended_qa_template();
+    routine_qa_html = routine_qa_template();
+} catch(err) {
+    console.log("Tally running in background...");
+}
 
 $(document).ready(function () {
     getSavedSettings().then((saved_data) => {
@@ -16,6 +28,7 @@ $(document).ready(function () {
         let extended_data = saved_data[1];
         if (event_data[0].length == 0 && extended_data[0].length == 0) {
             initializeOnGoingAndExtended().then((data) => {
+                console.log(data.latest.length);
                 for (let counter = 0; counter < data.extended.length; counter++) {
                     initializeRecipients("extended",data.extended[counter],false);
                 }
@@ -25,8 +38,18 @@ $(document).ready(function () {
                 }
             });
         } else {
-            initializeRecipients("event", event_data[0], true);
-            initializeRecipients("extended", extended_data[0], true);
+
+            if (event_data[0].length == 0) {
+                $('#event-qa-display').append("<strong><span>No sites under event monitoring.</span></strong>");
+            } else {
+                initializeRecipients("event", event_data[0], true);
+            }
+
+            if (extended_data[0].length == 0) {
+                $('#extended-qa-display').append("<strong><span>No sites under extended monitoring.</span></strong>");
+            } else {
+                initializeRecipients("extended", extended_data[0], true); 
+            }
         }
     });
     initializeRoutineQA();
@@ -171,8 +194,13 @@ function displayEvents(settings,event_data) {
     };
 
     event_details.unshift(data);
-    tally_panel_html = event_qa_template({'tally_data': event_details});
-    $("#event-qa-display").html(tally_panel_html);
+    try {
+        tally_panel_html = event_qa_template({'tally_data': event_details});
+        $("#event-qa-display").html(tally_panel_html);
+    } catch(err) {
+        console.log(err);
+        console.log("Tally running in background...");
+    }
     initializeEvaluateEvent();
 }
 
@@ -214,10 +242,13 @@ function displayExtendeds(settings,extended_data) {
         "event_id": settings.event_id
     };
     extended_details.unshift(data);
-    tally_panel_html = extended_qa_template({'tally_data': extended_details});
-    $("#extended-qa-display").html(tally_panel_html);
-    initializeEvaluateExtended();
-        
+    try {
+        tally_panel_html = extended_qa_template({'tally_data': extended_details});
+        $("#extended-qa-display").html(tally_panel_html);
+    } catch(err) {
+        console.log("Tally running in background");
+    }
+    initializeEvaluateExtended();    
 }
 
 function displayRoutines() {
@@ -227,7 +258,7 @@ function displayRoutines() {
 function initializeEvaluateEvent() {
     $(".evaluate-event").on("click",function() {
         let event_id = $(this).val();
-        $.post("qa_tally/evaluate_site", event_id, function(data) {
+        $.post("qa_tally/evaluate_site", {id: event_id}, function(data) {
             console.log(data);
         });
     });
@@ -236,7 +267,7 @@ function initializeEvaluateEvent() {
 function initializeEvaluateExtended() {
     $(".evaluate-extended").on("click",function() {
         let event_id = $(this).val();
-        $.post("qa_tally/evaluate_site", event_id, function(data) {
+        $.post("qa_tally/evaluate_site", {id: event_id}, function(data) {
             console.log(data);
         });
     });
