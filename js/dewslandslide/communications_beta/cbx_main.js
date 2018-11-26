@@ -59,7 +59,8 @@ function getQuickCommunitySelection () {
             module_name: "Communications",
             report_message: `${err}`,
             reference_table: "sites",
-            reference_id: 5
+            reference_id: 5,
+            submetrics: []
         };
 
         PMS.send(report);
@@ -80,7 +81,8 @@ function getQuickCommunitySelection () {
             module_name: "Communications",
             report_message: `${err}`,
             reference_table: "organization",
-            reference_id: 6
+            reference_id: 6,
+            submetrics: []
         };
 
         PMS.send(report);
@@ -102,7 +104,8 @@ function getEmployeeContact(){
             module_name: "Communications",
             report_message: `${err}`,
             reference_table: "",
-            reference_id: 0
+            reference_id: 0,
+            submetrics: []
         };
 
         PMS.send(report);
@@ -123,7 +126,8 @@ function getCommunityContact(){
             module_name: "Communications",
             report_message: `${err}`,
             reference_table: "",
-            reference_id: 0
+            reference_id: 0,
+            submetrics: []
         };
 
         PMS.send(report);
@@ -144,7 +148,8 @@ function getUnregisteredNumber(){
             module_name: "Communications",
             report_message: `${err}`,
             reference_table: "",
-            reference_id: 0
+            reference_id: 0,
+            submetrics: []
         };
 
         PMS.send(report);
@@ -182,7 +187,8 @@ function startConversation(details) {
             module_name: "Communications",
             report_message: `${err}`,
             reference_table: "smsinbox",
-            reference_id: 7
+            reference_id: 7,
+            submetrics: []
         };
 
         PMS.send(report);
@@ -207,7 +213,8 @@ function displayQuickInboxMain(msg_data) {
 		        module_name: "Communications",
 		        report_message: `${err}`,
 		        reference_table: "",
-		        reference_id: 0
+		        reference_id: 0,
+		        submetrics: []
 		    };
 
 		    PMS.send(report);
@@ -225,7 +232,8 @@ function displayQuickInboxMain(msg_data) {
             module_name: "Communications",
             report_message: `${err}`,
             reference_table: "",
-            reference_id: 0
+            reference_id: 0,
+            submetrics: []
         };
 
         PMS.send(report);
@@ -844,7 +852,8 @@ function siteConversation(){
             module_name: "Communications",
             report_message: `${err}`,
             reference_table: "smsinbox",
-            reference_id: 7
+            reference_id: 7,
+            submetrics: []
         };
 
         PMS.send(report);

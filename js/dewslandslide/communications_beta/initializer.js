@@ -218,7 +218,8 @@ function getQuickInboxMain () {
             module_name: "Communications",
             report_message: `${err}`,
             reference_table: "sms_inbox",
-            reference_id: 7
+            reference_id: 7,
+            submetrics: []
         };
 
         PMS.send(report);
@@ -244,7 +245,8 @@ function getQuickInboxUnregistered() {
             module_name: "Communications",
             report_message: `${err}`,
             reference_table: "sms_inbox",
-            reference_id: 7
+            reference_id: 7,
+            submetrics: []
         };
 
         PMS.send(report);
@@ -297,7 +299,8 @@ function initializeOnClickUpdateEmployeeContact () {
                 module_name: "Communications",
                 report_message: `${err}`,
                 reference_table: "users",
-                reference_id: 9
+                reference_id: 9,
+                submetrics: []
             };
 
             PMS.send(report);
@@ -328,7 +331,8 @@ function initializeOnClickUpdateCommunityContact () {
                 module_name: "Communications",
                 report_message: `${err}`,
                 reference_table: "users",
-                reference_id: 9
+                reference_id: 9,
+                submetrics: []
             };
 
             PMS.send(report);
@@ -368,7 +372,8 @@ function initializeOnClickUpdateUnregisteredContact () {
                 module_name: "Communications",
                 report_message: `${err}`,
                 reference_table: "users",
-                reference_id: 9
+                reference_id: 9,
+                submetrics: []
             };
 
             PMS.send(report);
@@ -460,7 +465,8 @@ function getSiteSelection() {
             module_name: "Communications",
             report_message: `${err}`,
             reference_table: "sites",
-            reference_id: 5
+            reference_id: 5,
+            submetrics: []
         };
 
         PMS.send(report);
@@ -483,7 +489,8 @@ function getOrganizationSelection() {
             module_name: "Communications",
             report_message: `${err}`,
             reference_table: "organization",
-            reference_id: 6
+            reference_id: 6,
+            submetrics: []
         };
 
         PMS.send(report);
@@ -506,7 +513,8 @@ function initializeContactSuggestion(name_query) {
             module_name: "Communications",
             report_message: `${err}`,
             reference_table: "users",
-            reference_id: 9
+            reference_id: 9,
+            submetrics: []
         };
 
         PMS.send(report);
@@ -528,7 +536,8 @@ function getImportantTags () {
             module_name: "Communications",
             report_message: `${err}`,
             reference_table: "gintag_reference",
-            reference_id: 12
+            reference_id: 12,
+            submetrics: []
         };
 
         PMS.send(report);
@@ -979,7 +988,8 @@ function getRoutineSites() {
             module_name: "Communications",
             report_message: `${err}`,
             reference_table: "",
-            reference_id: 0
+            reference_id: 0,
+            submetrics: []
         };
 
         PMS.send(report);
@@ -1001,7 +1011,8 @@ function getRoutineReminder() {
             module_name: "Communications",
             report_message: `${err}`,
             reference_table: "ewi_backbone_template",
-            reference_id: 20
+            reference_id: 20,
+            submetrics: []
         };
 
         PMS.send(report);
@@ -1029,7 +1040,8 @@ function getRoutineTemplate() {
             module_name: "Communications",
             report_message: `${err}`,
             reference_table: "ewi_backbone_template",
-            reference_id: 20
+            reference_id: 20,
+            submetrics: []
         };
 
         PMS.send(report);
@@ -1050,7 +1062,8 @@ function getLatestAlert() {
             module_name: "Communications",
             report_message: `${err}`,
             reference_table: "public_alert",
-            reference_id: 21
+            reference_id: 21,
+            submetrics: []
         };
 
         PMS.send(report);

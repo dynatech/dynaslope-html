@@ -81,7 +81,8 @@ function getRoutineMobileIDs(offices, sites_on_routine) {
             module_name: "Communications",
             report_message: `${err}`,
             reference_table: "user_organization",
-            reference_id: 8
+            reference_id: 8,
+            submetrics: []
         };
 
         PMS.send(report);
@@ -694,7 +695,8 @@ function submitEmployeeInformation () {
             module_name: "Communications",
             report_message: `${err}`,
             reference_table: "users",
-            reference_id: 9
+            reference_id: 9,
+            submetrics: []
         };
 
         PMS.send(report);
@@ -778,7 +780,8 @@ function submitUnregisteredEmployeeInformation () {
             module_name: "Communications",
             report_message: `${err}`,
             reference_table: "users",
-            reference_id: 9
+            reference_id: 9,
+            submetrics: []
         };
 
         PMS.send(report);
@@ -858,7 +861,8 @@ function submitCommunityContactForm (sites, organizations) {
             module_name: "Communications",
             report_message: `${err}`,
             reference_table: "users",
-            reference_id: 9
+            reference_id: 9,
+            submetrics: []
         };
 
         PMS.send(report);
@@ -939,7 +943,8 @@ function submitUnregisteredCommunityContactForm (sites, organizations) {
             module_name: "Communications",
             report_message: `${err}`,
             reference_table: "users",
-            reference_id: 9
+            reference_id: 9,
+            submetrics: []
         };
 
         PMS.send(report);
@@ -1017,7 +1022,8 @@ function getSmsTags (sms_id, mobile_id) {
             module_name: "Communications",
             report_message: `${err}`,
             reference_table: "gintags_reference",
-            reference_id: 10
+            reference_id: 10,
+            submetrics: []
         };
 
         PMS.send(report);
@@ -1051,7 +1057,8 @@ function initializeEWITemplateModal() {
 	            module_name: "Communications",
 	            report_message: `${err}`,
 	            reference_table: "alert_status",
-	            reference_id: 11
+	            reference_id: 11,
+	            submetrics: []
 	        };
 
         	PMS.send(report);
@@ -1146,7 +1153,8 @@ function addNewTags (message_details, new_tag, is_important, site_code, recipien
             module_name: "Communications",
             report_message: `${err}`,
             reference_table: "gintags",
-            reference_id: 12
+            reference_id: 12,
+            submetrics: []
         };
 
     	PMS.send(report);
@@ -1227,7 +1235,8 @@ function initializeAlertStatusOnChange() {
 	            module_name: "Communications",
 	            report_message: `${err}`,
 	            reference_table: "ewi_template",
-	            reference_id: 13
+	            reference_id: 13,
+	            submetrics: []
 	        };
 
 	    	PMS.send(report);
@@ -1383,7 +1392,8 @@ function initializeConfirmEWITemplateViaChatterbox() {
 		            module_name: "Communications",
 		            report_message: `${err}`,
 		            reference_table: "ewi_template",
-		            reference_id: 13
+		            reference_id: 13,
+		            submetrics: []
 		        };
 
 		    	PMS.send(report);
@@ -1435,7 +1445,8 @@ function initializeEmployeeContactGroupSending() {
 	            module_name: "Communications",
 	            report_message: `${err}`,
 	            reference_table: "dewsl_teams",
-	            reference_id: 14
+	            reference_id: 14,
+	            submetrics: []
 	        };
 
 	    	PMS.send(report);
@@ -1466,7 +1477,8 @@ function initializeSemiAutomatedGroundMeasurementReminder() {
 	            module_name: "Communications",
 	            report_message: `${err}`,
 	            reference_table: "ground_meas_reminder_automation",
-	            reference_id: 15
+	            reference_id: 15,
+	            submetrics: []
 	        };
 
 	    	PMS.send(report);
@@ -1645,7 +1657,8 @@ function resetSpecialCases() {
             module_name: "Communications",
             report_message: `${err}`,
             reference_table: "ground_meas_reminder_automation",
-            reference_id: 15
+            reference_id: 15,
+            submetrics: []
         };
 
     	PMS.send(report);
@@ -1676,7 +1689,8 @@ function loadSiteConvoViaQacess() {
 	            module_name: "Communications",
 	            report_message: `${err}`,
 	            reference_table: "user_mobile",
-	            reference_id: 16
+	            reference_id: 16,
+	            submetrics: []
 	        };
 
 	    	PMS.send(report);
