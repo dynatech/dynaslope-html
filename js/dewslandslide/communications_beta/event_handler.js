@@ -75,7 +75,16 @@ function getRoutineMobileIDs(offices, sites_on_routine) {
     	wss_connect.send(JSON.stringify(lewc_details_request));	
 	} catch(err) {
 		console.log(err);
-		// Add PMS here
+		const report = {
+            type: "error_logs",
+            metric_name: "routine_mobile_id_error_logs",
+            module_name: "Communications",
+            report_message: `${err}`,
+            reference_table: "user_organization",
+            reference_id: 8
+        };
+
+        PMS.send(report);
 	}
 }
 
@@ -679,7 +688,16 @@ function submitEmployeeInformation () {
 		wss_connect.send(JSON.stringify(message));
 	} catch(err) {
 		console.log(err);
-		// Add PMS here
+		const report = {
+            type: "error_logs",
+            metric_name: "save_employee_error_logs",
+            module_name: "Communications",
+            report_message: `${err}`,
+            reference_table: "users",
+            reference_id: 9
+        };
+
+        PMS.send(report);
 	}
 	
 }
@@ -754,7 +772,16 @@ function submitUnregisteredEmployeeInformation () {
 		getUnregisteredNumber();
 	} catch(err) {
 		console.log(err);
-		// Add PMS here
+		const report = {
+            type: "error_logs",
+            metric_name: "save_employee_error_logs",
+            module_name: "Communications",
+            report_message: `${err}`,
+            reference_table: "users",
+            reference_id: 9
+        };
+
+        PMS.send(report);
 	}
 	
 }
@@ -825,7 +852,16 @@ function submitCommunityContactForm (sites, organizations) {
 		wss_connect.send(JSON.stringify(message));
 	} catch(err) {
 		console.log(err);
-		// Add PMS here
+		const report = {
+            type: "error_logs",
+            metric_name: "save_community_error_logs",
+            module_name: "Communications",
+            report_message: `${err}`,
+            reference_table: "users",
+            reference_id: 9
+        };
+
+        PMS.send(report);
 	}
 	
 }
@@ -897,9 +933,17 @@ function submitUnregisteredCommunityContactForm (sites, organizations) {
 		wss_connect.send(JSON.stringify(message));
 	} catch(err) {
 		console.log(err);
-		// Add PMS here
+		const report = {
+            type: "error_logs",
+            metric_name: "save_community_error_logs",
+            module_name: "Communications",
+            report_message: `${err}`,
+            reference_table: "users",
+            reference_id: 9
+        };
+
+        PMS.send(report);
 	}
-	
 }
 
 function emptyEmployeeContactForm () {
@@ -967,7 +1011,16 @@ function getSmsTags (sms_id, mobile_id) {
 		wss_connect.send(JSON.stringify(message));
 	} catch(err) {
 		console.log(err);
-		// Add PMS here
+		const report = {
+            type: "error_logs",
+            metric_name: "get_sms_tag_error_logs",
+            module_name: "Communications",
+            report_message: `${err}`,
+            reference_table: "gintags_reference",
+            reference_id: 10
+        };
+
+        PMS.send(report);
 	}
 	
 }
@@ -992,7 +1045,16 @@ function initializeEWITemplateModal() {
 	        wss_connect.send(JSON.stringify(alert_status));
 		} catch(err) {
 			console.log(err);
-			// Add PMS here
+			const report = {
+	            type: "error_logs",
+	            metric_name: "get_alert_status_error_logs",
+	            module_name: "Communications",
+	            report_message: `${err}`,
+	            reference_table: "alert_status",
+	            reference_id: 11
+	        };
+
+        	PMS.send(report);
 		}
         
 	});
@@ -1078,7 +1140,16 @@ function addNewTags (message_details, new_tag, is_important, site_code, recipien
 		wss_connect.send(JSON.stringify(message));
 	} catch(err) {
 		console.log(err);
-		// Add PMS here
+		const report = {
+            type: "error_logs",
+            metric_name: "gintagged_message_error_logs",
+            module_name: "Communications",
+            report_message: `${err}`,
+            reference_table: "gintags",
+            reference_id: 12
+        };
+
+    	PMS.send(report);
 	}
 	
 }
@@ -1129,7 +1200,7 @@ function displayConversationTags (conversation_tags) {
 function displaySitesToTag(sites) {
 	console.log(sites);
 	$("#tag_sites").empty();
-	for (var i = 0; i < sites.length; i++) {
+	for (let i = 0; i < sites.length; i++) {
 		sitename = sites[i].site_code;
 		site_id = sites[i].site_id;
 		if (i == 0) {
@@ -1150,7 +1221,16 @@ function initializeAlertStatusOnChange() {
 	        wss_connect.send(JSON.stringify(alert_request));
 		} catch(err) {
 			console.log(err);
-			// Add PMS here
+			const report = {
+	            type: "error_logs",
+	            metric_name: "get_ewi_error_logs",
+	            module_name: "Communications",
+	            report_message: `${err}`,
+	            reference_table: "ewi_template",
+	            reference_id: 13
+	        };
+
+	    	PMS.send(report);
 		}
         
     });
@@ -1287,12 +1367,28 @@ function initializeConfirmEWITemplateViaChatterbox() {
                 formatted_data_timestamp: moment($("#ewi-date-picker input").val()).format('MMMM D, YYYY h:MM A'),
                 data_timestamp: $("#ewi-date-picker input").val()
         	};
-        	
-            let template_request = {
-            	type: "fetchTemplateViaLoadTemplateCbx",
-                data: template_container
-            };
-            wss_connect.send(JSON.stringify(template_request));
+
+        	tr
+        	try {
+				let template_request = {
+	            	type: "fetchTemplateViaLoadTemplateCbx",
+	                data: template_container
+	            };
+	            wss_connect.send(JSON.stringify(template_request));
+			} catch(err) {
+				console.log(err);
+				const report = {
+		            type: "error_logs",
+		            metric_name: "load_template_error_logs",
+		            module_name: "Communications",
+		            report_message: `${err}`,
+		            reference_table: "ewi_template",
+		            reference_id: 13
+		        };
+
+		    	PMS.send(report);
+			}
+            
         }
     });
 }
@@ -1326,10 +1422,25 @@ function initializeLoadSearchedKeyMessage() {
 
 function initializeEmployeeContactGroupSending() {
 	$("#emp-grp-flag").click(function() {
-        const employee_teams = {
-        	type: "fetchTeams"
-        };
-    	wss_connect.send(JSON.stringify(employee_teams));
+		try {
+			const employee_teams = {
+	        	type: "fetchTeams"
+	        };
+	    	wss_connect.send(JSON.stringify(employee_teams));
+		} catch(err) {
+			console.log(err);
+			const report = {
+	            type: "error_logs",
+	            metric_name: "fetch_teams_error_logs",
+	            module_name: "Communications",
+	            report_message: `${err}`,
+	            reference_table: "dewsl_teams",
+	            reference_id: 14
+	        };
+
+	    	PMS.send(report);
+		}
+        
 	});
 }
 
@@ -1343,13 +1454,22 @@ function initializeSemiAutomatedGroundMeasurementReminder() {
         }
 
     	try {
-			var data = {
+			let data = {
 	            type: "getGroundMeasDefaultSettings"
 	        };
 	        wss_connect.send(JSON.stringify(data));
 		} catch(err) {
 			console.log(err);
-			// Add PMS here
+			const report = {
+	            type: "error_logs",
+	            metric_name: "ground_meas_settings_error_logs",
+	            module_name: "Communications",
+	            report_message: `${err}`,
+	            reference_table: "ground_meas_reminder_automation",
+	            reference_id: 15
+	        };
+
+	    	PMS.send(report);
 		}
         
     });
@@ -1513,13 +1633,22 @@ function resetSpecialCases() {
     }
     resetCaseDiv();
 	try {
-		var data = {
+		let data = {
 	        type: "getGroundMeasDefaultSettings"
 	    };
 	    wss_connect.send(JSON.stringify(data));
 	} catch(err) {
 		console.log(err);
-		// Add PMS here
+		const report = {
+            type: "error_logs",
+            metric_name: "ground_meas_settings_error_logs",
+            module_name: "Communications",
+            report_message: `${err}`,
+            reference_table: "ground_meas_reminder_automation",
+            reference_id: 15
+        };
+
+    	PMS.send(report);
 	}
     
 }
@@ -1541,7 +1670,16 @@ function loadSiteConvoViaQacess() {
 			wss_connect.send(JSON.stringify(convo_request));
 		} catch(err) {
 			console.log(err);
-			// Add PMS here
+			const report = {
+	            type: "error_logs",
+	            metric_name: "load_sms_sites_error_logs",
+	            module_name: "Communications",
+	            report_message: `${err}`,
+	            reference_table: "user_mobile",
+	            reference_id: 16
+	        };
+
+	    	PMS.send(report);
 		}
     	
     });

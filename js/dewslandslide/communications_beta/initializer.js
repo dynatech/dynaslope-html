@@ -5,7 +5,6 @@ let samar_sites_details = [];
 let last_outbox_ts = null;
 let last_inbox_ts = null;
 let message_position = null;
-let REPORT_TYPE = null;
 $(document).ready(function() {
 	$('#chatterbox-loader-modal').modal({backdrop: 'static', keyboard: false});
 	// $('#ground-meas-reminder-modal').modal({backdrop: 'static', keyboard: false});
@@ -21,8 +20,6 @@ $(document).ready(function() {
     initializeOnSubmitUnregisteredEmployeeContactForm();
     initializeOnSubmitUnregisteredCommunityContactForm();
     initializeDataTaggingButton();
-    // initializeOnClickReportBugButton();
-    // initializeOnClickEnableBugReportButton();
 });
 
 
@@ -215,7 +212,16 @@ function getQuickInboxMain () {
         wss_connect.send(JSON.stringify(msg));
     } catch(err) {
         console.log(err);
-        // Add PMS here
+        const report = {
+            type: "error_logs",
+            metric_name: "load_quick_inbox_error_logs",
+            module_name: "Communications",
+            report_message: `${err}`,
+            reference_table: "sms_inbox",
+            reference_id: 7
+        };
+
+        PMS.send(report);
     }
 	
 }
@@ -232,7 +238,16 @@ function getQuickInboxUnregistered() {
         wss_connect.send(JSON.stringify(msg));
     } catch(err) {
         console.log(err);
-        // Add PMS here
+        const report = {
+            type: "error_logs",
+            metric_name: "load_unregistered_inbox_error_logs",
+            module_name: "Communications",
+            report_message: `${err}`,
+            reference_table: "sms_inbox",
+            reference_id: 7
+        };
+
+        PMS.send(report);
     }
     
 }
@@ -276,7 +291,16 @@ function initializeOnClickUpdateEmployeeContact () {
             wss_connect.send(JSON.stringify(msg));
         } catch(err) {
             console.log(err);
-            // Add PMS here
+            const report = {
+                type: "error_logs",
+                metric_name: "load_employee_details_error_logs",
+                module_name: "Communications",
+                report_message: `${err}`,
+                reference_table: "users",
+                reference_id: 9
+            };
+
+            PMS.send(report);
         }
 		
 	});
@@ -298,7 +322,16 @@ function initializeOnClickUpdateCommunityContact () {
             wss_connect.send(JSON.stringify(msg));
         } catch(err) {
             console.log(err);
-            // Add PMS here
+            const report = {
+                type: "error_logs",
+                metric_name: "load_community_details_error_logs",
+                module_name: "Communications",
+                report_message: `${err}`,
+                reference_table: "users",
+                reference_id: 9
+            };
+
+            PMS.send(report);
         }
 		
 	});
@@ -329,7 +362,16 @@ function initializeOnClickUpdateUnregisteredContact () {
             wss_connect.send(JSON.stringify(msg));
         } catch(err) {
             console.log(err);
-            // Add PMS here
+            const report = {
+                type: "error_logs",
+                metric_name: "load_unregistered_details_error_logs",
+                module_name: "Communications",
+                report_message: `${err}`,
+                reference_table: "users",
+                reference_id: 9
+            };
+
+            PMS.send(report);
         }
         
     });
@@ -412,10 +454,20 @@ function getSiteSelection() {
         wss_connect.send(JSON.stringify(msg));
     } catch(err) {
         console.log(err);
-        // Add PMS here
+        const report = {
+            type: "error_logs",
+            metric_name: "sites_error_logs",
+            module_name: "Communications",
+            report_message: `${err}`,
+            reference_table: "sites",
+            reference_id: 5
+        };
+
+        PMS.send(report);
     }
 	
 }
+
 
 function getOrganizationSelection() {
     try {
@@ -425,7 +477,16 @@ function getOrganizationSelection() {
         wss_connect.send(JSON.stringify(msg));
     } catch(err) {
         console.log(err);
-        // Add PMS here
+        const report = {
+            type: "error_logs",
+            metric_name: "orgs_error_logs",
+            module_name: "Communications",
+            report_message: `${err}`,
+            reference_table: "organization",
+            reference_id: 6
+        };
+
+        PMS.send(report);
     }
 	
 }
@@ -439,7 +500,16 @@ function initializeContactSuggestion(name_query) {
         wss_connect.send(JSON.stringify(msg));
     } catch(err) {
         console.log(err);
-        // Add PMS here
+        const report = {
+            type: "error_logs",
+            metric_name: "request_name_suggestion_error_logs",
+            module_name: "Communications",
+            report_message: `${err}`,
+            reference_table: "users",
+            reference_id: 9
+        };
+
+        PMS.send(report);
     }
 	
 }
@@ -452,7 +522,16 @@ function getImportantTags () {
         wss_connect.send(JSON.stringify(msg));
     } catch(err) {
         console.log(err);
-        // Add PMS here
+        const report = {
+            type: "error_logs",
+            metric_name: "get_important_tags_error_logs",
+            module_name: "Communications",
+            report_message: `${err}`,
+            reference_table: "gintag_reference",
+            reference_id: 12
+        };
+
+        PMS.send(report);
     }
 	
 }
@@ -894,7 +973,16 @@ function getRoutineSites() {
         wss_connect.send(JSON.stringify(msg));
     } catch(err) {
         console.log(err);
-        // Add PMS here
+        const report = {
+            type: "error_logs",
+            metric_name: "get_routine_sites_error_logs",
+            module_name: "Communications",
+            report_message: `${err}`,
+            reference_table: "",
+            reference_id: 0
+        };
+
+        PMS.send(report);
     }
 	
 }
@@ -907,7 +995,16 @@ function getRoutineReminder() {
         wss_connect.send(JSON.stringify(msg));
     } catch(err) {
         console.log(err);
-        // Add PMS here
+        const report = {
+            type: "error_logs",
+            metric_name: "get_routine_reminder_error_logs",
+            module_name: "Communications",
+            report_message: `${err}`,
+            reference_table: "ewi_backbone_template",
+            reference_id: 20
+        };
+
+        PMS.send(report);
     }
 	
 }
@@ -919,7 +1016,6 @@ function initializeOnClickGetRoutineReminder() {
 }
 
 function getRoutineTemplate() {
-	// $("#routine-actual-option").on("click", () => {
     try {
         let msg = {
             type: 'getRoutineTemplate'
@@ -927,10 +1023,17 @@ function getRoutineTemplate() {
         wss_connect.send(JSON.stringify(msg));
     } catch(err) {
         console.log(err);
-        // Add PMS here
+        const report = {
+            type: "error_logs",
+            metric_name: "get_routine_template_error_logs",
+            module_name: "Communications",
+            report_message: `${err}`,
+            reference_table: "ewi_backbone_template",
+            reference_id: 20
+        };
+
+        PMS.send(report);
     }
-	
-	// });
 }
 
 function getLatestAlert() {
@@ -941,7 +1044,16 @@ function getLatestAlert() {
         wss_connect.send(JSON.stringify(msg));  
     } catch(err) {
         console.log(err);
-        // Add PMS here
+        const report = {
+            type: "error_logs",
+            metric_name: "latest_alerts_error_logs",
+            module_name: "Communications",
+            report_message: `${err}`,
+            reference_table: "public_alert",
+            reference_id: 21
+        };
+
+        PMS.send(report);
     }
     
 }
@@ -1293,42 +1405,18 @@ function initializeDataTaggingButton () {
     });  
 }
 
-function initializeOnClickReportBugButton(){
-    $('#data-tagging-container').on('click',function(){
-        // $("#bug-report-modal").modal("show");
-    });
-}
+// function initializeOnClickReportBugButton(){
+//     $('#data-tagging-container').on('click',function(){
+//         // $("#bug-report-modal").modal("show");
+//     });
+// }
 
-function initializeOnClickEnableBugReportButton(){
-    $('#enable-bug-report-button').on('click',function(){
-        $("#bug-report-modal").modal("hide");
-        $("#report-quick-access").show();
-        $("#report-quick-inbox").show();
-        $("#report-recent-activity").show();
-        $("#report-conversation").show();
-    });
-}
-
-function initializeOnClickReportQuickAccess(){
-    $('#report-quick-access').on('click',function(){
-        REPORT_TYPE = "quick_access";
-    });
-}
-
-function initializeOnClickReportQuickInbox(){
-    $('#report-quick-inbox').on('click',function(){
-        REPORT_TYPE = "quick_inbox";
-    });
-}
-
-function initializeOnClickReportRecentActivity(){
-    $('#report-recent-activity').on('click',function(){
-        REPORT_TYPE = "recent_activity";
-    });
-}
-
-function initializeOnClickReportConversation(){
-    $('#report-conversation').on('click',function(){
-        REPORT_TYPE = "conversation";
-    });
-}
+// function initializeOnClickEnableBugReportButton(){
+//     $('#enable-bug-report-button').on('click',function(){
+//         $("#bug-report-modal").modal("hide");
+//         $("#report-quick-access").show();
+//         $("#report-quick-inbox").show();
+//         $("#report-recent-activity").show();
+//         $("#report-conversation").show();
+//     });
+// }

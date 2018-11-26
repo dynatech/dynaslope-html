@@ -49,15 +49,41 @@ function getQuickCommunitySelection () {
 			'type': "qgrSites"
 		}
 
+		wss_connect.send(JSON.stringify(list_of_sites));
+
+	} catch(err) {
+		console.log(err);
+		const report = {
+            type: "error_logs",
+            metric_name: "sites_error_logs",
+            module_name: "Communications",
+            report_message: `${err}`,
+            reference_table: "sites",
+            reference_id: 5
+        };
+
+        PMS.send(report);
+	}
+
+	try {
+
 		let list_of_orgs = {
 			'type': "qgrOrgs"
 		}
-
-		wss_connect.send(JSON.stringify(list_of_sites));
 		wss_connect.send(JSON.stringify(list_of_orgs));
+
 	} catch(err) {
 		console.log(err);
-		// Add PMS here
+		const report = {
+            type: "error_logs",
+            metric_name: "orgs_error_logs",
+            module_name: "Communications",
+            report_message: `${err}`,
+            reference_table: "organization",
+            reference_id: 6
+        };
+
+        PMS.send(report);
 	}
 
 }
@@ -70,7 +96,16 @@ function getEmployeeContact(){
 		wss_connect.send(JSON.stringify(employee_details));
 	} catch(err) {
 		console.log(err);
-		// Add PMS here
+		const report = {
+            type: "error_logs",
+            metric_name: "load_employee_contact_error_logs",
+            module_name: "Communications",
+            report_message: `${err}`,
+            reference_table: "",
+            reference_id: 0
+        };
+
+        PMS.send(report);
 	}
 }
 
@@ -82,7 +117,16 @@ function getCommunityContact(){
 		wss_connect.send(JSON.stringify(community_details));
 	} catch(err) {
 		console.log(err);
-		// Add PMS here
+		const report = {
+            type: "error_logs",
+            metric_name: "load_community_contact_error_logs",
+            module_name: "Communications",
+            report_message: `${err}`,
+            reference_table: "",
+            reference_id: 0
+        };
+
+        PMS.send(report);
 	}
 }
 
@@ -94,7 +138,16 @@ function getUnregisteredNumber(){
 		wss_connect.send(JSON.stringify(community_details));
 	} catch(err) {
 		console.log(err);
-		// Add PMS here
+		const report = {
+            type: "error_logs",
+            metric_name: "load_unregistered_number_error_logs",
+            module_name: "Communications",
+            report_message: `${err}`,
+            reference_table: "",
+            reference_id: 0
+        };
+
+        PMS.send(report);
 	}
 }
 
@@ -123,7 +176,16 @@ function startConversation(details) {
 		wss_connect.send(JSON.stringify(convo_details));
 	} catch(err) {
 		console.log(err);
-		// Add PMS here
+		const report = {
+            type: "error_logs",
+            metric_name: "load_unregistered_number_error_logs",
+            module_name: "Communications",
+            report_message: `${err}`,
+            reference_table: "smsinbox",
+            reference_id: 7
+        };
+
+        PMS.send(report);
 	}	
 }
 
@@ -757,7 +819,16 @@ function siteConversation(){
 		wss_connect.send(JSON.stringify(convo_request));
 	} catch(err) {
 		console.log(err);
-		// Add PMS here.
+		const report = {
+            type: "error_logs",
+            metric_name: "site_conversation_error_logs",
+            module_name: "Communications",
+            report_message: `${err}`,
+            reference_table: "smsinbox",
+            reference_id: 7
+        };
+
+        PMS.send(report);
 	}
 
 }
@@ -1423,10 +1494,16 @@ function resetSpecialCases () {
         $("#clone-special-case-"+counter).remove();
     }
     resetCaseDiv();
-    var data = {
-        type: "getGroundMeasDefaultSettings"
-    };
-    wss_connect.send(JSON.stringify(data));    
+    try {
+    	var data = {
+		    type: "getGroundMeasDefaultSettings"
+		};
+		wss_connect.send(JSON.stringify(data)); 
+	} catch(err) {
+			console.log(err);
+			// Add PMS here
+	}
+       
 }
 
 
