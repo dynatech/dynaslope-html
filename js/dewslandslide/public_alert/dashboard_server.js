@@ -1,7 +1,7 @@
 
 /****
  *  Created by Kevin Dhale dela Cruz
- *  JS file for Ratchet websocket implementation on
+ *  JS file for Ratchet DASHBOARD_WS implementation on
  *  several site pages:
  *  - Monitoring Dashboard
  *  - Alert Release Form
@@ -11,13 +11,14 @@
 const finalHostname = window.location.hostname.split(":");
 const wsUri = `ws://${finalHostname[0]}:5170`;
 
-console.log("WS Hostname");
-console.log(wsUri);
+console.log(`WS Hostname: ${wsUri}`);
 
-let websocket;
+let DASHBOARD_WS;
 
 const reconnect = 10000;
-let isConnected = false;
+let IS_CONNECTED = false;
+
+const $PROGRESS_BAR = $("#loading").find(".progress-bar");
 
 $(document).ready(() => {
     $("#loading").modal("show");
@@ -44,18 +45,19 @@ function init () {
         return;
     }
 
-    websocket = new WebSocket(wsUri);
+    DASHBOARD_WS = new WebSocket(wsUri);
 
-    websocket.onopen = () => {
+    DASHBOARD_WS.onopen = () => {
         console.log(`DASHBOARD SERVER: CONNECTION TO ${wsUri} has been successfully established`);
 
-        isConnected = true;
+        IS_CONNECTED = true;
         /* doSend("sendIdentification", {
          * "name" : $("#user_name").text(),
          * "staff_id": $("#current_user_id").val()
          * });*/
 
         $("#loading").modal("hide");
+        $PROGRESS_BAR.text("Loading...");
 
         // if (window.timerID) {
         //     window.clearInterval(window.timerID);
@@ -63,18 +65,18 @@ function init () {
         // }
     };
 
-    websocket.onmessage = (evt) => { onMessage(evt); };
+    DASHBOARD_WS.onmessage = (evt) => { onMessage(evt); };
 
-    websocket.onerror = (evt) => { onError(evt); };
+    DASHBOARD_WS.onerror = (evt) => { onError(evt); };
 
-    websocket.onclose = (evt) => {
-        isConnected = false;
+    DASHBOARD_WS.onclose = (evt) => {
+        IS_CONNECTED = false;
         onClose(evt);
     };
 }
 
 function onClose (evt) {
-    websocket.close();
+    DASHBOARD_WS.close();
     console.log("DASHBOARD SERVER: DISCONNECTED");
     waitForConnection();
 }
@@ -123,7 +125,7 @@ function onError (evt) {
 }
 
 function getCurrentDate () {
-    let now = new Date();
+    const now = new Date();
     let datetime = `${now.getFullYear()}/${now.getMonth() + 1}/${now.getDate()}`;
     datetime += ` ${now.getHours()}:${now.getMinutes()}:${now.getSeconds()}`;
 
@@ -143,18 +145,19 @@ function doSend (code, data) {
         code,
         data: x
     };
-    websocket.send(JSON.stringify(message));
+    DASHBOARD_WS.send(JSON.stringify(message));
     console.log("DASHBOARD SERVER: onSend Event Fired");
     console.log(`SENT: ${code}`);
 }
 
 function waitForConnection () {
-    $("#loading").modal("hide");
-    if (!isConnected) {
+    $PROGRESS_BAR.text("Connection to server lost. Check your internet connection. Reconnecting...");
+    $("#loading").modal("show");
+    if (!IS_CONNECTED) {
         setTimeout(() => {
-            if (websocket.readyState === 1) {
+            if (DASHBOARD_WS.readyState === 1) {
                 console.log(`Connection to ${wsUri} has been successfully established`);
-                isConnected = true;
+                IS_CONNECTED = true;
             } else {
                 console.log("Connection to DASHBOARD SERVER lost... Reconnecting...");
                 init();
