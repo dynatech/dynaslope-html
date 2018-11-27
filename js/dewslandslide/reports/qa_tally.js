@@ -19,7 +19,7 @@ try {
     extended_qa_html = extended_qa_template();
     routine_qa_html = routine_qa_template();
 } catch(err) {
-    console.log("Tally running in background...");
+
 }
 
 $(document).ready(function () {
@@ -39,7 +39,7 @@ $(document).ready(function () {
                 if (data.latest.length == 0) {
                     $('#event-qa-display').append("<strong><span>No sites under event monitoring.</span></strong>");
                 } else {
-                    console.log(data.latest);
+                
                     for (counter = 0; counter < data.latest.length; counter++) {
                         initializeRecipients("event",data.latest[counter],false);
                     }
@@ -50,7 +50,7 @@ $(document).ready(function () {
             if (event_data[0].length == 0) {
                 $('#event-qa-display').append("<strong><span>No sites under event monitoring.</span></strong>");
             } else {
-                console.log(event_data[0]);
+            
                 initializeRecipients("event", event_data[0], true);
             }
 
@@ -63,6 +63,7 @@ $(document).ready(function () {
     });
     initializeRoutineQA();
     initializeTimestamps();
+    initializeFormValidation();
 });
 
 function initializeTimestamps () {
@@ -106,9 +107,107 @@ function initializeTimestamps () {
     });
 
     $("#shift_start").focusout(({ currentTarget }) => {
-        if (currentTarget.value === "") $("#generate").prop("disabled", true).removeClass("btn-info").addClass("btn-danger");
-        else $("#generate").prop("disabled", false).removeClass("btn-danger").addClass("btn-info");
+        if (currentTarget.value === ""){
+            $("#generate").prop("disabled", true).removeClass("btn-info").addClass("btn-danger"); 
+        } else {
+            $("#generate").prop("disabled", false).removeClass("btn-danger").addClass("btn-info");
+        }
     });
+}
+
+// function initializeDatePickerValue(){
+
+// }
+
+function initializeFormValidation () {
+    jQuery.validator.addMethod("TimestampTest", (value, element) => checkTimestamp(value, element), () => validation_message);
+
+    $("#generate_form").validate({
+        debug: true,
+        rules: {
+            event_shift_start: {
+                required: true,
+                TimestampTest: true
+            },
+            event_shift_end: {
+                required: true,
+                TimestampTest: true
+            }
+        },
+        errorPlacement (error, element) {
+            const placement = $(element).closest(".form-group");
+
+            if (placement) {
+                $(placement).append(error);
+            } else {
+                error.insertAfter(placement);
+            } // remove on success
+
+            // Add `has-feedback` class to the parent div.form-group
+            // in order to add icons to inputs
+            element.parents(".form-group").addClass("has-feedback");
+
+            // Add the span element, if doesn't exists, and apply the icon classes to it.
+            if (!element.next("span")[0]) {
+                $("<span class='glyphicon glyphicon-remove form-control-feedback' style='top:18px; right:22px;'></span>").insertAfter(element);
+                if (element.parent().is(".datetime") || element.parent().is(".datetime")) element.next("span").css("right", "15px");
+                if (element.is("select")) element.next("span").css({ top: "18px", right: "30px" });
+            }
+        },
+        success (label, element) {
+            // Add the span element, if doesn't exists, and apply the icon classes to it.
+            if (!$(element).next("span")) {
+                $("<span class='glyphicon glyphicon-ok form-control-feedback' style='top:0px; right:37px;'></span>").insertAfter($(element));
+            }
+
+            $(element).closest(".form-group").children("label.error").remove();
+        },
+        highlight (element, errorClass, validClass) {
+            $(element).parents(".form-group").addClass("has-error").removeClass("has-success");
+            if ($(element).parent().is(".datetime") || $(element).parent().is(".time")) {
+                $(element).nextAll("span.glyphicon").remove();
+                $("<span class='glyphicon glyphicon-remove form-control-feedback' style='top:0px; right:37px;'></span>").insertAfter($(element));
+            } else $(element).next("span").addClass("glyphicon-remove").removeClass("glyphicon-ok");
+        },
+        unhighlight (element, errorClass, validClass) {
+            $(element).parents(".form-group").addClass("has-success").removeClass("has-error");
+            if ($(element).parent().is(".datetime") || $(element).parent().is(".time")) {
+                $(element).nextAll("span.glyphicon").remove();
+                $("<span class='glyphicon glyphicon-ok form-control-feedback' style='top:0px; right:37px;'></span>").insertAfter($(element));
+            } else $(element).next("span").addClass("glyphicon-ok").removeClass("glyphicon-remove");
+        },
+        submitHandler (form) {
+            let start = $("#shift_start").val();
+            let end = $("#shift_end").val();
+            event_details = [];
+            extended_details = [];
+            getSavedData(start, end);
+        }
+    });
+
+}
+
+function checkTimestamp (value, { id }) {
+    const hour = moment(value).hour();
+    const minute = moment(value).minute();
+    let message,
+        bool;
+
+    if (id === "shift_start") {
+        message = "Acceptable times of shift start are 07:30 and 19:30 only.";
+        const temp = moment(value).add(13, "hours");
+        $("#shift_end").val(moment(temp).format("YYYY-MM-DD HH:mm:ss"));
+        $("#shift_end").prop("readonly", true).trigger("focus");
+        setTimeout(() => {
+            $("#shift_end").trigger("focusout");
+        }, 500);
+        bool = (hour === 7 || hour === 19) && minute === 30;
+    } else {
+        message = "Acceptable times of shift end are 08:30 and 20:30 only.";
+        bool = ((hour === 8 || hour === 20) && minute === 30);
+    }
+
+    return bool;
 }
 
 function initializeOnGoingAndExtended() {
@@ -130,6 +229,9 @@ function saveSettings(category, site_data, recipients_data) {
 }
 
 function formatSettings(category, site_data, recipients_data) {
+    console.log(category);
+    console.log(site_data);
+    console.log(recipients_data);
     let status = "";
     let ts = null;
     let id_category = "";
@@ -177,7 +279,7 @@ function formatSettings(category, site_data, recipients_data) {
         "event_id": site_data.event_id,
         "ts": ts,
         "site_id": site_data.site_id,
-        "status": 1
+        "status": site_data.status
     };
 
     return data;
@@ -214,6 +316,8 @@ function initializeRecipients(category,site_data, isOld) {
 }
 
 function displayEvents(settings,event_data) {
+
+
     let site_container = [];
     let recipient_container = [];
     let data = [];
@@ -249,16 +353,18 @@ function displayEvents(settings,event_data) {
         "gndmeas_reminder_expected": settings.gndmeas_reminder_expected,
         "gndmeas_reminder_actual": settings.gndmeas_reminder_actual,
         "last_ts": settings.ts,
-        "event_id": settings.event_id
+        "event_id": settings.event_id,
+        "status": parseInt(settings.status)
     };
-
+    console.log(data);
     event_details.unshift(data);
+    $("#event-qa-display").empty();
     try {
         tally_panel_html = event_qa_template({'tally_data': event_details});
         $("#event-qa-display").html(tally_panel_html);
     } catch(err) {
-        console.log(err);
-        console.log("Tally running in background...");
+    
+    
     }
     initializeEvaluateEvent();
 }
@@ -299,14 +405,17 @@ function displayExtendeds(settings,extended_data) {
         "gndmeas_reminder_expected": settings.gndmeas_reminder_expected,
         "gndmeas_reminder_actual": settings.gndmeas_reminder_actual,
         "last_ts": settings.ts,
-        "event_id": settings.event_id
+        "event_id": settings.event_id,
+        "status": parseInt(settings.status)
     };
+
     extended_details.unshift(data);
+    $("#extended-qa-display").empty();
     try {
         tally_panel_html = extended_qa_template({'tally_data': extended_details});
         $("#extended-qa-display").html(tally_panel_html);
     } catch(err) {
-        console.log("Tally running in background");
+    
     }
     initializeEvaluateExtended();    
 }
@@ -323,7 +432,7 @@ function initializeEvaluateEvent() {
             category: "event"
         }
         $.post("qa_tally/evaluate_site", {data: request}, function(data) {
-            console.log(data);
+        
         });
     });
 }
@@ -343,3 +452,58 @@ function initializeEvaluateExtended() {
         });
     });
 }
+
+function getSavedData(start_date, end_date){
+    let data = {
+        start : start_date,
+        end : end_date
+    }
+    let url = "../qa_tally/recorded_settings";
+    $.post(url, data)
+    .done((result, textStatus, jqXHR) => {
+        displaySavedSettings(JSON.parse(result));
+    });
+}
+
+function displaySavedSettings(saved_data){
+
+    let event_data = saved_data[0];
+
+    let extended_data = saved_data[1];
+    if (event_data[0].length == 0 && extended_data[0].length == 0) {
+        initializeOnGoingAndExtended().then((data) => {
+            if (data.extended.length == 0) {
+                $('#extended-qa-display').append("<strong><span>No sites under extended monitoring.</span></strong>");
+            } else {
+                for (let counter = 0; counter < data.extended.length; counter++) {
+                    initializeRecipients("extended",data.extended[counter],false);
+                }
+            }
+
+            if (data.latest.length == 0) {
+                $('#event-qa-display').append("<strong><span>No sites under event monitoring.</span></strong>");
+            } else {
+            
+                for (counter = 0; counter < data.latest.length; counter++) {
+                    initializeRecipients("event",data.latest[counter],false);
+                }
+            }  
+        });
+    } else {
+
+        if (event_data[0].length == 0) {
+            $('#event-qa-display').append("<strong><span>No sites under event monitoring.</span></strong>");
+        } else {
+        
+            initializeRecipients("event", event_data[0], true);
+        }
+
+        if (extended_data[0].length == 0) {
+            $('#extended-qa-display').append("<strong><span>No sites under extended monitoring.</span></strong>");
+        } else {
+            initializeRecipients("extended", extended_data[0], true); 
+        }
+    }
+   
+}
+
