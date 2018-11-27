@@ -268,6 +268,7 @@ function formatSettings(category, site_data, recipients_data) {
 
     if (site_data.ewi_actual != undefined || site_data.ewi_actual != null) {ewi_actual = site_data.ewi_actual;}
     if (site_data.gndmeas_reminder_actual != undefined || site_data.gndmeas_reminder_actual != null) {gnd_meas_reminder_actual = site_data.gndmeas_reminder_actual;}
+    if (site_data.ewi_ack != undefined || site_data.ewi_ack != null) {ewi_ack = site_data.ewi_ack;}
     
     let data = {
         "event_category": category,
