@@ -153,21 +153,38 @@ function initializeTimestamps () {
 }
 
 function initializeHistoryViewOnClick () {
-    // $("#history-tab").click(() => {
     $("a[href='#history-tab']").on("shown.bs.tab", () => {
         $("#loading .progress-bar").text("Loading Events History...");
         $("#loading").modal("show");
-        loadDefaultValues();
+        loadDefaults();
     });
 }
 
-function loadDefaultValues () {
+function loadDefaults () {
     // Initialize default date form values
     $("#start-time").val(moment().subtract(1, "months").format("YYYY-MM-DD HH:mm:ss"));
     $("#end-time").val(moment().format("YYYY-MM-DD HH:mm:ss"));
+
+    // Initialize Panel Size
+    const panelHeight = $(".filters-div").height();
+    $(".chart-div").height(panelHeight);
+    $(".alert-count-div").height(panelHeight);
+
+    initializeSiteSelection();
+
     setTimeout(() => {
         $("#analysis-plot-btn").trigger("click");
     }, 3000);
+}
+
+function initializeSiteSelection () {
+    $.getJSON("../pubrelease/getAllSites")
+    .then((data) => {
+        data.forEach((row, index) => {
+            // console.log(index, row);
+            $("#site-code").append($("<option></option>").attr("value", row.site_code).text(`(${row.site_code.toUpperCase()}) ${row.address}`));
+        });
+    });
 }
 
 function initializeAnalysisPlotButtonOnClick () {
@@ -180,12 +197,13 @@ function initializeAnalysisPlotButtonOnClick () {
 }
 
 function prepareFilters () {
+    const site_selected = $("#site-code").val();
     const alert_level = $("#alert-level").val();
     const start_time = $("#start-time").val();
     const end_time = $("#end-time").val();
 
     // getEventsPerAlertLevelHistory(alert_level, start_time, end_time);
-    getEventsBasedOnDate(alert_level, start_time, end_time);
+    getEventsBasedOnDate(site_selected, alert_level, start_time, end_time);
 }
 
 // function getEventsPerAlertLevelHistory (alert_level, start_time, end_time) {
@@ -206,10 +224,10 @@ function prepareFilters () {
 //     });
 // }
 
-function getEventsBasedOnDate (alert_level, start_time, end_time) {
+function getEventsBasedOnDate (site_selected, alert_level, start_time, end_time) {
     $.getJSON(`../pubrelease/getEventsBasedOnDate/${start_time}/${end_time}`)
     .then((data) => {
-        const filtered_data = filterData(data);
+        const filtered_data = filterData(site_selected, data);
         return filtered_data;
     })
     .then((filtered_data) => {
@@ -244,20 +262,25 @@ function getEventsBasedOnDate (alert_level, start_time, end_time) {
     });
 }
 
-function filterData (data) {
-    const a1 = data.filter(({ public_alert_level }) => {
+function filterData (site, data) {
+    let temp = data;
+    if (site !== "") {
+        temp = data.filter(({ site_code }) => site_code === site);
+    }
+
+    const a1 = temp.filter(({ public_alert_level }) => {
         let pal = public_alert_level;
         if (public_alert_level === "ND") pal = "A1";
 
         return pal === "A1";
     });
 
-    const a2 = data.filter(({ public_alert_level }) => public_alert_level === "A2");
+    const a2 = temp.filter(({ public_alert_level }) => public_alert_level === "A2");
 
-    const a3 = data.filter(({ public_alert_level }) => public_alert_level === "A3");
+    const a3 = temp.filter(({ public_alert_level }) => public_alert_level === "A3");
 
     const filtered = {
-        all: data,
+        all: temp,
         alert_1: a1,
         alert_2: a2,
         alert_3: a3
@@ -395,7 +418,7 @@ function plotPieChart ({ alert_1, alert_2, alert_3 }) {
             }]
         }
     });
-    chart.setSize(450, 248);
+    chart.setSize(450, 300);
 }
 
 /****
