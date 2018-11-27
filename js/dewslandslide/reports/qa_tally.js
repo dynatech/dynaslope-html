@@ -135,6 +135,7 @@ function formatSettings(category, site_data, recipients_data) {
     let id_category = "";
     let ewi_expected = 0;
     let ewi_actual = 0;
+    let ewi_ack = 0;
     let gnd_meas_reminder_expected = 0;
     let gnd_meas_reminder_actual = 0;
     let temp = 0;
@@ -170,6 +171,7 @@ function formatSettings(category, site_data, recipients_data) {
         "event_category": category,
         "ewi_expected": ewi_expected,
         "ewi_actual": ewi_actual,
+        "ewi_ack": ewi_ack,
         "gndmeas_reminder_expected": gnd_meas_reminder_expected,
         "gndmeas_reminder_actual": gnd_meas_reminder_actual,
         "event_id": site_data.event_id,
@@ -241,6 +243,7 @@ function displayEvents(settings,event_data) {
         "recipients": recipient_container,
         "ewi_actual": settings.ewi_actual,
         "ewi_expected": settings.ewi_expected,
+        "ewi_ack": settings.ewi_ack,
         "gndmeas_expected": settings.gndmeas_expected,
         "gndmeas_actual": settings.gndmeas_actual,
         "gndmeas_reminder_expected": settings.gndmeas_reminder_expected,
@@ -290,6 +293,7 @@ function displayExtendeds(settings,extended_data) {
         "recipients": recipient_container,
         "ewi_actual": settings.ewi_actual,
         "ewi_expected": settings.ewi_expected,
+        "ewi_ack": settings.ewi_ack,
         "gndmeas_expected": settings.gndmeas_expected,
         "gndmeas_actual": settings.gndmeas_actual,
         "gndmeas_reminder_expected": settings.gndmeas_reminder_expected,
