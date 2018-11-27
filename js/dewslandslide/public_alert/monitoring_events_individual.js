@@ -26,6 +26,8 @@ let SITE_CODE;
 let STATUS;
 let TIMELINE_ARRAY;
 let $LOADING_BAR;
+let ANCHORLINKS = [];
+let TEMP = ["November 9th 2018, 08:30 AM", "November 8th 2018, 08:30 PM", "November 8th 2018, 08:30 AM", "November 7th 2018, 08:30 PM", "November 7th 2018, 08:30 AM", "November 6th 2018, 08:30 PM", "November 6th 2018, 08:30 AM", "November 5th 2018, 08:30 PM", "November 5th 2018, 08:30 AM"];
 
 $(document).ready(() => {
     $LOADING_BAR = $("#loading");
@@ -39,6 +41,7 @@ $(document).ready(() => {
     initializeFormValidator();
     initializeBulletinSendingAndDownloading();
     initializeReleaseEditOnClick();
+    initializeShareLinkOnClick();
     initializeSortTimelineButton();
 
     reposition("#edit");
@@ -80,17 +83,26 @@ $(document).ready(() => {
     });
 
     $.when(getDataForEWICard(EVENT_ID), getEventNarratives(EVENT_ID), getEventEOSAnalysis(EVENT_ID))
-    .done((ewi_data, [event_narratives], [eos]) => {
+    .then((ewi_data, [event_narratives], [eos]) => {
         if (STATUS === "routine" || eos.analysis === null) eos = [];
         const timeline_array = compileTimelineCardDataIntoArray(ewi_data, event_narratives, eos);
+        let is_sort_desc = true;
+        if (TO_HIGHLIGHT !== false) is_sort_desc = !TO_HIGHLIGHT.includes("a");
 
-        timeline_array.sort((a, b) => moment(b.ts).diff(a.ts));
         TIMELINE_ARRAY = timeline_array;
 
-        delegateCardsToTimeline(TIMELINE_ARRAY);
+        const { $sort_icon, up, down } = setSortIconAssets();
+        if (is_sort_desc) {
+            $sort_icon.removeClass(down).addClass(up);
+        } else $sort_icon.removeClass(up).addClass(down);
+
+        TIMELINE_ARRAY = sortTimelineArray(TIMELINE_ARRAY, is_sort_desc);
+
+        delegateCardsToTimeline(TIMELINE_ARRAY, is_sort_desc);
+        recenterTimelineHeadText(".date-tag-text", 14);
 
         if (TO_HIGHLIGHT !== false) {
-            $("li.timeline").each((i, elem) => {
+            $(".timeline > li").each((i, elem) => {
                 if ($(elem).data("release-id") === TO_HIGHLIGHT) {
                     $(elem).addClass("highlight");
                     scrollToDiv(elem);
@@ -100,6 +112,13 @@ $(document).ready(() => {
             });
         }
 
+        $("#page-wrapper .dropdown-toggle").dropdown();
+        prepareAnchorLinks();
+    })
+    .then(() => {
+        if (ANCHORLINKS.length !== 0) appendAnchorLinks(ANCHORLINKS);
+    }).then(() => {
+        initializeAnchorLinkOnClick();
         $LOADING_BAR.modal("hide");
     });
 
@@ -253,14 +272,14 @@ function initializeBulletinSendingAndDownloading () {
 
                 subject = $("#subject").text();
                 filename = `${$("#filename").text()}.pdf`;
-                sendMail(text, subject, filename, recipients, release_id);
+                sendMail(text, subject, filename, recipients);
             }
         });
     });
 }
 
 function initializeReleaseEditOnClick () {
-    $("body").on("click", ".fa-edit", (data) => {
+    $("body").on("click", ".edit", (data) => {
         const { currentTarget } = data;
         const release_id = $(currentTarget).data("release-id");
 
@@ -333,35 +352,77 @@ function initializeReleaseEditOnClick () {
     });
 }
 
+function initializeShareLinkOnClick () {
+    $("body").on("click", ".copy-link", (data) => {
+        const { currentTarget } = data;
+        const release_id = $(currentTarget).data("release-id");
+        const str = `${window.location.hostname}/monitoring/events/${EVENT_ID}/${release_id}`;
+        const el = document.createElement("textarea");
+        el.value = str;
+        document.body.appendChild(el);
+        el.select();
+        document.execCommand("copy");
+        document.body.removeChild(el);
+    });
+}
+
+function setSortIconAssets () {
+    const $sort_icon = $("#sort-timeline").find("span");
+    const up = "fa-angle-double-up";
+    const down = "fa-angle-double-down";
+
+    return { $sort_icon, up, down };
+}
+
+function sortTimelineArray (timeline_array, is_sort_desc) {
+    timeline_array.sort((a, b) => {
+        let first = a;
+        let second = b;
+
+        if (is_sort_desc) {
+            first = b;
+            second = a;
+        }
+
+        return moment(first.ts).diff(second.ts);
+    });
+
+    return timeline_array;
+}
+
 function initializeSortTimelineButton () {
     $("#sort-timeline").click(({ currentTarget }) => {
         $LOADING_BAR.modal("show");
 
-        const $sort_icon = $(currentTarget).find("span");
-        const up = "fa-angle-double-up";
-        const down = "fa-angle-double-down";
         let is_sort_desc = true;
+        const { $sort_icon, up, down } = setSortIconAssets();
 
         if ($sort_icon.hasClass(up)) {
             $sort_icon.removeClass(up).addClass(down);
             is_sort_desc = false;
         } else $sort_icon.removeClass(down).addClass(up);
 
-        TIMELINE_ARRAY.sort((a, b) => {
-            let first = a;
-            let second = b;
-
-            if (is_sort_desc) {
-                first = b;
-                second = a;
-            }
-
-            return moment(first.ts).diff(second.ts);
-        });
+        TIMELINE_ARRAY = sortTimelineArray(TIMELINE_ARRAY, is_sort_desc);
 
         $("#timeline ul.timeline").empty();
         delegateCardsToTimeline(TIMELINE_ARRAY, is_sort_desc);
         $LOADING_BAR.modal("hide");
+        recenterTimelineHeadText(".date-tag-text", 14);
+        $("#anchor-div-am > button").not("#anchor-link-template").remove();
+        $("#anchor-div-pm > button").not("#anchor-link-template").remove();
+        $("#page-wrapper .dropdown-toggle").dropdown();
+        prepareAnchorLinks();
+        if (ANCHORLINKS.length !== 0) {
+            appendAnchorLinks(ANCHORLINKS);
+        }
+        initializeAnchorLinkOnClick();
+    });
+}
+
+function initializeAnchorLinkOnClick () {
+    $("#anchor-div-am > button, #anchor-div-pm > button").click(({ currentTarget }) => {
+        const elem = $(currentTarget).data("elem");
+        scrollToDiv(`#${elem}`);
     });
 }
 
@@ -485,48 +546,89 @@ function delegateCardsToTimeline (timeline_array, is_sort_desc = true) {
     let last_eos_card_id;
     let last_ewi_card_id;
     let get_iomp = false;
+    let date = null;
+    const orientation = is_sort_desc ? "d" : "a";
+    let is_prev_entry_date_tag = false;
 
     timeline_array.forEach((timeline_entry, index) => {
-        const { type } = timeline_entry;
+        const { type, ts } = timeline_entry;
         const selection_arr = [];
+        const current_date = moment(ts).format("MMMM-DD");
+        let force_add_buffer = false;
+        let dont_add_buffer = false;
+
+        if (date === null || current_date !== date) {
+            is_prev_entry_date_tag = true;
+            date = current_date;
+            const temp = { ts, type: "date_tag" };
+
+            if (index === 0) {
+                createTimelineCard(temp, "x", orientation);
+                // Add buffer if first card is narrative
+                if (type === "narrative") {
+                    addBuffer("narrative");
+                    adjustBufferHeight("narrative");
+                }
+            } else {
+                const { type: prev_entry_type } = timeline_array[index - 1];
+                if (prev_entry_type === "narrative") {
+                    addBuffer("date_tag");
+                    adjustBufferHeight("date_tag");
+                }
+
+                createTimelineCard(temp, "x", orientation);
+
+                if (prev_entry_type === "narrative" && type === "narrative") {
+                    force_add_buffer = true;
+                }
+            }
+        }
+
+        if (is_prev_entry_date_tag && ["ewi", "eos"].includes(type)) {
+            dont_add_buffer = true;
+        }
+
+        is_prev_entry_date_tag = false;
 
         if (type === "narrative") selection_arr.push("ewi", "eos");
         else selection_arr.push("narrative");
 
         if (index !== 0) {
             const { type: prev_entry_type } = timeline_array[index - 1];
-            if (selection_arr.includes(prev_entry_type)) {
+            // Check if previous card type is from different column
+            if (!dont_add_buffer && (selection_arr.includes(prev_entry_type) || force_add_buffer)) {
                 addBuffer(type);
                 adjustBufferHeight(type, index);
             }
         }
 
-        createTimelineCard(timeline_entry, index);
+        const reverse_index = timeline_array.length - index;
+        createTimelineCard(timeline_entry, reverse_index, orientation);
 
         if (["ewi", "eos"].includes(type)) {
-            if (type === "ewi") last_ewi_card_id = index;
-            else last_eos_card_id = index;
+            if (type === "ewi") last_ewi_card_id = reverse_index;
+            else last_eos_card_id = reverse_index;
 
             if (is_sort_desc) {
                 if (type === "ewi" && get_iomp) {
-                    setIOMPForEachEOS(timeline_entry, last_eos_card_id);
+                    setIOMPForEachEOS(timeline_entry, last_eos_card_id, orientation);
                     get_iomp = false;
                 } else if (type === "eos") {
                     get_iomp = true;
-                    last_eos_card_id = index;
+                    last_eos_card_id = reverse_index;
                 }
             } else if (type === "ewi") last_ewi_card_id = index;
-            else setIOMPForEachEOS(timeline_array[last_ewi_card_id], index);
+            else setIOMPForEachEOS(timeline_array[last_ewi_card_id], reverse_index, orientation);
         }
     });
 }
 
-function setIOMPForEachEOS (timeline_entry, eos_card_id) {
+function setIOMPForEachEOS (timeline_entry, eos_card_id, orientation) {
     const { reporter_id_mt, reporter_id_ct } = timeline_entry;
     const iomp = [["mt", reporter_id_mt], ["ct", reporter_id_ct]];
     iomp.forEach(([type, id]) => {
         const { first_name, last_name } = STAFF_LIST.find(element => id === element.id);
-        $(`#card-${eos_card_id}`).find(`.reporters > .${type}`).text(`${first_name} ${last_name}`);
+        $(`#${orientation}-${eos_card_id}`).find(`.reporters > .${type}`).text(`${first_name} ${last_name}`);
     });
 }
 
@@ -564,7 +666,19 @@ function adjustBufferHeight (type) {
             narrative_height_counter += $(elem).outerHeight(true);
         });
 
-        height = narrative_height_counter - t_body_height - 20 - 20;
+        // Remove previous EOS/EWI card height if date tag is found in between
+        const $in_between_prev_card = $buffer.prevUntil(".timeline");
+        if ($in_between_prev_card.hasClass("date-tag")) {
+            t_body_height = 0;
+        }
+
+        let buffer_margin_minus = 20;
+        if (type === "date_tag") {
+            $buffer.css("margin-bottom", 0);
+            buffer_margin_minus = 0;
+        }
+
+        height = narrative_height_counter - t_body_height - 20 - buffer_margin_minus;
     } else {
         let height_counter = 0;
         const $last_left_card = $("#timeline-column-left > ul > li:last-child");
@@ -594,12 +708,18 @@ function adjustBufferHeight (type) {
                 narrative_height_counter += $(elem).outerHeight(true);
             });
 
-            excess_height = t_body_height - narrative_height_counter + 20 + 20;
+            const $other_side_last_buffer = $("#timeline-column-left > ul > li.buffer").last();
+            console.log($other_side_last_buffer);
+            const other_side_buff_height = $other_side_last_buffer.outerHeight(true);
+
+            excess_height = t_body_height - narrative_height_counter + 20 + other_side_buff_height;
         }
 
         $prev_cards.each((i, elem) => {
             let card_height;
-            if (i + 1 === $prev_cards.length) {
+            if ($(elem).hasClass("date-tag")) {
+                card_height = $(elem).outerHeight(true);
+            } else if (i + 1 === $prev_cards.length) {
                 const $theading_prev = $(elem).find(".timeline-heading");
                 const $panel_prev = $(elem).find(".timeline-panel");
                 if ($theading_prev.length !== 0) {
@@ -619,18 +739,19 @@ function adjustBufferHeight (type) {
         // Subtract the padding from buffer only if present
         if ($last_buffer.length !== 0) height -= 20;
     }
-
     $buffer.height(height);
 }
 
-function createTimelineCard (timeline_entry, index) {
-    const { type } = timeline_entry;
-    const $template = $(`#${type}-card-template`).clone().prop("id", `card-${index}`).prop("hidden", false);
+function createTimelineCard (timeline_entry, index, orientation) {
+    const { type, ts } = timeline_entry;
+    const id = `${orientation}-${index}`;
+    const $template = $(`#${type}-card-template`).clone().prop("id", id).prop("hidden", false);
 
     const column_side = type === "narrative" ? "right" : "left";
 
     let $timeline_card = $template;
 
+    if (type === "date_tag") $timeline_card = prepareDateTag(ts);
     if (type === "ewi") $timeline_card = prepareEwiCard(timeline_entry, $template, GL_VALIDITY, GL_EVENT_START, STATUS);
     if (type === "narrative") $timeline_card = prepareNarrativeCard(timeline_entry, $template);
     if (type === "eos") $timeline_card = prepareEOSCard(timeline_entry, $template);
@@ -643,19 +764,25 @@ function prepareEwiCard (release_data, $template, validity, event_start, status)
         release_time, internal_alert_level,
         data_timestamp, release_triggers,
         reporter_id_mt, reporter_id_ct,
-        comments, release_id
+        comments, release_id, extra_manifestations
     } = release_data;
-    const [qualifier, is_extended] = selectEwiCardQualifier(data_timestamp, validity, event_start, status);
+    const [
+        qualifier, is_extended
+    ] = selectEwiCardQualifier(data_timestamp, validity, event_start, status);
 
     if (is_extended) $template.find(".timeline-panel").addClass("extended-card");
 
     $template.data("release-id", release_id);
-    $template.find(".fa-edit").data("release-id", release_id);
+    $template.find(".fa-ellipsis-v").data("release-id", release_id);
+    $template.find(".edit").data("release-id", release_id);
+    $template.find(".copy-link").data("release-id", release_id);
     $template.find(".print").data("release-id", release_id);
     $template.find(".card-title").text(qualifier);
     $template.find(".card-title-ts").text(moment(data_timestamp).add(30, "minutes").format("MMMM Do YYYY, hh:mm A"));
     $template.find(".release_time").text(moment.utc(release_time, "HH:mm").format("hh:mm A"));
     $template.find(".internal_alert_level").text(internal_alert_level);
+
+    const $trigger_ul = $template.find(".triggers > ul");
 
     if (release_triggers.length === 0) $template.find(".triggers").prop("hidden", true);
     else {
@@ -665,16 +792,24 @@ function prepareEwiCard (release_data, $template, validity, event_start, status)
             const $trigger_li = $("<li>").text(trigger_info);
             const $tech_info_li = $(`<ul><li>${info}</li></ul>`);
 
-            const $trigger_ul = $template.find(".triggers > ul");
             $trigger_ul.append($trigger_li);
             $trigger_ul.append($tech_info_li);
 
             if (trigger_type.toUpperCase() === "M") {
                 const { manifestation_info } = trigger;
-                const $div = prepareManifestationInfo(manifestation_info);
-                $trigger_ul.append($div);
+                prepareManifestationInfo([manifestation_info]); // Refactor this to remove array on manifestation info
             }
         });
+    }
+
+    if (extra_manifestations.length !== 0) {
+        $template.find(".triggers").prop("hidden", false);
+        const $div = prepareManifestationInfo(extra_manifestations, true);
+        $trigger_ul.after($div);
+        if (release_triggers.length !== 0) {
+            const $hr = $("<div>", { class: "row" }).append("<hr/>");
+            $template.find(".triggers > ul:first").after($hr);
+        }
     }
 
     if (comments === "" || comments === null) $template.find(".comments-div").prop("hidden", true);
@@ -689,7 +824,7 @@ function prepareEwiCard (release_data, $template, validity, event_start, status)
     return $template;
 }
 
-function prepareManifestationInfo (manifestation_info_arr) {
+function prepareManifestationInfo (manifestation_info_arr, is_non_triggering = false) {
     const $first_ul = $("<ul>");
 
     manifestation_info_arr.forEach((man) => {
@@ -698,7 +833,8 @@ function prepareManifestationInfo (manifestation_info_arr) {
 
         const { feature_type, feature_name, op_trigger } = man;
         const type = makeUpperCaseFirstChar(feature_type);
-        const feature_str = `Feature: ${type} ${feature_name} (M${op_trigger})`;
+        const feature_mod = is_non_triggering ? "Non-Triggering " : "";
+        const feature_str = `${feature_mod}Feature: ${type} ${feature_name} (M${op_trigger})`;
         const $features = $(`<ul><li>${feature_str}</li><ul>`);
         $first_ul.append($features);
 
@@ -714,10 +850,16 @@ function prepareManifestationInfo (manifestation_info_arr) {
     });
 
     const [{ validator }] = manifestation_info_arr;
-    const { first_name, last_name } = STAFF_LIST.find(element => element.id === validator);
+    let obj;
+    if (validator !== null) obj = STAFF_LIST.find(element => element.id === validator);
+    else {
+        obj = { first_name: "Shift", last_name: "IOMP" };
+    }
+    const { first_name, last_name } = obj;
     const $validator = $("<li>").text(`Validator: ${first_name} ${last_name}`);
-    $first_ul.children("ul").append($validator);
+    $first_ul.children("ul:last-child").append($validator);
 
+    if (is_non_triggering) return $first_ul.html();
     return $first_ul;
 }
 
@@ -745,8 +887,10 @@ function selectEwiCardQualifier (data_timestamp, validity, event_start, status) 
 }
 
 function prepareNarrativeCard (narrative_data, $template) {
-    const { narrative, timestamp: narrative_ts } = narrative_data;
+    const { narrative, timestamp: narrative_ts, id } = narrative_data;
+    $template.data("release-id", id);
     $template.find(".narrative-span").text(narrative);
+    $template.find(".copy-link").data("release-id", id);
     $template.find(".narrative-ts").text(moment(narrative_ts).format("MMMM Do YYYY, hh:mm:ss A"));
     return $template;
 }
@@ -756,5 +900,49 @@ function prepareEOSCard (eos_data, $template) {
     const shift_end = moment(shift_start).add(13, "hours").format("MMMM Do YYYY, hh:mm A");
     $template.find(".card-title-ts").text(shift_end);
     $template.find(".analysis-div").html(analysis);
+    const release_id = $template[0].id;
+    $template.data("release-id", release_id);
+    $template.find(".copy-link").data("release-id", release_id);
     return $template;
+}
+
+function prepareDateTag (ts) {
+    const date = moment(ts).format("MMM DD");
+    const $template = $("#date-tag-template").clone()
+    .prop({
+        hidden: false,
+        id: ""
+    });
+    $template.find("#date-tag").text(date.toUpperCase());
+    return $template;
+}
+
+function prepareAnchorLinks () {
+    ANCHORLINKS = [];
+    $(".timeline-panel.eos-card").each((index, element) => {
+        if (element.closest("li").id !== "eos-card-template") {
+            const card_id = element.closest("li").id;
+            const text = $(`#${card_id}`).find(".card-title-ts").text();
+            ANCHORLINKS.push([text, card_id]);
+        }
+    });
+}
+
+function appendAnchorLinks (anchor_link_array) {
+    let anchor_link;
+    anchor_link_array.reverse().forEach(([shift, id]) => {
+        $("#anchor-div").prop("hidden", false);
+        const anchor_div = shift.includes("AM") ? $("#anchor-div-am") : $("#anchor-div-pm");
+        const date = moment(shift, "MMMM Do YYYY, hh:mm:ss A").format("MM/DD");
+        anchor_link =
+            anchor_div
+            .prop("hidden", false)
+            .find("#anchor-link-template")
+            .clone()
+            .removeAttr("id")
+            .attr("data-elem", id);
+        anchor_link.attr("onclick", `location.href="#${id}"`).find(".icon").remove();
+        anchor_link.find(".button-text").text(date);
+        anchor_div.append(anchor_link);
+    });
 }

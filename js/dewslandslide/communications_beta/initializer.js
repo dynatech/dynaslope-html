@@ -4,9 +4,7 @@ let recent_sites_collection = [];
 let samar_sites_details = [];
 let last_outbox_ts = null;
 let last_inbox_ts = null;
-
 let message_position = null;
-
 $(document).ready(function() {
 	$('#chatterbox-loader-modal').modal({backdrop: 'static', keyboard: false});
 	// $('#ground-meas-reminder-modal').modal({backdrop: 'static', keyboard: false});
@@ -19,6 +17,9 @@ $(document).ready(function() {
 	getEmployeeContactGroups();
 	initializeOnSubmitEmployeeContactForm();
 	initializeOnSubmitCommunityContactForm();
+    initializeOnSubmitUnregisteredEmployeeContactForm();
+    initializeOnSubmitUnregisteredCommunityContactForm();
+    initializeDataTaggingButton();
 });
 
 
@@ -41,6 +42,7 @@ function initialize() {
                 initializeContactSuggestion("");
                 initializeOnClickUpdateEmployeeContact();
                 initializeOnClickUpdateCommunityContact();
+                initializeOnClickUpdateUnregisteredContact();
                 getSiteSelection();
                 getLatestAlert()
                 getOrganizationSelection();
@@ -203,10 +205,26 @@ function initializeQuickInboxMessages () {
 }
 
 function getQuickInboxMain () {
-	let msg = {
-		type: 'smsloadquickinboxrequest'
-	}
-	wss_connect.send(JSON.stringify(msg));
+    try {
+        let msg = {
+            type: 'smsloadquickinboxrequest'
+        }
+        wss_connect.send(JSON.stringify(msg));
+    } catch(err) {
+        console.log(err);
+        const report = {
+            type: "error_logs",
+            metric_name: "load_quick_inbox_error_logs",
+            module_name: "Communications",
+            report_message: `${err}`,
+            reference_table: "sms_inbox",
+            reference_id: 7,
+            submetrics: []
+        };
+
+        PMS.send(report);
+    }
+	
 }
 
 function getQuickInboxEvent() {
@@ -214,10 +232,26 @@ function getQuickInboxEvent() {
 }
 
 function getQuickInboxUnregistered() {
-    let msg = {
-        type: 'smsloadquickunknowninbox'
+    try {
+        let msg = {
+            type: 'smsloadquickunknowninbox'
+        }
+        wss_connect.send(JSON.stringify(msg));
+    } catch(err) {
+        console.log(err);
+        const report = {
+            type: "error_logs",
+            metric_name: "load_unregistered_inbox_error_logs",
+            module_name: "Communications",
+            report_message: `${err}`,
+            reference_table: "sms_inbox",
+            reference_id: 7,
+            submetrics: []
+        };
+
+        PMS.send(report);
     }
-    wss_connect.send(JSON.stringify(msg));
+    
 }
 
 function getQuickInboxDataLogger() {
@@ -251,11 +285,27 @@ function initializeOnClickUpdateEmployeeContact () {
 		$("#emp-settings-cmd").hide();
 		var table = $('#emp-response-contact-container').DataTable();
 		var data = table.row(this).data();
-		var msg = {
-			'type': 'loadDewslContact',
-			'data': data.user_id
-		};	
-		wss_connect.send(JSON.stringify(msg));
+        try {
+            var msg = {
+                'type': 'loadDewslContact',
+                'data': data.user_id
+            };  
+            wss_connect.send(JSON.stringify(msg));
+        } catch(err) {
+            console.log(err);
+            const report = {
+                type: "error_logs",
+                metric_name: "load_employee_details_error_logs",
+                module_name: "Communications",
+                report_message: `${err}`,
+                reference_table: "users",
+                reference_id: 9,
+                submetrics: []
+            };
+
+            PMS.send(report);
+        }
+		
 	});
 }
 
@@ -267,12 +317,69 @@ function initializeOnClickUpdateCommunityContact () {
 		$("#comm-settings-cmd").hide();
 		var table = $('#comm-response-contact-container').DataTable();
 		var data = table.row(this).data();
-		var msg = {
-			'type': 'loadCommunityContact',
-			'data': data.user_id
-		};	
-		wss_connect.send(JSON.stringify(msg));
+        try {
+            var msg = {
+                'type': 'loadCommunityContact',
+                'data': data.user_id
+            };  
+            wss_connect.send(JSON.stringify(msg));
+        } catch(err) {
+            console.log(err);
+            const report = {
+                type: "error_logs",
+                metric_name: "load_community_details_error_logs",
+                module_name: "Communications",
+                report_message: `${err}`,
+                reference_table: "users",
+                reference_id: 9,
+                submetrics: []
+            };
+
+            PMS.send(report);
+        }
+		
 	});
+}
+
+function initializeOnClickUpdateUnregisteredContact () {
+    $('#unregistered-contact-container').on('click', 'tr:has(td)', function(){
+
+        $('#unregistered-contact-container_wrapper').hide(300);
+        $('#unregistered-wrapper').show(300);
+        let table = $('#unregistered-contact-container').DataTable();
+        let table_data = table.row(this).data();
+        let label = table_data.unknown_label;
+        label = label.split(", ");
+
+        $("#emp_unregistered_user_id").val(table_data.user_id);
+        $("#emp_unregistered_first_name").val(label[0]);
+        $("#emp_unregistered_lastname").val(label[1]);
+        $("#comm_unregistered_user_id").val(table_data.user_id);
+        $("#comm_unregistered_firstname").val(label[0]);
+        $("#comm_unregistered_lastname").val(label[1]);
+        try {
+            let msg = {
+                'type': 'loadUnregisteredMobileNumber',
+                'data': table_data.user_id
+            }; 
+            console.log(msg);
+            wss_connect.send(JSON.stringify(msg));
+        } catch(err) {
+            console.log(err);
+            const report = {
+                type: "error_logs",
+                metric_name: "load_unregistered_details_error_logs",
+                module_name: "Communications",
+                report_message: `${err}`,
+                reference_table: "users",
+                reference_id: 9,
+                submetrics: []
+            };
+
+            PMS.send(report);
+        }
+        
+    });
 }
 
 function initLoadLatestAlerts (data) {
@@ -345,32 +452,97 @@ function initCheckboxColors () {
 }
 
 function getSiteSelection() {
-	let msg = {
-		type: 'getAllSitesConSet'
-	}
-	wss_connect.send(JSON.stringify(msg));
+    try {
+        let msg = {
+            type: 'getAllSitesConSet'
+        }
+        wss_connect.send(JSON.stringify(msg));
+    } catch(err) {
+        console.log(err);
+        const report = {
+            type: "error_logs",
+            metric_name: "sites_error_logs",
+            module_name: "Communications",
+            report_message: `${err}`,
+            reference_table: "sites",
+            reference_id: 5,
+            submetrics: []
+        };
+
+        PMS.send(report);
+    }
+	
 }
 
+
 function getOrganizationSelection() {
-	let msg = {
-		type: 'getAllOrgsConSet'
-	}
-	wss_connect.send(JSON.stringify(msg));
+    try {
+        let msg = {
+            type: 'getAllOrgsConSet'
+        }
+        wss_connect.send(JSON.stringify(msg));
+    } catch(err) {
+        console.log(err);
+        const report = {
+            type: "error_logs",
+            metric_name: "orgs_error_logs",
+            module_name: "Communications",
+            report_message: `${err}`,
+            reference_table: "organization",
+            reference_id: 6,
+            submetrics: []
+        };
+
+        PMS.send(report);
+    }
+	
 }
 
 function initializeContactSuggestion(name_query) {
-	let msg = {
-		'type': 'requestnamesuggestions',
-		'namequery': name_query
-	}
-	wss_connect.send(JSON.stringify(msg));
+    try {
+        let msg = {
+            'type': 'requestnamesuggestions',
+            'namequery': name_query
+        }
+        wss_connect.send(JSON.stringify(msg));
+    } catch(err) {
+        console.log(err);
+        const report = {
+            type: "error_logs",
+            metric_name: "request_name_suggestion_error_logs",
+            module_name: "Communications",
+            report_message: `${err}`,
+            reference_table: "users",
+            reference_id: 9,
+            submetrics: []
+        };
+
+        PMS.send(report);
+    }
+	
 }
 
 function getImportantTags () {
-	let msg = {
-		type: 'getImportantTags'
-	}
-	wss_connect.send(JSON.stringify(msg));
+    try {
+        let msg = {
+            type: 'getImportantTags'
+        }
+        wss_connect.send(JSON.stringify(msg));
+    } catch(err) {
+        console.log(err);
+        const report = {
+            type: "error_logs",
+            metric_name: "get_important_tags_error_logs",
+            module_name: "Communications",
+            report_message: `${err}`,
+            reference_table: "gintag_reference",
+            reference_id: 12,
+            submetrics: []
+        };
+
+        PMS.send(report);
+    }
+	
 }
 
 function getEmployeeContactGroups () {
@@ -416,6 +588,18 @@ function initializeOnSubmitCommunityContactForm () {
 			console.log(e.message);
 		}
 	});
+}
+
+function initializeOnSubmitUnregisteredEmployeeContactForm (){
+    $('#emp_unregistered_save').on('click',function(){
+        unregisteredEmployeeContactFormValidation();
+    });
+}
+
+function initializeOnSubmitUnregisteredCommunityContactForm (){
+    $('#comm_unregistered_save').on('click',function(){
+        unregisteredCommunityContactFormValidation();
+    });
 }
 
 function employeeContactFormValidation() {
@@ -476,7 +660,69 @@ function employeeContactFormValidation() {
             submitEmployeeInformation();
             initializeContactSuggestion("");
             getEmployeeContact();
-            console.log("success");
+        }
+    });
+}
+
+function unregisteredEmployeeContactFormValidation() {
+    $("#employee-unregistered-form").validate({
+        debug: true,
+        rules: {
+            emp_unregistered_first_name: "required",
+            emp_unregistered_lastname: "required",
+            emp_unregistered_middlename: "required",
+            emp_unregistered_gender: "required",
+            emp_unregistered_birthdate: "required",
+            emp_unregistered_email: "required",
+            emp_unregistered_active_status: "required",
+            emp_unregistered_team: "required"
+        },
+        messages: { comments: "" },
+        errorPlacement (error, element) {
+            const placement = $(element).closest(".form-group");
+            if ($(element).hasClass("cbox_trigger_switch")) {
+                $("#errorLabel").append(error).show();
+            } else if (placement) {
+                $(placement).append(error);
+            } else {
+                error.insertAfter(placement);
+            } // remove on success
+
+            element.parents(".form-group").addClass("has-feedback");
+
+            // Add the span element, if doesn't exists, and apply the icon classes to it.
+            const $next_span = element.next("span");
+            if (!$next_span[0]) {
+                if (element.is("select") || element.is("textarea")) $next_span.css({ top: "25px", right: "25px" });
+            }
+        },
+        success (label, element) {
+            // Add the span element, if doesn't exists, and apply the icon classes to it.
+            if (!$(element).next("span")) {
+                $("<span class='glyphicon glyphicon-ok form-control-feedback' style='top:0px; right:37px;'></span>").insertAfter($(element));
+            }
+
+            $(element).closest(".form-group").children("label.error").remove();
+        },
+        highlight (element, errorClass, validClass) {
+            $(element).parents(".form-group").addClass("has-error").removeClass("has-success");
+            if ($(element).parent().is(".datetime") || $(element).parent().is(".time")) {
+                $(element).nextAll("span.glyphicon").remove();
+                $("<span class='glyphicon glyphicon-remove form-control-feedback' style='top:0px; right:37px;'></span>").insertAfter($(element));
+            } else $(element).next("span").addClass("glyphicon-remove").removeClass("glyphicon-ok");
+        },
+        unhighlight (element, errorClass, validClass) {
+            $(element).parents(".form-group").addClass("has-success").removeClass("has-error");
+            if ($(element).parent().is(".datetime") || $(element).parent().is(".time")) {
+                $(element).nextAll("span.glyphicon").remove();
+                $("<span class='glyphicon glyphicon-ok form-control-feedback' style='top:0px; right:37px;'></span>").insertAfter($(element));
+            } else $(element).next("span").addClass("glyphicon-ok").removeClass("glyphicon-remove");
+        },
+        submitHandler (form) {
+            submitUnregisteredEmployeeInformation();
+            initializeContactSuggestion("");
+            getEmployeeContact();
+            // console.log("success");
         }
     });
 }
@@ -548,10 +794,13 @@ function communityContactFormValidation () {
 			$("#org-and-site-alert").hide(300);
 			if (site_selected.length === 0 && organization_selected.length === 0) {
 				$("#selection-feedback").text("site and organization selection");
+                $("#org-and-site-alert").show(300);
 			} else if (site_selected.length === 0) {
 				$("#selection-feedback").text("site selection");
+                $("#org-and-site-alert").show(300);
 			} else if (organization_selected.length === 0) {
 				$("#selection-feedback").text("organization selection");
+                $("#org-and-site-alert").show(300);
 			} else {
 				$("#org-and-site-alert").hide(300);
 				//success function here
@@ -564,6 +813,90 @@ function communityContactFormValidation () {
     });
 }
 
+function unregisteredCommunityContactFormValidation () {
+
+    $("#community-unregistered-form").validate({
+        debug: true,
+        rules: {
+            comm_unregistered_firstname: "required",
+            comm_unregistered_lastname: "required",
+            comm_unregistered_gender: "required",
+            comm_unregistered_birthdate: "required",
+            comm_unregistered_active_status: "required",
+            comm_unregistered_ewi_recipient: "required"
+        },
+        messages: { comments: "" },
+        errorPlacement (error, element) {
+            const placement = $(element).closest(".form-group");
+            if ($(element).hasClass("cbox_trigger_switch")) {
+                $("#errorLabel").append(error).show();
+            } else if (placement) {
+                $(placement).append(error);
+            } else {
+                error.insertAfter(placement);
+            } // remove on success
+
+            element.parents(".form-group").addClass("has-feedback");
+
+            // Add the span element, if doesn't exists, and apply the icon classes to it.
+            const $next_span = element.next("span");
+            if (!$next_span[0]) {
+                if (element.is("select") || element.is("textarea")) $next_span.css({ top: "25px", right: "25px" });
+            }
+        },
+        success (label, element) {
+            // Add the span element, if doesn't exists, and apply the icon classes to it.
+            if (!$(element).next("span")) {
+                $("<span class='glyphicon glyphicon-ok form-control-feedback' style='top:0px; right:37px;'></span>").insertAfter($(element));
+            }
+
+            $(element).closest(".form-group").children("label.error").remove();
+        },
+        highlight (element, errorClass, validClass) {
+            $(element).parents(".form-group").addClass("has-error").removeClass("has-success");
+            if ($(element).parent().is(".datetime") || $(element).parent().is(".time")) {
+                $(element).nextAll("span.glyphicon").remove();
+                $("<span class='glyphicon glyphicon-remove form-control-feedback' style='top:0px; right:37px;'></span>").insertAfter($(element));
+            } else $(element).next("span").addClass("glyphicon-remove").removeClass("glyphicon-ok");
+        },
+        unhighlight (element, errorClass, validClass) {
+            $(element).parents(".form-group").addClass("has-success").removeClass("has-error");
+            if ($(element).parent().is(".datetime") || $(element).parent().is(".time")) {
+                $(element).nextAll("span.glyphicon").remove();
+                $("<span class='glyphicon glyphicon-ok form-control-feedback' style='top:0px; right:37px;'></span>").insertAfter($(element));
+            } else $(element).next("span").addClass("glyphicon-ok").removeClass("glyphicon-remove");
+        },
+        submitHandler (form) {
+            site_selected = [];
+            organization_selected = [];
+            $('#unregistered-site-selection-div input:checked').each(function() {
+                site_selected.push($(this).attr('value'));
+            });
+
+            $('#unregistered-organization-selection-div input:checked').each(function() {
+                organization_selected.push($(this).attr('value'));
+            });
+
+            $("#unregistered-org-and-site-alert").hide(300);
+            if (site_selected.length === 0 && organization_selected.length === 0) {
+                $("#unregistered-selection-feedback").text("site and organization selection");
+                $("#unregistered-org-and-site-alert").show(300);
+            } else if (site_selected.length === 0) {
+                $("#unregistered-selection-feedback").text("site selection");
+                $("#unregistered-org-and-site-alert").show(300);
+            } else if (organization_selected.length === 0) {
+                $("#unregistered-selection-feedback").text("organization selection");
+                $("#unregistered-org-and-site-alert").show(300);
+            } else {
+                $("#unregistered-org-and-site-alert").hide(300);
+                submitUnregisteredCommunityContactForm(site_selected, organization_selected);
+                initializeContactSuggestion("");
+                getCommunityContact();
+            }
+            
+        }
+    });
+}
 
 function recentActivityInitializer() {
     $("#routine-actual-option").on("click", function () {
@@ -642,17 +975,49 @@ function getRecentActivity () {
 
 
 function getRoutineSites() {
-	let msg = {
-		type: 'getRoutineSites'
-	};
-	wss_connect.send(JSON.stringify(msg));
+    try {
+        let msg = {
+            type: 'getRoutineSites'
+        };
+        wss_connect.send(JSON.stringify(msg));
+    } catch(err) {
+        console.log(err);
+        const report = {
+            type: "error_logs",
+            metric_name: "get_routine_sites_error_logs",
+            module_name: "Communications",
+            report_message: `${err}`,
+            reference_table: "",
+            reference_id: 0,
+            submetrics: []
+        };
+
+        PMS.send(report);
+    }
+	
 }
 
 function getRoutineReminder() {
-	let msg = {
-		type: 'getRoutineReminder'
-	};
-	wss_connect.send(JSON.stringify(msg));
+    try {
+        let msg = {
+            type: 'getRoutineReminder'
+        };
+        wss_connect.send(JSON.stringify(msg));
+    } catch(err) {
+        console.log(err);
+        const report = {
+            type: "error_logs",
+            metric_name: "get_routine_reminder_error_logs",
+            module_name: "Communications",
+            report_message: `${err}`,
+            reference_table: "ewi_backbone_template",
+            reference_id: 20,
+            submetrics: []
+        };
+
+        PMS.send(report);
+    }
+	
 }
 
 function initializeOnClickGetRoutineReminder() {
@@ -662,19 +1027,48 @@ function initializeOnClickGetRoutineReminder() {
 }
 
 function getRoutineTemplate() {
-	// $("#routine-actual-option").on("click", () => {
-	let msg = {
-		type: 'getRoutineTemplate'
-	};
-	wss_connect.send(JSON.stringify(msg));
-	// });
+    try {
+        let msg = {
+            type: 'getRoutineTemplate'
+        };
+        wss_connect.send(JSON.stringify(msg));
+    } catch(err) {
+        console.log(err);
+        const report = {
+            type: "error_logs",
+            metric_name: "get_routine_template_error_logs",
+            module_name: "Communications",
+            report_message: `${err}`,
+            reference_table: "ewi_backbone_template",
+            reference_id: 20,
+            submetrics: []
+        };
+
+        PMS.send(report);
+    }
 }
 
 function getLatestAlert() {
-    var msg = {
-        type: 'latestAlerts'
-    };
-    wss_connect.send(JSON.stringify(msg));
+    try {
+        var msg = {
+            type: 'latestAlerts'
+        };
+        wss_connect.send(JSON.stringify(msg));  
+    } catch(err) {
+        console.log(err);
+        const report = {
+            type: "error_logs",
+            metric_name: "latest_alerts_error_logs",
+            module_name: "Communications",
+            report_message: `${err}`,
+            reference_table: "public_alert",
+            reference_id: 21,
+            submetrics: []
+        };
+
+        PMS.send(report);
+    }
+    
 }
 
 function displayRoutineReminder(sites,template) {
@@ -807,10 +1201,16 @@ function initializeMiscButtons() {
 }
 
 function initializeSamarSites() {
-    let msg = {
-        type: "getSiteDetails"
-    };
-    wss_connect.send(JSON.stringify(msg));
+    try {
+        let msg = {
+            type: "getSiteDetails"
+        };
+        wss_connect.send(JSON.stringify(msg));
+    } catch(err) {
+        console.log(err);
+        // Add PMS here
+    }
+    
 }
 
 function initializeScrollOldMessages() {
@@ -834,14 +1234,202 @@ function initializeScrollOldMessages() {
         recipient_container = recipient_container.filter(function (el) {
           return el != null;
         });
-
-        let msg = {
-            type: "loadOldMessages",
-            recipients: recipient_container,
-            last_outbox_ts: last_outbox_ts,
-            last_inbox_ts: last_inbox_ts
-        };
-        wss_connect.send(JSON.stringify(msg));
+        try {
+            let msg = {
+                type: "loadOldMessages",
+                recipients: recipient_container,
+                last_outbox_ts: last_outbox_ts,
+                last_inbox_ts: last_inbox_ts
+            };
+            wss_connect.send(JSON.stringify(msg));
+        } catch(err) {
+            console.log(err);
+            // Add PMS here
+        }
+        
       }
     });
 }
+
+
+function initializeDataTaggingButton () {
+    let timeOut;
+
+    class Item {
+        constructor(icon, backgroundColor) {
+            this.$element = $(document.createElement("div"));
+            this.icon = icon;
+            this.$element.addClass("item");
+            this.$element.css("background-color", backgroundColor);
+            let i = document.createElement("i");
+            $(i).addClass("fa fa-" + icon);
+            this.$element.append(i);
+            this.prev = null;
+            this.next = null;
+            this.isMoving = false;
+            let element = this;
+            this.$element.on("mousemove", function() {
+                clearTimeout(timeOut);
+                timeOut = setTimeout(function() {
+                    if (element.next && element.isMoving) {
+                        element.next.moveTo(element);
+                    } 
+                }, 10);
+            });
+        }
+        
+        moveTo(item) {
+            anime({
+                targets: this.$element[0],
+                left: item.$element.css("left"),
+                top: item.$element.css("top"),
+                duration: 700,
+                elasticity: 500
+            });
+            if (this.next) {
+                this.next.moveTo(item);
+            }
+        }
+
+        updatePosition() {    
+            anime({
+                targets: this.$element[0],
+                left: this.prev.$element.css("left"),
+                top: this.prev.$element.css("top"),
+                duration: 200
+            });
+            
+            if (this.next) {
+                this.next.updatePosition();
+            }
+        }
+    }
+
+    class Menu {
+        constructor(menu) {
+            this.$element = $(menu);
+            this.size = 0;
+            this.first = null;
+            this.last = null;
+            this.timeOut = null;
+            this.hasMoved = false;
+            this.status = "closed";
+        }
+        
+        add(item) {
+            let menu = this;
+            if (this.first == null) {
+                this.first = item;
+                this.last = item;
+                this.first.$element.on("mouseup", function() {
+                    if (menu.first.isMoving) {
+                        menu.first.isMoving = false;        
+                    } else {
+                        menu.click();
+                    }
+                }); 
+                item.$element.draggable(
+                    {
+                        start: function() {
+                            menu.close();
+                            item.isMoving = true;
+                        }  
+                    },
+                    {
+                        drag: function() {
+                            if (item.next) {
+                                item.next.updatePosition();
+                            }
+                        }
+                    },
+                    {
+                        // stop: function() {
+                        //     item.isMoving = false;
+                        //     item.next.moveTo(item);
+                        // }
+                    }
+                );
+            } else {
+                this.last.next = item;
+                item.prev = this.last;
+                this.last = item;
+            }
+            this.$element.after(item.$element);
+            
+            
+        }
+        
+        open() {
+            this.status = "open";
+            let current = this.first.next;
+            let iterator = 1;
+            let head = this.first;
+            let sens = head.$element.css("left") < head.$element.css("right") ? 1 : -1;
+            while (current != null) {
+                anime({
+                    targets: current.$element[0],
+                    left: parseInt(head.$element.css("left"), 10) + (sens * (iterator * 50)),
+                    top: head.$element.css("top"),
+                    duration: 500
+                });
+                iterator++;
+                current = current.next;
+            }    
+        }
+        
+        close() {
+            this.status = "closed";
+            let current = this.first.next;
+            let head = this.first;
+            let iterator = 1;
+            while (current != null) {
+                anime({
+                    targets: current.$element[0],
+                    left: head.$element.css("left"),
+                    top: head.$element.css("top"),
+                    duration: 500
+                });
+                iterator++;
+                current = current.next;
+            }
+        }
+        
+        click() {
+            if (this.status == "closed") {
+                this.open();
+            } else {
+                this.close();
+            }
+        }
+        
+    }
+
+    let menu = new Menu("#data-tagging");
+    let item2 = new Item("bug", "#F8991D");
+
+    menu.add(item2);
+    $(document).delay(50).queue(function(next) {
+        menu.open();
+        next();
+        $(document).delay(1000).queue(function(next) {
+            menu.close();
+            next();
+        });
+    });  
+}
+
+// function initializeOnClickReportBugButton(){
+//     $('#data-tagging-container').on('click',function(){
+//         // $("#bug-report-modal").modal("show");
+//     });
+// }
+
+// function initializeOnClickEnableBugReportButton(){
+//     $('#enable-bug-report-button').on('click',function(){
+//         $("#bug-report-modal").modal("hide");
+//         $("#report-quick-access").show();
+//         $("#report-quick-inbox").show();
+//         $("#report-recent-activity").show();
+//         $("#report-conversation").show();
+//     });
+// }
