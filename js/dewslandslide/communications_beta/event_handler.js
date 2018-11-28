@@ -1326,10 +1326,24 @@ function initializeClearQuickSearchInputs () {
 	});
 }
 
+
+function resetValuesInEWITemplate(){
+	$("#alert_status").change(function(){
+		if ($('#rainfall-sites') != "#"){
+			$('.rfi-date-picker').val(' ');
+			$("#rainfall-sites").val('#');
+		}
+	})
+
+}
+
 function initializeConfirmEWITemplateViaChatterbox() {
+	resetValuesInEWITemplate()
 	$("#confirm-ewi").click(() => {
+		$("#msg").val('NO TEMPLATE LOADED..');
         let samar_sites = ["jor", "bar", "ime", "lpa", "hin", "lte", "par", "lay"];
-        if ($("#rainfall-sites").val() !== "#") {
+         console.log($("#rainfall-sites").val())
+        if ($("#rainfall-sites").val() != "#") {
             let rain_info_template = "";
             if ($("#rainfall-cummulative").val() == "1d") {
                 rain_info_template = `1 day cumulative rainfall as of ${$("#rfi-date-picker input").val()}: `;
