@@ -296,6 +296,8 @@ function formatSettings(category, site_data, recipients_data) {
     if (site_data.gndmeas_reminder_actual != undefined || site_data.gndmeas_reminder_actual != null) {gnd_meas_reminder_actual = site_data.gndmeas_reminder_actual;}
     if (site_data.ewi_ack != undefined || site_data.ewi_ack != null) {ewi_ack = site_data.ewi_ack;}
     
+    let boolean_status = 0;
+    if (site_data.status == 'on-going' || site_data.status == 'extended') {boolean_status = 1;}
     let data = {
         "event_category": category,
         "ewi_expected": ewi_expected,
@@ -306,7 +308,7 @@ function formatSettings(category, site_data, recipients_data) {
         "event_id": site_data.event_id,
         "ts": ts,
         "site_id": site_data.site_id,
-        "status": site_data.status
+        "status": boolean_status
     };
 
     return data;
