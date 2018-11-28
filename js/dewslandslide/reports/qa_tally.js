@@ -23,6 +23,14 @@ try {
 }
 
 $(document).ready(function () {
+    initializeAlerts();
+    initializeRoutineQA();
+    initializeTimestamps();
+    initializeFormValidation();
+});
+
+
+function initializeAlerts() {
     getSavedSettings().then((saved_data) => {
         let event_data = saved_data[0];
         let extended_data = saved_data[1];
@@ -39,32 +47,53 @@ $(document).ready(function () {
                 if (data.latest.length == 0) {
                     $('#event-qa-display').append("<strong><span>No sites under event monitoring.</span></strong>");
                 } else {
-                
                     for (counter = 0; counter < data.latest.length; counter++) {
                         initializeRecipients("event",data.latest[counter],false);
                     }
                 }  
             });
         } else {
+            let status = shiftChecker(event_data[0], extended_data[0]);
+            if (status == false) {
+                for (let counter = 0; counter < event_data[0].length; counter++) {
+                    let request = {
+                        id: event_data[0][counter].event_id,
+                        category: "event"
+                    };
+                    $.post("qa_tally/evaluate_site", {data: request}, function(data) {
+                        console.log(data);
+                        console.log("resetting settings for event.");
+                    });
+                }
 
-            if (event_data[0].length == 0) {
-                $('#event-qa-display').append("<strong><span>No sites under event monitoring.</span></strong>");
+                for (let counter = 0; counter < extended_data[0].length; counter++) {
+                    let request = {
+                        id: extended_data[0][counter].event_id,
+                        category: "extended"
+                    };
+                    $.post("qa_tally/evaluate_site", {data: request}, function(data) {
+                        console.log(data);
+                        console.log("resetting settings for extended.");
+                    });  
+                }
+                initializeAlerts();
             } else {
-            
-                initializeRecipients("event", event_data[0], true);
-            }
+                if (event_data[0].length == 0) {
+                    $('#event-qa-display').append("<strong><span>No sites under event monitoring.</span></strong>");
+                } else {
+                    
+                    initializeRecipients("event", event_data[0], true);
+                }
 
-            if (extended_data[0].length == 0) {
-                $('#extended-qa-display').append("<strong><span>No sites under extended monitoring.</span></strong>");
-            } else {
-                initializeRecipients("extended", extended_data[0], true); 
+                if (extended_data[0].length == 0) {
+                    $('#extended-qa-display').append("<strong><span>No sites under extended monitoring.</span></strong>");
+                } else {
+                    initializeRecipients("extended", extended_data[0], true); 
+                }
             }
         }
     });
-    initializeRoutineQA();
-    initializeTimestamps();
-    initializeFormValidation();
-});
+}
 
 function initializeTimestamps () {
     $(() => {
@@ -229,9 +258,6 @@ function saveSettings(category, site_data, recipients_data) {
 }
 
 function formatSettings(category, site_data, recipients_data) {
-    console.log(category);
-    console.log(site_data);
-    console.log(recipients_data);
     let status = "";
     let ts = null;
     let id_category = "";
@@ -357,7 +383,7 @@ function displayEvents(settings,event_data) {
         "event_id": settings.event_id,
         "status": parseInt(settings.status)
     };
-    console.log(data);
+
     event_details.unshift(data);
     $("#event-qa-display").empty();
     try {
@@ -508,3 +534,13 @@ function displaySavedSettings(saved_data){
    
 }
 
+function shiftChecker(event_data, extended_data) {
+    let status = null;
+    let current_date = moment().format("YYYY-MM-DD");
+    if (event_data[0].ts.indexOf(current_date) != -1 || extended_data[0].ts.indexOf(current_date) != -1) {
+        status = true;
+    } else {
+        status = false;
+    }
+    return status;
+}
