@@ -144,8 +144,13 @@ function initializeTimestamps () {
             vertical: "bottom"
         }
     })
-    .on("dp.show", (e) => {
-        $(this).data("DateTimePicker").maxDate(moment().second(0));
+    .on("dp.show", ({ currentTarget, delegateTarget }) => {
+        // console.log("e", e);
+        // console.log("This", $(this));
+        // $(this).data("DateTimePicker").maxDate(moment().second(0));
+
+        console.log("currentTarget", $(currentTarget));
+        $(currentTarget).data("DateTimePicker").maxDate(moment().second(0));
         setTimeout(() => {
             $(".bootstrap-datetimepicker-widget").css({ left: -17 });
         }, 50);
@@ -153,10 +158,16 @@ function initializeTimestamps () {
 }
 
 function initializeHistoryViewOnClick () {
-    $("a[href='#history-tab']").on("shown.bs.tab", () => {
-        $("#loading .progress-bar").text("Loading Events History...");
-        $("#loading").modal("show");
-        loadDefaults();
+    const $history_tab = $("a[href='#history-tab']");
+
+    $history_tab.on("shown.bs.tab", () => {
+        const { is_loaded } = $history_tab.data();
+        if (typeof is_loaded === "undefined") {
+            $("#loading .progress-bar").text("Loading Events History...");
+            $("#loading").modal("show");
+            loadDefaults();
+        }
+        $history_tab.data("is_loaded", true);
     });
 }
 
@@ -178,11 +189,11 @@ function loadDefaults () {
 }
 
 function initializeSiteSelection () {
-    $.getJSON("../pubrelease/getAllSites")
+    $.getJSON("../pubrelease/getSites")
     .then((data) => {
         data.forEach((row, index) => {
             // console.log(index, row);
-            $("#site-code").append($("<option></option>").attr("value", row.site_code).text(`(${row.site_code.toUpperCase()}) ${row.address}`));
+            $("#site-code").append($("<option></option>").attr("value", row.site_code).text(`${row.site_code.toUpperCase()} (${row.address})`));
         });
     });
 }
@@ -253,8 +264,30 @@ function getEventsBasedOnDate (site_selected, alert_level, start_time, end_time)
         return filtered_data;
     })
     .done((plot_data) => {
+        const {
+            all, alert_1,
+            alert_2, alert_3
+        } = plot_data;
+
+        let pie_data = [];
+        if (all.length > 0) {
+            pie_data = [{
+                name: "Alert 1",
+                y: alert_1.length,
+                color: "rgba(252, 199, 17, 0.5)"
+            }, {
+                name: "Alert 2",
+                y: alert_2.length,
+                color: "rgba(248, 153, 29, 0.7)"
+            }, {
+                name: "Alert 3",
+                y: alert_3.length,
+                color: "rgba(201, 48, 44, 0.5)"
+            }];
+        }
+
+        plotPieChart(pie_data);
         $("#loading").modal("hide");
-        plotPieChart(plot_data);
     })
     .catch((error) => {
         // Place PMS HERE
@@ -343,7 +376,8 @@ function setEventCountHeader (data) {
     }
 }
 
-function plotPieChart ({ alert_1, alert_2, alert_3 }) {
+function plotPieChart (chart_data) {
+
     var chart = Highcharts.chart("pie-chart-container", {
         chart: {
             plotBackgroundColor: null,
@@ -373,19 +407,7 @@ function plotPieChart ({ alert_1, alert_2, alert_3 }) {
         series: [{
             name: "Public Alert",
             colorByPoint: true,
-            data: [{
-                name: "Alert 1",
-                y: alert_1.length,
-                color: "rgba(252, 199, 17, 0.5)"
-            }, {
-                name: "Alert 2",
-                y: alert_2.length,
-                color: "rgba(248, 153, 29, 0.7)"
-            }, {
-                name: "Alert 3",
-                y: alert_3.length,
-                color: "rgba(201, 48, 44, 0.5)"
-            }]
+            data: chart_data
         }],
         responsive: {
             rules: [{
