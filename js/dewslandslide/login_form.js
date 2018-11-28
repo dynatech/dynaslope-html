@@ -18,18 +18,14 @@ function initializeSubmitOnKeyPressEnter () {
 }
 
 function attemptLogin () {
-    console.log("PASOK SA SUBMIT");
-
     const data = {
         username: $("#username").val(),
         password: $("#password").val()
     };
-    console.log(data);
     validateLogin(data);
 }
 
 function validateLogin (data) {
-    console.log("PASOK SA VALIDATE");
     console.log(data);
     $.post(
         "../account_controller/validateCredentials",
@@ -43,7 +39,10 @@ function validateLogin (data) {
         } else {
             // $.notify("Invalid credentials.", "error");
             alert("Login failed. Username or password does not exist.");
-            console.log("Login Failure");
+            console.log("Login Failed");
         }
+    })
+    .catch((error) => {
+        console.error(error);
     });
 }
