@@ -880,7 +880,8 @@ function selectEwiCardQualifier (data_timestamp, validity, event_start, status) 
     } else if (moment(ts).isSame(validity)) qualifier = "End of Monitoring ";
     else {
         const duration = moment.duration(ts.diff(validity));
-        const days = Math.floor(duration.asDays());
+        let days = Math.floor(duration.asDays());
+        if (moment(validity).hours() > 12) days = Math.ceil(duration.asDays());
         qualifier = `Day ${days} of Extended Monitoring `;
     }
     return [qualifier, is_extended];
