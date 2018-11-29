@@ -1342,7 +1342,6 @@ function initializeConfirmEWITemplateViaChatterbox() {
 	$("#confirm-ewi").click(() => {
 		$("#msg").val(' ');
         let samar_sites = ["jor", "bar", "ime", "lpa", "hin", "lte", "par", "lay"];
-         console.log($("#rainfall-sites").val())
         if ($("#rainfall-sites").val() != "#") {
             let rain_info_template = "";
             if ($("#rainfall-cummulative").val() == "1d") {
@@ -1392,7 +1391,6 @@ function initializeConfirmEWITemplateViaChatterbox() {
                 data_timestamp: $("#ewi-date-picker input").val()
         	};
 
-        	tr
         	try {
 				let template_request = {
 	            	type: "fetchTemplateViaLoadTemplateCbx",
