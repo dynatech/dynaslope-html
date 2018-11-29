@@ -1198,7 +1198,7 @@ function resetValuesInEWITemplate(){
 function initializeConfirmEWITemplateViaChatterbox() {
 	resetValuesInEWITemplate()
 	$("#confirm-ewi").click(() => {
-		$("#msg").val('NO TEMPLATE LOADED..');
+		$("#msg").val(' ');
         let samar_sites = ["jor", "bar", "ime", "lpa", "hin", "lte", "par", "lay"];
          console.log($("#rainfall-sites").val())
         if ($("#rainfall-sites").val() != "#") {
@@ -1213,6 +1213,7 @@ function initializeConfirmEWITemplateViaChatterbox() {
                 dataType: "json",
                 success (result) {
 		    	let data = JSON.parse(result);
+		    	console.log(data)
 		    	for (let counter = 0; counter < samar_sites.length; counter++) {
 		    	 	for (let sub_counter = 0; sub_counter < data.length; sub_counter++) {
 		    	 		if (data[sub_counter].site_code == samar_sites[counter]) {
