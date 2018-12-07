@@ -5,6 +5,7 @@ let samar_sites_details = [];
 let last_outbox_ts = null;
 let last_inbox_ts = null;
 let message_position = null;
+let ROUTINE_SITES = null;
 $(document).ready(function() {
 	$('#chatterbox-loader-modal').modal({backdrop: 'static', keyboard: false});
 	// $('#ground-meas-reminder-modal').modal({backdrop: 'static', keyboard: false});
@@ -1080,7 +1081,7 @@ function displayRoutineReminder(sites,template) {
 
     let wet = [[1, 2, 6, 7, 8, 9, 10, 11, 12], [5, 6, 7, 8, 9, 10]];
     let dry = [[3, 4, 5], [1, 2, 3, 4, 11, 12]];
-    let routine_sites = [];
+    ROUTINE_SITES = [];
 
     switch (day) {
         case "Friday":
@@ -1089,7 +1090,7 @@ function displayRoutineReminder(sites,template) {
             $("#send-routine-message").css("display", "inline");
             for (var counter = 0; counter < sites.length; counter++) {
                 if (wet[sites[counter].season - 1].includes(month)) {
-                    routine_sites.push(sites[counter]);
+                    ROUTINE_SITES.push(sites[counter]);
                 }
             }
 
@@ -1098,7 +1099,7 @@ function displayRoutineReminder(sites,template) {
 
             $(".routine_section").prepend("<div class='routine-site-selection'></div>");
 
-            routine_sites.forEach((data) => {
+            ROUTINE_SITES.forEach((data) => {
                 $(".routine-site-selection").append(`<label><input name='sites-on-routine' id='${data.id}' type='checkbox' value='${data.site}' checked> ${data.site.toUpperCase()}</label>`);
             });
 
@@ -1112,7 +1113,7 @@ function displayRoutineReminder(sites,template) {
             $("#send-routine-message").css("display", "inline");
             for (var counter = 0; counter < sites.length; counter++) {
                 if (wet[sites[counter].season - 1].includes(month)) {
-                    routine_sites.push(sites[counter]);
+                    ROUTINE_SITES.push(sites[counter]);
                 }
             }
 
@@ -1121,7 +1122,7 @@ function displayRoutineReminder(sites,template) {
 
             $(".routine_section").prepend("<div class='routine-site-selection'></div>");
 
-            routine_sites.forEach((data) => {
+            ROUTINE_SITES.forEach((data) => {
                 $(".routine-site-selection").append(`<label><input name='sites-on-routine' id='${data.id}' type='checkbox' value='${data.site}' checked> ${data.site.toUpperCase()}</label>`);
             });
 
@@ -1135,7 +1136,7 @@ function displayRoutineReminder(sites,template) {
             $("#send-routine-message").css("display", "inline");
             for (var counter = 0; counter < sites.length; counter++) {
                 if (dry[sites[counter].season - 1].includes(month)) {
-                    routine_sites.push(sites[counter]);
+                    ROUTINE_SITES.push(sites[counter]);
                 }
             }
 
@@ -1144,7 +1145,7 @@ function displayRoutineReminder(sites,template) {
 
             $(".routine_section").prepend("<div class='routine-site-selection'></div>");
 
-            routine_sites.forEach((data) => {
+            ROUTINE_SITES.forEach((data) => {
                 $(".routine-site-selection").append(`<label><input name='sites-on-routine' id='${data.id}' type='checkbox' value='${data.site}' checked> ${data.site.toUpperCase()}</label>`);
             });
 
@@ -1157,6 +1158,8 @@ function displayRoutineReminder(sites,template) {
             $("#routine-reminder-message").val(parsed_template);
             break;
     }
+
+    console.log(ROUTINE_SITES);
 
 }
 
@@ -1197,6 +1200,13 @@ function initializeMiscButtons() {
     });
     $("#uncheckAllSitenames").click(() => {
         $("#modal-select-sitenames").find(".checkbox").find("input").prop("checked", false);
+    });
+    $("#checkAllRoutines").click(() => {
+        $("#modal-select-sitenames").find(".checkbox").find("input").prop("checked", false);
+        ROUTINE_SITES.forEach((data) => {
+            let site_id = data.id;
+            $("#modal-select-sitenames").find(".checkbox").find("input[value="+site_id+"]").prop("checked", true);
+        });
     });
 }
 
