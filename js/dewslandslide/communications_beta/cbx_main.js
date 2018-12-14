@@ -346,6 +346,7 @@ function displayDataTableCommunityContacts(cmmty_contact_data){
 		]
 	});
 	$('#comm-response-contact-container').prop('hidden',false);
+	$('#unregistered-contact-container').prop('hidden',true);
 }
 
 function displayDataTableEmployeeContacts(dwsl_contact_data) {
@@ -362,6 +363,7 @@ function displayDataTableEmployeeContacts(dwsl_contact_data) {
 		]
 	});
 	$('#emp-response-contact-container').prop('hidden',false);
+	$('#unregistered-contact-container').prop('hidden',true);
 }
 
 function displayDataTableUnregisteredContacts (unregistered_data){
@@ -450,9 +452,23 @@ function displayConversationPanel(msg_data, full_data, recipients, titles, isOld
 	conversation_recipients = [];
 	last_outbox_ts = null;
 	last_inbox_ts = null;
-
+	let is_unknown = false;
+	let mobile_number = null;
 	recipients.forEach(function(user){
 		conversation_recipients.push(user.user_id);
+		mobile_number = user.sim_num;
+		if(user.salutation == "UN"){
+			is_unknown = true;
+			unregistered_data = {
+				"id" : user.user_id,
+				"firstname" : user.firstname,
+				"lastname" : user.lastname,
+				"mobile_id" : user.mobile_id,
+				"mobile_number" : user.sim_num,
+				"status" : user.status,
+				"priority" : user.priority
+			}
+		}
 	});
 
 	if (isOld == false) {
@@ -478,6 +494,18 @@ function displayConversationPanel(msg_data, full_data, recipients, titles, isOld
 		$("#conversation-details").append(conversation_details_label);
 	}else {
 		$("#conversation-details").append(full_data);
+	}
+
+	if(is_unknown == true){
+		$("#add-unknown").show();
+		$("#conversation-details").empty();
+		if(full_data === undefined){
+			$("#conversation-details").append(conversation_details_label + ` (${mobile_number})`);
+		}else {
+			$("#conversation-details").append(full_data + ` (${mobile_number})`);
+		}
+	}else{
+		$("#add-unknown").hide();
 	}
 
 	recipients.forEach(function(mobile_data){

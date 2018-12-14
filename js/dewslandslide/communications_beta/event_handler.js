@@ -43,6 +43,7 @@ $(document).ready(function() {
 	initializeOnClickAddMobileForCommunity();
 	initializeOnClickUnregistered();
 	getUnregisteredNumber();
+	initializeUnregisteredForm();
 });
 
 function initializeOnClickSendRoutine () {
@@ -151,12 +152,57 @@ function initializeContactSettingsButton () {
 		if (connection_status === false){
 			console.log("NO CONNECTION");
 		} else {
+			$("#contact-settings-options").show();
+			$("#unregistered-wrapper").hide();
+			$("#emp_unregistered_add_mobile").show();
+		$("#emp_unregistered_add_landline").show();
 			$('#contact-settings').modal("toggle");
 			displayContactSettingsMenu();
 			$("#contact-category").val("default").change();
 			$("#settings-cmd").prop('disabled', true);
 			$(".collapse").collapse("show");
 		}
+	});
+}
+
+function initializeUnregisteredForm(){
+	$('#add-unknown').click(function(){
+		$("#btn-contact-settings").trigger("click");
+		$("#contact-settings-options").hide();
+		$("#emp_unregistered_add_mobile").hide();
+		$("#emp_unregistered_add_landline").hide();
+		$("#comm_unregistered_add_mobile").hide();
+		$("#comm_unregistered_add_landline").hide();
+		$("#unregistered-wrapper").show();
+
+		$("#emp_unregistered_user_id").val(unregistered_data.id);
+		$("#emp_unregistered_first_name").val(unregistered_data.firstname);
+		$("#emp_unregistered_lastname").val(unregistered_data.lastname);
+		$("#comm_unregistered_user_id").val(unregistered_data.id);
+		$("#comm_unregistered_firstname").val(unregistered_data.firstname);
+		$("#comm_unregistered_lastname").val(unregistered_data.lastname);
+		console.log(unregistered_data);
+		try {
+            let msg = {
+                'type': 'loadUnregisteredMobileNumber',
+                'data': unregistered_data.id
+            }; 
+            console.log(msg);
+            wss_connect.send(JSON.stringify(msg));
+        } catch(err) {
+            console.log(err);
+            const report = {
+                type: "error_logs",
+                metric_name: "load_unregistered_details_error_logs",
+                module_name: "Communications",
+                report_message: `${err}`,
+                reference_table: "users",
+                reference_id: 9,
+                submetrics: []
+            };
+
+            PMS.send(report);
+        }
 	});
 }
 

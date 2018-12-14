@@ -6,6 +6,7 @@ let last_outbox_ts = null;
 let last_inbox_ts = null;
 let message_position = null;
 let ROUTINE_SITES = null;
+let unregistered_data = null;
 $(document).ready(function() {
 	$('#chatterbox-loader-modal').modal({backdrop: 'static', keyboard: false});
 	// $('#ground-meas-reminder-modal').modal({backdrop: 'static', keyboard: false});
@@ -723,7 +724,7 @@ function unregisteredEmployeeContactFormValidation() {
             submitUnregisteredEmployeeInformation();
             initializeContactSuggestion("");
             getEmployeeContact();
-            // console.log("success");
+            $("#contact-settings").modal("hide");
         }
     });
 }
@@ -893,6 +894,7 @@ function unregisteredCommunityContactFormValidation () {
                 submitUnregisteredCommunityContactForm(site_selected, organization_selected);
                 initializeContactSuggestion("");
                 getCommunityContact();
+                $("#contact-settings").modal("hide");
             }
             
         }
