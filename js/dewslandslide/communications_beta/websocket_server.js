@@ -117,7 +117,12 @@ function connectWS() {
 					console.log(msg_data);
 					displaySitesToTag(msg_data.sites);
 					displayConversationTags(msg_data.data);
+					updateSMSTagInformation(msg_data.tag_information);
 					break;
+				case "deleteTagStatus":
+					console.log(msg_data);
+					displayDeleteTagStatus(msg_data.status);
+					break;	
 				case "fetchAlertStatus":
 					displayEWITemplateOptions(msg_data.data);
 					break;

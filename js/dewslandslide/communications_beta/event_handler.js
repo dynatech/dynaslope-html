@@ -9,6 +9,8 @@ let temp_important_tag = [];
 
 let tag_container = null;
 
+let TAG_INFORMATION = null;
+
 $(document).ready(function() {
 	initializeOnClickSendRoutine();
 	initializeGetQuickGroupSelection();
@@ -42,6 +44,7 @@ $(document).ready(function() {
 	initializeOnClickAddMobileForEmployee();
 	initializeOnClickAddMobileForCommunity();
 	initializeOnClickUnregistered();
+	initializeOnClickDeleteTag();
 	getUnregisteredNumber();
 });
 
@@ -1106,6 +1109,62 @@ function initializeOnClickConfirmTagging () {
 	});
 }
 
+function initializeOnClickDeleteTag (){
+	$("#confirm-delete-tag").click(() => {
+		let gintag_to_delete = $("#gintag_selected").tagsinput("items");
+		let deleted = [];
+		
+		if(gintag_to_delete.length == 0){
+			console.log("delete all");
+			TAG_INFORMATION.forEach((tag_info) => {
+				const { gintags_id, tag_name } = tag_info;
+				deleted.push(gintags_id);
+			});
+		}else{
+			console.log("other");
+			gintag_to_delete.forEach(function(selected) {
+				TAG_INFORMATION.forEach((tag_info) => {
+					const { gintags_id, tag_name } = tag_info;
+					if (selected != tag_name){
+						deleted.push(gintags_id);
+					}
+				});
+			});
+		}
+		try {
+			const message = {
+				type: "deleteTags",
+				data: deleted
+			}
+			wss_connect.send(JSON.stringify(message));
+		} catch(err) {
+			// console.log(err);
+			// const report = {
+		//           type: "error_logs",
+		//           metric_name: "gintagged_message_error_logs",
+		//           module_name: "Communications",
+		//           report_message: `${err}`,
+		//           reference_table: "gintags",
+		//           reference_id: 12,
+		//           submetrics: []
+		//       };
+
+		//   	PMS.send(report);
+		}
+	});
+
+	
+}
+
+function displayDeleteTagStatus (status){
+	if(status == true){
+		$.notify("Successfully deleted tag", "success");
+		$("#enable-tag-deletion").trigger("click");
+	}else{
+		$.notify("Error deleting tag", "error");
+	}
+}
+
 function addNewTags (message_details, new_tag, is_important, site_code, recipient_container = []) {
 	console.log("success tagging new tag");
 	$("#gintag-modal").modal("hide");
@@ -1203,6 +1262,11 @@ function displayConversationTags (conversation_tags) {
 			$("#gintag_selected").tagsinput("add", tag);
 		});
 	}
+}
+
+function updateSMSTagInformation(data){
+	TAG_INFORMATION = data;
+	console.log(TAG_INFORMATION);
 }
 
 function displaySitesToTag(sites) {
