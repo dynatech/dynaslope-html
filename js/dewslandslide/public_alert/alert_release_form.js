@@ -1258,7 +1258,7 @@ function initializeFormValidator () {
                 if (temp.public_alert_level === "A0") {
                     temp.routine_list = [{
                         site_id: temp.site,
-                        internal_alert_level: temp.internal_alert_level
+                        internal_alert: temp.internal_alert_level
                     }];
                     temp.status = "routine";
                 }
