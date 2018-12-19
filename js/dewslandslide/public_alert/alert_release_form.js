@@ -1288,7 +1288,7 @@ function initializeFormValidator () {
                     if (!$(elem).is(":disabled")) {
                         const obj = {
                             site_id: elem.value,
-                            internal_alert_level: temp.internal_alert_level
+                            internal_alert: temp.internal_alert_level
                         };
                         temp.routine_list.push(obj);
                     }
