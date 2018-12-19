@@ -385,12 +385,14 @@ function initializeOnClickUpdateUnregisteredContact () {
 
 function initLoadLatestAlerts (data) {
     initCheckboxColors();
+    initializeUncheckSiteOnEventInRoutine(data);
     if (data == null) {
         return;
     }
     var alerts = data;
     temp = data;
     var msg;
+    console.log(data);
     for (var i = alerts.length - 1; i >= 0; i--) {
         msg = alerts[i];
         updateLatestPublicRelease(msg);
@@ -415,6 +417,13 @@ function initLoadLatestAlerts (data) {
     // if(quick_inbox_registered.length != 0){
         displayQuickEventInbox(quick_inbox_registered, quick_release);
     // }
+}
+
+function initializeUncheckSiteOnEventInRoutine(event_sites){
+    event_sites.forEach(function(site) {
+        const { site_code } = site;
+        $(".routine-site-selection label").find("input[value="+site_code+"]").prop("checked", false);
+    });
 }
 
 function displayQuickEventInbox (){

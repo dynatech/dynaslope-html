@@ -419,7 +419,7 @@ div.awesomplete > ul {
 }
 
 .center {
-    position: absolute;
+    position: fixed;
     margin: auto;
     top: -246px;
     right: 0;
