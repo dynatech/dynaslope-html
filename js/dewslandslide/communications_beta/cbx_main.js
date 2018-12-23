@@ -469,21 +469,21 @@ function displayConversationPanel(msg_data, full_data, recipients, titles, isOld
 		message_container = [];
 		recipient_container = [];
 		msg_data.reverse();
-	}	
-    $("#messages").empty();
-    $("#conversation-details").empty();
-    $("#recent-activity-panel").hide(400);
-    $("#conversation-panel").show(400);
-	if(full_data === undefined){
-		$("#conversation-details").append(conversation_details_label);
-	}else {
-		$("#conversation-details").append(full_data);
-	}
+	    $("#messages").empty();
+	    $("#conversation-details").empty();
+	    $("#recent-activity-panel").hide(400);
+	    $("#conversation-panel").show(400);
+		if(full_data === undefined){
+			$("#conversation-details").append(conversation_details_label);
+		}else {
+			$("#conversation-details").append(full_data);
+		}
 
-	recipients.forEach(function(mobile_data){
-		if (recipient_container.includes(mobile_data.mobile_id) != true) {recipient_container.push(mobile_data.mobile_id);}
-	});
-	
+		recipients.forEach(function(mobile_data){
+			if (recipient_container.includes(mobile_data.mobile_id) != true) {recipient_container.push(mobile_data.mobile_id);}
+		});
+	}	
+		
 	let counter = 0;
 	msg_data.forEach(function(data) {
 		if (titles != null) {
