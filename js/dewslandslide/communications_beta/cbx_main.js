@@ -483,7 +483,7 @@ function displayConversationPanel(msg_data, full_data, recipients, titles, isOld
 			if (recipient_container.includes(mobile_data.mobile_id) != true) {recipient_container.push(mobile_data.mobile_id);}
 		});
 	}	
-		
+
 	let counter = 0;
 	msg_data.forEach(function(data) {
 		if (titles != null) {
@@ -516,7 +516,6 @@ function displayUpdatedMessages(data, isOld = false) {
 		$('#messages').html(html_string+messages_html);
 		$('.chat-message').scrollTop($('#messages').height());
 	} else {
-		console.log($('#messages').height());
 		$('.chat-message').scrollTop($('#messages').height()/2);
 		$('#messages').html(messages_html+html_string);
 	}
@@ -842,7 +841,6 @@ function siteConversation(){
 		};
 
 		addSitesActivity(convo_request);
-		console.log(convo_request);
 		wss_connect.send(JSON.stringify(convo_request));
 	} catch(err) {
 		console.log(err);

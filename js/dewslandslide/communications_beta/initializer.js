@@ -392,7 +392,6 @@ function initLoadLatestAlerts (data) {
     var alerts = data;
     temp = data;
     var msg;
-    console.log(data);
     for (var i = alerts.length - 1; i >= 0; i--) {
         msg = alerts[i];
         updateLatestPublicRelease(msg);
@@ -1167,9 +1166,6 @@ function displayRoutineReminder(sites,template) {
             $("#routine-reminder-message").val(parsed_template);
             break;
     }
-
-    console.log(ROUTINE_SITES);
-
 }
 
 function parseRoutineReminderViaCbx(template) {
@@ -1253,6 +1249,7 @@ function initializeScrollOldMessages() {
         recipient_container = recipient_container.filter(function (el) {
           return el != null;
         });
+        
         try {
             let msg = {
                 type: "loadOldMessages",
