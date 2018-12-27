@@ -174,6 +174,7 @@ function connectWS() {
 					samar_sites_details = msg_data.data;
 					break;
 				case "loadOldSmsConversation":
+					console.log(msg_data);
 					$('#chatterbox-loader-modal').modal("hide");
 					displayConversationPanel(msg_data.data,msg_data.full_name,msg_data.recipients,msg_data.titles,isOld = true);
 					break;
