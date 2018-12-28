@@ -126,7 +126,7 @@ function prepareSearchByShiftFunctions () {
                 }
             });
         }
-    });    
+    });
 }
 
 function checkTimestamp (value, element) {
@@ -227,14 +227,15 @@ function prepareSearchByStaffFunctions () {
     $("#check").click(() => {
         if ($("#display-option").val() === "staff") {
             const staff_id = $("#staff-name").val();
-            const month = $("#month").val();
-            getReleasesByStaff(staff_id, month);
+            const start = $("#duration_start").val();
+            const end = $("#duration_end").val();
+            getReleasesByStaff(staff_id, start, end);
         }
     });
 }
 
-function getReleasesByStaff (staff_id, month) {
-    $.getJSON(`../../accomplishment/getReleasesByStaff/${staff_id}/${month}`)
+function getReleasesByStaff (staff_id, start, end) {
+    $.getJSON(`../../accomplishment/getReleasesByStaff/${staff_id}/${start}/${end}`)
     .then((releases) => {
         console.log(releases);
         plotReleasesTable(releases);
@@ -242,12 +243,16 @@ function getReleasesByStaff (staff_id, month) {
 }
 
 function plotReleasesTable (table_data) {
-    // $("#releases-table").empty();
+    $("#releases-table").empty();
     console.log("PASOK SA plotReleasesTable", table_data);
-    const releases_table = $("#releases-table").DataTable({
+    $("#releases-table").DataTable({
         destroy: true,
         data: table_data,
         columns: [
+            {
+                data: "data_timestamp",
+                title: "Data Timestamp"
+            },
             {
                 data: "site_code",
                 title: "Site Code",
@@ -265,13 +270,9 @@ function plotReleasesTable (table_data) {
             {
                 data: "release_id",
                 title: "Release ID",
-                render (data, type, table_data, meta) {
-                    return `<a href='/../monitoring/events/${table_data.event_id}/${table_data.release_id}'>${table_data.release_id} <span class="fa fa-link"></span></a>`;
+                render (data, type, full, meta) {
+                    return `<a href='/../monitoring/events/${full.event_id}/${full.release_id}'>${full.release_id} <span class="fa fa-link"></span></a>`;
                 }
-            },
-            {
-                data: "data_timestamp",
-                title: "Data Timestamp"
             },
             {
                 data: "internal_alert_level",
@@ -350,4 +351,3 @@ function changeShiftCheckerOptions () {
             break;
     }
 }
-
