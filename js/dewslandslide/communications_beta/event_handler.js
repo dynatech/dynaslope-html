@@ -5,11 +5,12 @@ let temp_tag_flag_container = "";
 
 let message_details = [];
 let site_code = 0;
-let temp_important_tag = [];
+let TEMP_IMPORTANT_TAG = null;
 
 let tag_container = null;
 
-let TAG_INFORMATION = [];
+let TAG_INFORMATION = null;
+let CONVERSATION_TAGS = null;
 
 $(document).ready(function() {
 	initializeOnClickSendRoutine();
@@ -1071,7 +1072,7 @@ function initializeEWITemplateModal() {
 function initializeOnClickConfirmTagging () {
 	$("#confirm-tagging").on("click", ({ currentTarget }) => {
 		const gintag_selected = $("#gintag_selected").tagsinput("items");
-		temp_important_tag = [];
+		TEMP_IMPORTANT_TAG = [];
 		const important = [];
 		const new_tag = [];
 		let delete_tag = [];
@@ -1085,6 +1086,28 @@ function initializeOnClickConfirmTagging () {
 				}
 				counter++;
 			});
+
+			if (new_tag.length > 0){
+				addNewTags(message_details, new_tag, false, recipient_container, site_code);
+			}
+
+			if(important.length > 0){
+				$("#narrative-modal").modal({backdrop: 'static', keyboard: false});
+				$("#gintag-modal").modal("hide");
+
+				$.grep(gintag_selected, function (current_tags) {
+				    if ($.inArray(current_tags, CONVERSATION_TAGS) == -1) {
+				        TEMP_IMPORTANT_TAG.push(current_tags);
+				    }
+				});
+				
+				$("#narrative_message").empty();
+				$("#narrative_message").append(
+					"Contact(s) to be tagged: " + "&#013;&#010;"+ 
+					"Timestamp: " + message_details[3] + "&#013;&#010;&#013;&#010;&#013;&#010;" +
+					message_details[4] + "&#013;&#010;"
+				);
+			}
 		}
 
 		if (delete_tag.length != 0) {
@@ -1110,7 +1133,11 @@ function initializeOnClickConfirmTagging () {
 				if(important.length > 0){
 					$("#narrative-modal").modal({backdrop: 'static', keyboard: false});
 					$("#gintag-modal").modal("hide");
-					temp_important_tag = important;
+					$.grep(gintag_selected, function (current_tags) {
+					    if ($.inArray(current_tags, CONVERSATION_TAGS) == -1) {
+					        TEMP_IMPORTANT_TAG.push(current_tags);
+					    }
+					});
 					$("#narrative_message").empty();
 					$("#narrative_message").append(
 						"Contact(s) to be tagged: " + "&#013;&#010;"+ 
@@ -1205,16 +1232,15 @@ function addNewTags (message_details, new_tag, is_important, site_code, recipien
 function initializeOnClickConfirmNarrative () {
 
 	$("#save-narrative").click(function(event){
-
 		let sites_selected = [];
 		$(".sites-to-tag input:checked").each(function() {
 		    sites_selected.push($(this).closest('label').text());
 		});
 
 		if (message_details[2] != "You") {
-			addNewTags(message_details, temp_important_tag, true, sites_selected);
+			addNewTags(message_details, TEMP_IMPORTANT_TAG, true, sites_selected);
 		} else {
-			addNewTags(message_details, temp_important_tag, true, sites_selected, recipient_container);
+			addNewTags(message_details, TEMP_IMPORTANT_TAG, true, sites_selected, recipient_container);
 		}
 	});
 }
@@ -1231,10 +1257,11 @@ function displayConversationTaggingStatus (status) {
 
 }
 
-function displayConversationTags (conversation_tags) {
-	if(conversation_tags.length > 0){
+function displayConversationTags (tags) {
+	CONVERSATION_TAGS = tags;
+	if(tags.length > 0){
 		$("#gintag_selected").tagsinput('removeAll');
-		conversation_tags.forEach(function(tag) {
+		tags.forEach(function(tag) {
 			$("#gintag_selected").tagsinput("add", tag);
 		});
 	}else {
