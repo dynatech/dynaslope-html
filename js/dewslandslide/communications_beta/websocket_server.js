@@ -53,7 +53,6 @@ function connectWS() {
 					displayDataTableEmployeeContacts(msg_data.data);
 					break;
 				case "loadSmsConversation":
-					console.log(msg_data);
 					displayConversationPanel(msg_data.data,msg_data.full_name,msg_data.recipients,msg_data.titles);
 					$('#chatterbox-loader-modal').modal("hide");
 					break;
@@ -114,10 +113,13 @@ function connectWS() {
 					displayRoutineTemplate(msg_data.data);
 					break;
 				case "fetchedSmsTags":
-					console.log(msg_data);
 					displaySitesToTag(msg_data.sites);
 					displayConversationTags(msg_data.data);
+					updateSMSTagInformation(msg_data.tag_information);
 					break;
+				case "deleteTagStatus":
+					displayDeleteTagStatus(msg_data.status);
+					break;	
 				case "fetchAlertStatus":
 					displayEWITemplateOptions(msg_data.data);
 					break;
@@ -129,7 +131,6 @@ function connectWS() {
 					displaySearchedKey(msg_data.data);
 					break;	
 				case "searchMessageGlobal":
-					console.log(msg_data.data);
 					break;
 				case "fetchedEWITemplateViaCbx":
 					displayTemplateInChatbox(msg_data.data);
@@ -152,11 +153,9 @@ function connectWS() {
 					displayEwiStatus(msg_data.statuses, msg_data.gintag_status);
 					break;
 				case "taggingStatus":
-					console.log(msg_data.status);
 					displayConversationTaggingStatus(msg_data.status);
 					break;
 				case "fetchGndMeasReminderSettings":
-					console.log(msg_data);
 		            if (msg_data.saved == true) {
 		                reconstructSavedSettingsForGndMeasReminder(msg_data.save_settings,msg_data.event_sites, msg_data.extended_sites, msg_data.routine_sites, msg_data);
 		                
@@ -167,7 +166,6 @@ function connectWS() {
 		            $("#add-special-case").prop("disabled", false);
 					break;
 				case "insertGndMeasReminderSettingsStatus":
-					console.log(msg_data.status);
 					displayGndMeasSavingStatus(msg_data.status);
 					break;
 				case "fetchedSamarSites":
