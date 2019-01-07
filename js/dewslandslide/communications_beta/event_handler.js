@@ -9,7 +9,7 @@ let temp_important_tag = [];
 
 let tag_container = null;
 
-let TAG_INFORMATION = null;
+let TAG_INFORMATION = [];
 
 $(document).ready(function() {
 	initializeOnClickSendRoutine();
@@ -44,7 +44,6 @@ $(document).ready(function() {
 	initializeOnClickAddMobileForEmployee();
 	initializeOnClickAddMobileForCommunity();
 	initializeOnClickUnregistered();
-	initializeOnClickDeleteTag();
 	getUnregisteredNumber();
 });
 
@@ -1001,7 +1000,6 @@ function initializeOnAvatarClickForTagging() {
 		message_details = null;
 		tag_container = $(this).closest("li.clearfix");
 		message_details = $(this).closest("li.clearfix").find("input[class='msg_details']").val().split('<split>');
-		console.log(message_details);
 		const gintag_selected = $("#gintag_selected").tagsinput("items");
 		user = message_details[2].split(" ");
 		getSmsTags(message_details[0],message_details[1]);
@@ -1076,93 +1074,81 @@ function initializeOnClickConfirmTagging () {
 		temp_important_tag = [];
 		const important = [];
 		const new_tag = [];
-		if (gintag_selected.length === 0 ) {
-			$("#gintag_warning_message").show(300).effect("shake");
-		} else {
-			$("#gintag_warning_message").hide(300);
-			gintag_selected.forEach(function(selected) {
-				const [result] = important_tags.filter(tags => tags === selected);
-				if(typeof result === "undefined") {
-					new_tag.push(selected);
-				}else {
-					important.push(result);
+		let delete_tag = [];
+
+		if (TAG_INFORMATION != null) {
+			let counter = 0;
+			TAG_INFORMATION.forEach(function(tag){
+				if ($.inArray(tag['tag_name'], gintag_selected) == -1) {
+					delete_tag.push(tag['gintags_id']);
+					TAG_INFORMATION.splice(counter,1);
 				}
+				counter++;
 			});
+		}
 
-			if (new_tag.length > 0){
-				addNewTags(message_details, new_tag, false, recipient_container, site_code);
-			}
+		if (delete_tag.length != 0) {
+			initializeDeleteTag(delete_tag);
+		} else {
+			if (gintag_selected.length === 0 ) {
+				$("#gintag_warning_message").show(300).effect("shake");
+			} else {
+				$("#gintag_warning_message").hide(300);
+				gintag_selected.forEach(function(selected) {
+					const [result] = important_tags.filter(tags => tags === selected);
+					if(typeof result === "undefined") {
+						new_tag.push(selected);
+					}else {
+						important.push(result);
+					}
+				});
 
-			if(important.length > 0){
-				console.log("tag and open narrative modal");
-				$("#narrative-modal").modal({backdrop: 'static', keyboard: false});
-				$("#gintag-modal").modal("hide");
-				temp_important_tag = important;
-				$("#narrative_message").empty();
-				$("#narrative_message").append(
-					"Contact(s) to be tagged: " + "&#013;&#010;"+ 
-					"Timestamp: " + message_details[3] + "&#013;&#010;&#013;&#010;&#013;&#010;" +
-					message_details[4] + "&#013;&#010;"
-				);
+				if (new_tag.length > 0){
+					addNewTags(message_details, new_tag, false, recipient_container, site_code);
+				}
+
+				if(important.length > 0){
+					$("#narrative-modal").modal({backdrop: 'static', keyboard: false});
+					$("#gintag-modal").modal("hide");
+					temp_important_tag = important;
+					$("#narrative_message").empty();
+					$("#narrative_message").append(
+						"Contact(s) to be tagged: " + "&#013;&#010;"+ 
+						"Timestamp: " + message_details[3] + "&#013;&#010;&#013;&#010;&#013;&#010;" +
+						message_details[4] + "&#013;&#010;"
+					);
+				}
 			}
 		}
 	});
 }
 
-function initializeOnClickDeleteTag (){
-	let gintag_to_delete = $("#gintag_selected").tagsinput("items");
-	let deleted = [];
-	
-	if(gintag_to_delete.length == 0){
-		console.log("delete all");
-		TAG_INFORMATION.forEach((tag_info) => {
-			const { gintags_id, tag_name } = tag_info;
-			deleted.push(gintags_id);
-		});
-	}else{
-		console.log("other");
-		gintag_to_delete.forEach(function(selected) {
-			TAG_INFORMATION.forEach((tag_info) => {
-				const { gintags_id, tag_name } = tag_info;
-				if (selected != tag_name){
-					deleted.push(gintags_id);
-				}
-			});
-		});
-	}
+
+function initializeDeleteTag (tag){
 	try {
 		const message = {
 			type: "deleteTags",
-			data: deleted
+			data: tag
 		}
 		wss_connect.send(JSON.stringify(message));
 	} catch(err) {
-		// console.log(err);
-		// const report = {
-	//           type: "error_logs",
-	//           metric_name: "gintagged_message_error_logs",
-	//           module_name: "Communications",
-	//           report_message: `${err}`,
-	//           reference_table: "gintags",
-	//           reference_id: 12,
-	//           submetrics: []
-	//       };
-
-	//   	PMS.send(report);
+		// err
 	}
 }
 
 function displayDeleteTagStatus (status){
 	if(status == true){
 		$.notify("Successfully deleted tag", "success");
-		$("#enable-tag-deletion").trigger("click");
+		if (TAG_INFORMATION.length == 0){
+			tag_container.removeClass("tagged");
+			$("#gintag-modal").modal("hide");
+		}
 	}else{
 		$.notify("Error deleting tag", "error");
 	}
 }
 
 function addNewTags (message_details, new_tag, is_important, site_code, recipient_container = []) {
-	console.log("success tagging new tag");
 	$("#gintag-modal").modal("hide");
 	let details_data = {};
 	if (recipient_container.length == 0) {
@@ -1193,7 +1179,6 @@ function addNewTags (message_details, new_tag, is_important, site_code, recipien
 		};
 	}
 
-	console.log(details_data);
 	try {
 		const message = {
 			type: "gintaggedMessage",
@@ -1254,19 +1239,15 @@ function displayConversationTags (conversation_tags) {
 		});
 	}else {
 		$("#gintag_selected").tagsinput('removeAll');
-		conversation_tags.forEach(function(tag) {
-			$("#gintag_selected").tagsinput("add", tag);
-		});
+		TAG_INFORMATION = [];
 	}
 }
 
 function updateSMSTagInformation(data){
 	TAG_INFORMATION = data;
-	console.log(TAG_INFORMATION);
 }
 
 function displaySitesToTag(sites) {
-	console.log(sites);
 	$("#tag_sites").empty();
 	for (let i = 0; i < sites.length; i++) {
 		sitename = sites[i].site_code;
