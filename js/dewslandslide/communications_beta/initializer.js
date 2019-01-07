@@ -731,7 +731,10 @@ function unregisteredEmployeeContactFormValidation() {
             submitUnregisteredEmployeeInformation();
             initializeContactSuggestion("");
             getEmployeeContact();
-            // console.log("success");
+            $("#comm-response-contact-container").hide();
+            $("#emp-response-contact-container").hide();
+            getUnregisteredNumber();
+            $("#unregistered-wrapper").hide();
         }
     });
 }
@@ -901,6 +904,10 @@ function unregisteredCommunityContactFormValidation () {
                 submitUnregisteredCommunityContactForm(site_selected, organization_selected);
                 initializeContactSuggestion("");
                 getCommunityContact();
+                $("#comm-response-contact-container").hide();
+                $("#emp-response-contact-container").hide();
+                getUnregisteredNumber();
+                $("#unregistered-wrapper").hide();
             }
             
         }

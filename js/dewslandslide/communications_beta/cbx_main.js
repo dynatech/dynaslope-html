@@ -692,7 +692,7 @@ function displayUnregisteredMobiles(data){
 
 			const number_count = counter + 1;
 			const mobile_data = {
-				"mobile_number" : data[counter].user_number,
+				"mobile_number" : "63"+data[counter].user_number,
 				"mobile_status" : data[counter].mobile_status,
 				"mobile_priority" : data[counter].priority,
 				"mobile_id" : data[counter].mobile_id
