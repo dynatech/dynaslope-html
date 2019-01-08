@@ -1158,9 +1158,6 @@ function displayRoutineReminder(sites,template) {
             $("#routine-reminder-message").val(parsed_template);
             break;
     }
-
-    console.log(ROUTINE_SITES);
-
 }
 
 function parseRoutineReminderViaCbx(template) {
