@@ -442,3 +442,7 @@ div.awesomplete > ul {
     text-align: center;
     line-height: 40px;
 }
+
+.button-margin {
+  margin: 5px;
+}

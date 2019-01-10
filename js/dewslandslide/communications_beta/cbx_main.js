@@ -639,7 +639,7 @@ function displayUpdateEmployeeDetails (employee_data) {
 }
   
 function displayUpdateCommunityDetails (community_data) {
-	// console.log(community_data);
+	console.log(community_data);
 	let user_orgs = [];
 	$("#user_id_cc").val(community_data.contact_info.id);
 	$("#salutation_cc").val(community_data.contact_info.salutation);
@@ -650,6 +650,7 @@ function displayUpdateCommunityDetails (community_data) {
 	$("#birthdate_cc").val(community_data.contact_info.birthday);
 	$("#gender_cc").val(community_data.contact_info.gender);
 	$("#active_status_cc").val(community_data.contact_info.contact_active_status);
+
 	if (community_data.ewi_data[0].ewi_status === "1") {
 		$("#ewirecipient_cc").val(1);
 	}else {
@@ -681,8 +682,32 @@ function displayUpdateCommunityDetails (community_data) {
 		}
 	}
 
+	if(community_data.has_heirarchy == false){
+		let request = {
+			'type': 'saveContactHierarchy',
+			'site_ids': community_data.site_ids,
+			'user_id': community_data.contact_info.id
+		};
+		wss_connect.send(JSON.stringify(request));
+		console.log("save_request");
+		$("#contact_priority").val(1);
+	}else{
+		//display current priority
+		$("#contact_priority").val(community_data.has_heirarchy[0].priority);
+	}
+
 	displaySiteSelection(community_data.list_of_sites, community_data.org_data);
 	displayOrganizationSelection(community_data.list_of_orgs, community_data.org_data);
+}
+
+function initializeContactPriorityBehavior(){
+	$("#contact_priority" ).keyup(function() {
+		if($("#contact_priority").val().length == 0){
+			$("#save-contact-priority").hide(300);
+		}else{
+			$("#save-contact-priority").show(300);
+		}
+	});
 }
 
 function displayUnregisteredMobiles(data){

@@ -21,6 +21,7 @@ $(document).ready(function() {
     initializeOnSubmitUnregisteredEmployeeContactForm();
     initializeOnSubmitUnregisteredCommunityContactForm();
     initializeDataTaggingButton();
+    initializeContactPriorityBehavior();
 });
 
 
