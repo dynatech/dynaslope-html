@@ -5,6 +5,8 @@
  *  JS file for Monitoring Shift Checker [reports/accomplishment_checker.php]
  *  [host]/reports/accomplishment/checker
  *
+ *  Updates by John Louie Nepomuceno on Shifter checker by staff
+ *
 ****/
 
 $(document).ready((a) => {
@@ -229,17 +231,24 @@ function prepareSearchByStaffFunctions () {
             const staff_id = $("#staff-name").val();
             const start = $("#duration_start").val();
             const end = $("#duration_end").val();
-            getReleasesByStaff(staff_id, start, end);
+
+            getReleasesByStaff(staff_id, start, end)
+            .then((releases) => {
+                releases.forEach((release, index, group) => {
+                    const { reporter_id_ct } = release;
+                    let role = "MT";
+                    if (reporter_id_ct === staff_id) role = "CT";
+                    release.role = role;
+                });
+                console.log(releases);
+                plotReleasesTable(releases);
+            });
         }
     });
 }
 
 function getReleasesByStaff (staff_id, start, end) {
-    $.getJSON(`../../accomplishment/getReleasesByStaff/${staff_id}/${start}/${end}`)
-    .then((releases) => {
-        console.log(releases);
-        plotReleasesTable(releases);
-    });
+    return $.getJSON(`../../accomplishment/getReleasesByStaff/${staff_id}/${start}/${end}`);
 }
 
 function plotReleasesTable (table_data) {
@@ -248,30 +257,45 @@ function plotReleasesTable (table_data) {
     $("#releases-table").DataTable({
         destroy: true,
         data: table_data,
+        // autoWidth: true,
+        language: {
+            emptyTable: "No shifts found in the specified data range."
+        },
         columns: [
             {
                 data: "data_timestamp",
-                title: "Data Timestamp"
+                title: "Date",
+                render (data, type, full, meta) {
+                    return moment(data).format("YYYY-MM-DD");
+                }
+            },
+            {
+                data: "last_release_data_timestamp",
+                title: "Shift Sched",
+                render (data, type, full, meta) {
+                    let shift_sched = "";
+                    const hour = moment(data).format("HH:mm");
+
+                    // If shift release data_timestamp is between 8:00 and 19:30,
+                    // it is AM shift. PM shift, otherwise.
+                    hour >= "08:00" && hour <= "19:30" ? shift_sched = "AM" : shift_sched = "PM";
+
+                    return shift_sched;
+                }
             },
             {
                 data: "site_code",
                 title: "Site Code",
                 render (data, type, full, meta) {
-                    return `${data.toUpperCase()}`;
+                    return `<a href='/../monitoring/events/${full.event_id}'>${data.toUpperCase()} <span class="fa fa-link"></span></a>`;
                 }
             },
             {
-                data: "event_id",
-                title: "Event ID",
+                data: "last_release_id",
+                title: "EWI Release",
                 render (data, type, full, meta) {
-                    return `<a href='/../monitoring/events/${data}'>${data} <span class="fa fa-link"></span></a>`;
-                }
-            },
-            {
-                data: "release_id",
-                title: "Release ID",
-                render (data, type, full, meta) {
-                    return `<a href='/../monitoring/events/${full.event_id}/${full.release_id}'>${full.release_id} <span class="fa fa-link"></span></a>`;
+                    const time_of_release = moment(full.last_release_data_timestamp).add(30, "m").format("HH:mm");
+                    return `<a href='/../monitoring/events/${full.event_id}/${data}'>EWI Release for ${time_of_release}</a>`;
                 }
             },
             {
@@ -279,12 +303,8 @@ function plotReleasesTable (table_data) {
                 title: "Internal Alert"
             },
             {
-                data: "mt",
-                title: "Reporter MT"
-            },
-            {
-                data: "ct",
-                title: "Reporter CT"
+                data: "role",
+                title: "Role"
             }
         ]
     });
