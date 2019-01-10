@@ -1,6 +1,7 @@
 let OPTIONS_STATUS = "hidden";
 let QUICK_ACCESS_STATUS = "hidden";
 let NETWORK_STATUS = "hidden";
+let DELETE_TAG_STATUS = "hidden";
 $(document).ready(() => {
 	initializeChatterboxPanelBehavior();
 	initializeOnClickShowPanelButton();
@@ -29,8 +30,23 @@ function initializeOnClickShowPanelButton(){
 			$("#options").css("color", "#F8991D");
 		}else {
 			$("#options-panel").hide(400);
-			OPTIONS_STATUS = "hidden"
+			OPTIONS_STATUS = "hidden";
 			$("#options").css("color", "white");
+		}
+		
+	});
+
+	$("#enable-tag-deletion").click(() => {
+		if(DELETE_TAG_STATUS == "hidden"){
+			$("#confirm-delete-tag").show(400);
+			$("#confirm-tagging").hide(400);
+			DELETE_TAG_STATUS = "showed";
+			$("#enable-tag-deletion").css("color", "#F8991D");
+		}else {
+			$("#confirm-delete-tag").hide(400);
+			$("#confirm-tagging").show(400);
+			DELETE_TAG_STATUS = "hidden";
+			$("#enable-tag-deletion").css("color", "black");
 		}
 		
 	});

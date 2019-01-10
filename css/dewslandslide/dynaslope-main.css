@@ -70,7 +70,10 @@ html, body {
   font-size: 40px;
   color: #17526D;
   line-height: 55px;
-  font-weight: 800; }
+  font-weight: 800;
+  transition: 0.2s; }
+  #project-name:hover {
+    color: #F8991D; }
 
 #dynaslope-logo {
   /*width: 83.47px;*/
@@ -103,7 +106,7 @@ html, body {
     display: block; }
 
 #navigation {
-  background-color: #F8991D;
+  background-color: #17526D;
   text-align: center;
   border-radius: 0;
   min-width: 1200px;
@@ -123,7 +126,7 @@ html, body {
       font-weight: bold;
       font-size: 20px;
       transition: 0.2s;
-      color: #17526D; }
+      color: #FFFFFF; }
       #navigation ul li.dropdown .dropdown-content {
         display: none;
         position: absolute;
@@ -133,29 +136,29 @@ html, body {
         text-align: left;
         font-size: 14px;
         padding: 6px 0px;
-        background-color: #F8991D;
+        background-color: #17526D;
         min-width: 185px;
         box-shadow: 0px 8px 16px 0px rgba(0, 0, 0, 0.2);
         z-index: 10;
         transition: 0.2s; }
         #navigation ul li.dropdown .dropdown-content a {
           padding: 1px 20px;
-          color: #17526D;
+          color: #FFFFFF;
           text-decoration: none;
           display: block;
           transition: 0.2s; }
         #navigation ul li.dropdown .dropdown-content a:hover {
-          background-color: #EEEEEE;
+          background-color: #FFFFFF;
           color: #F8991D; }
       #navigation ul li.dropdown span.dropdown-header {
         display: block;
         padding: 3px 20px;
         font-size: 12px;
         line-height: 1.42857143;
-        color: #17526D;
+        color: #FFFFFF;
         white-space: nowrap; }
     #navigation ul li:hover {
-      background-color: #ffffff;
+      background-color: #FFFFFF;
       color: #F8991D; }
       #navigation ul li:hover .dropdown-content {
         display: table; }
@@ -176,11 +179,14 @@ html, body {
     font-size: 30px;
     font-weight: 800;
     padding-top: 22px;
-    color: #17526D; }
+    color: #FFFFFF; }
     .sticky span#logo a {
       font-family: 'Open Sans Bold', sans-serif;
       text-decoration: none;
-      color: #17526D; }
+      color: #FFFFFF;
+      transition: 0.2s; }
+    .sticky span#logo a:hover {
+      color: #F8991D; }
 
 .sticky-wrapper {
   padding-top: 125px !important; }

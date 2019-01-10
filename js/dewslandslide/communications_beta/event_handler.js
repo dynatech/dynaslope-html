@@ -5,9 +5,12 @@ let temp_tag_flag_container = "";
 
 let message_details = [];
 let site_code = 0;
-let temp_important_tag = [];
+let TEMP_IMPORTANT_TAG = null;
 
 let tag_container = null;
+
+let TAG_INFORMATION = null;
+let CONVERSATION_TAGS = null;
 
 $(document).ready(function() {
 	initializeOnClickSendRoutine();
@@ -998,7 +1001,6 @@ function initializeOnAvatarClickForTagging() {
 		message_details = null;
 		tag_container = $(this).closest("li.clearfix");
 		message_details = $(this).closest("li.clearfix").find("input[class='msg_details']").val().split('<split>');
-		console.log(message_details);
 		const gintag_selected = $("#gintag_selected").tagsinput("items");
 		user = message_details[2].split(" ");
 		getSmsTags(message_details[0],message_details[1]);
@@ -1070,44 +1072,95 @@ function initializeEWITemplateModal() {
 function initializeOnClickConfirmTagging () {
 	$("#confirm-tagging").on("click", ({ currentTarget }) => {
 		const gintag_selected = $("#gintag_selected").tagsinput("items");
-		temp_important_tag = [];
+		TEMP_IMPORTANT_TAG = [];
 		const important = [];
 		const new_tag = [];
-		if (gintag_selected.length === 0 ) {
-			$("#gintag_warning_message").show(300).effect("shake");
-		} else {
-			$("#gintag_warning_message").hide(300);
-			gintag_selected.forEach(function(selected) {
-				const [result] = important_tags.filter(tags => tags === selected);
-				if(typeof result === "undefined") {
-					new_tag.push(selected);
-				}else {
-					important.push(result);
+		let delete_tag = [];
+		
+		if (TAG_INFORMATION != null) {
+			let counter = 0;
+			TAG_INFORMATION.forEach(function(tag){
+				if (gintag_selected.length > 0) {
+					if ($.inArray(tag['tag_name'], gintag_selected) == -1) {
+						delete_tag.push(tag['gintags_id']);
+						TAG_INFORMATION.splice(counter,1);
+					}
+					counter++;
+				} else {
+					TAG_INFORMATION.forEach(function(tag){
+						delete_tag.push(tag['gintags_id']);
+						TAG_INFORMATION = [];
+					});
 				}
 			});
+		}
 
-			if (new_tag.length > 0){
-				addNewTags(message_details, new_tag, false, recipient_container, site_code);
-			}
+		if (delete_tag.length != 0) {
+			initializeDeleteTag(delete_tag);
+		} else {
+			if (gintag_selected.length === 0 ) {
+				$("#gintag_warning_message").show(300).effect("shake");
+			} else {
+				$("#gintag_warning_message").hide(300);
+				gintag_selected.forEach(function(selected) {
+					const [result] = important_tags.filter(tags => tags === selected);
+					if(typeof result === "undefined") {
+						new_tag.push(selected);
+					}else {
+						important.push(result);
+					}
+				});
 
-			if(important.length > 0){
-				console.log("tag and open narrative modal");
-				$("#narrative-modal").modal({backdrop: 'static', keyboard: false});
-				$("#gintag-modal").modal("hide");
-				temp_important_tag = important;
-				$("#narrative_message").empty();
-				$("#narrative_message").append(
-					"Contact(s) to be tagged: " + "&#013;&#010;"+ 
-					"Timestamp: " + message_details[3] + "&#013;&#010;&#013;&#010;&#013;&#010;" +
-					message_details[4] + "&#013;&#010;"
-				);
+				if (new_tag.length > 0){
+					addNewTags(message_details, new_tag, false, recipient_container, site_code);
+				}
+
+				if(important.length > 0){
+					$("#narrative-modal").modal({backdrop: 'static', keyboard: false});
+					$("#gintag-modal").modal("hide");
+					$.grep(gintag_selected, function (current_tags) {
+					    if ($.inArray(current_tags, CONVERSATION_TAGS) == -1) {
+					        TEMP_IMPORTANT_TAG.push(current_tags);
+					    }
+					});
+					$("#narrative_message").empty();
+					$("#narrative_message").append(
+						"Contact(s) to be tagged: " + "&#013;&#010;"+ 
+						"Timestamp: " + message_details[3] + "&#013;&#010;&#013;&#010;&#013;&#010;" +
+						message_details[4] + "&#013;&#010;"
+					);
+				}
 			}
 		}
 	});
 }
 
+
+function initializeDeleteTag (tag){
+	try {
+		const message = {
+			type: "deleteTags",
+			data: tag
+		}
+		wss_connect.send(JSON.stringify(message));
+	} catch(err) {
+		// err
+	}
+}
+
+function displayDeleteTagStatus (status){
+	if(status == true){
+		$.notify("Successfully deleted tag", "success");
+		if (TAG_INFORMATION.length == 0){
+			tag_container.removeClass("tagged");
+			$("#gintag-modal").modal("hide");
+		}
+	}else{
+		$.notify("Error deleting tag", "error");
+	}
+}
+
 function addNewTags (message_details, new_tag, is_important, site_code, recipient_container = []) {
-	console.log("success tagging new tag");
 	$("#gintag-modal").modal("hide");
 	let details_data = {};
 	if (recipient_container.length == 0) {
@@ -1138,7 +1191,6 @@ function addNewTags (message_details, new_tag, is_important, site_code, recipien
 		};
 	}
 
-	console.log(details_data);
 	try {
 		const message = {
 			type: "gintaggedMessage",
@@ -1165,16 +1217,15 @@ function addNewTags (message_details, new_tag, is_important, site_code, recipien
 function initializeOnClickConfirmNarrative () {
 
 	$("#save-narrative").click(function(event){
-
 		let sites_selected = [];
 		$(".sites-to-tag input:checked").each(function() {
 		    sites_selected.push($(this).closest('label').text());
 		});
 
 		if (message_details[2] != "You") {
-			addNewTags(message_details, temp_important_tag, true, sites_selected);
+			addNewTags(message_details, TEMP_IMPORTANT_TAG, true, sites_selected);
 		} else {
-			addNewTags(message_details, temp_important_tag, true, sites_selected, recipient_container);
+			addNewTags(message_details, TEMP_IMPORTANT_TAG, true, sites_selected, recipient_container);
 		}
 	});
 }
@@ -1191,22 +1242,24 @@ function displayConversationTaggingStatus (status) {
 
 }
 
-function displayConversationTags (conversation_tags) {
-	if(conversation_tags.length > 0){
+function displayConversationTags (tags) {
+	CONVERSATION_TAGS = tags;
+	if(tags.length > 0){
 		$("#gintag_selected").tagsinput('removeAll');
-		conversation_tags.forEach(function(tag) {
+		tags.forEach(function(tag) {
 			$("#gintag_selected").tagsinput("add", tag);
 		});
 	}else {
 		$("#gintag_selected").tagsinput('removeAll');
-		conversation_tags.forEach(function(tag) {
-			$("#gintag_selected").tagsinput("add", tag);
-		});
+		TAG_INFORMATION = [];
 	}
 }
 
+function updateSMSTagInformation(data){
+	TAG_INFORMATION = data;
+}
+
 function displaySitesToTag(sites) {
-	console.log(sites);
 	$("#tag_sites").empty();
 	for (let i = 0; i < sites.length; i++) {
 		sitename = sites[i].site_code;

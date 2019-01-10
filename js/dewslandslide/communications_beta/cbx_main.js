@@ -469,21 +469,21 @@ function displayConversationPanel(msg_data, full_data, recipients, titles, isOld
 		message_container = [];
 		recipient_container = [];
 		msg_data.reverse();
-	}	
-    $("#messages").empty();
-    $("#conversation-details").empty();
-    $("#recent-activity-panel").hide(400);
-    $("#conversation-panel").show(400);
-	if(full_data === undefined){
-		$("#conversation-details").append(conversation_details_label);
-	}else {
-		$("#conversation-details").append(full_data);
-	}
+	    $("#messages").empty();
+	    $("#conversation-details").empty();
+	    $("#recent-activity-panel").hide(400);
+	    $("#conversation-panel").show(400);
+		if(full_data === undefined){
+			$("#conversation-details").append(conversation_details_label);
+		}else {
+			$("#conversation-details").append(full_data);
+		}
 
-	recipients.forEach(function(mobile_data){
-		if (recipient_container.includes(mobile_data.mobile_id) != true) {recipient_container.push(mobile_data.mobile_id);}
-	});
-	
+		recipients.forEach(function(mobile_data){
+			if (recipient_container.includes(mobile_data.mobile_id) != true) {recipient_container.push(mobile_data.mobile_id);}
+		});
+	}	
+
 	let counter = 0;
 	msg_data.forEach(function(data) {
 		if (titles != null) {
@@ -516,7 +516,6 @@ function displayUpdatedMessages(data, isOld = false) {
 		$('#messages').html(html_string+messages_html);
 		$('.chat-message').scrollTop($('#messages').height());
 	} else {
-		console.log($('#messages').height());
 		$('.chat-message').scrollTop($('#messages').height()/2);
 		$('#messages').html(messages_html+html_string);
 	}
@@ -693,7 +692,7 @@ function displayUnregisteredMobiles(data){
 
 			const number_count = counter + 1;
 			const mobile_data = {
-				"mobile_number" : data[counter].user_number,
+				"mobile_number" : "63"+data[counter].user_number,
 				"mobile_status" : data[counter].mobile_status,
 				"mobile_priority" : data[counter].priority,
 				"mobile_id" : data[counter].mobile_id
@@ -842,7 +841,6 @@ function siteConversation(){
 		};
 
 		addSitesActivity(convo_request);
-		console.log(convo_request);
 		wss_connect.send(JSON.stringify(convo_request));
 	} catch(err) {
 		console.log(err);

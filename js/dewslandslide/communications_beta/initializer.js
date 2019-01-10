@@ -385,6 +385,7 @@ function initializeOnClickUpdateUnregisteredContact () {
 
 function initLoadLatestAlerts (data) {
     initCheckboxColors();
+    initializeUncheckSiteOnEventInRoutine(data);
     if (data == null) {
         return;
     }
@@ -415,6 +416,13 @@ function initLoadLatestAlerts (data) {
     // if(quick_inbox_registered.length != 0){
         displayQuickEventInbox(quick_inbox_registered, quick_release);
     // }
+}
+
+function initializeUncheckSiteOnEventInRoutine(event_sites){
+    event_sites.forEach(function(site) {
+        const { site_code } = site;
+        $(".routine-site-selection label").find("input[value="+site_code+"]").prop("checked", false);
+    });
 }
 
 function displayQuickEventInbox (){
@@ -723,7 +731,10 @@ function unregisteredEmployeeContactFormValidation() {
             submitUnregisteredEmployeeInformation();
             initializeContactSuggestion("");
             getEmployeeContact();
-            // console.log("success");
+            $("#comm-response-contact-container").hide();
+            $("#emp-response-contact-container").hide();
+            getUnregisteredNumber();
+            $("#unregistered-wrapper").hide();
         }
     });
 }
@@ -893,6 +904,10 @@ function unregisteredCommunityContactFormValidation () {
                 submitUnregisteredCommunityContactForm(site_selected, organization_selected);
                 initializeContactSuggestion("");
                 getCommunityContact();
+                $("#comm-response-contact-container").hide();
+                $("#emp-response-contact-container").hide();
+                getUnregisteredNumber();
+                $("#unregistered-wrapper").hide();
             }
             
         }
@@ -1158,9 +1173,6 @@ function displayRoutineReminder(sites,template) {
             $("#routine-reminder-message").val(parsed_template);
             break;
     }
-
-    console.log(ROUTINE_SITES);
-
 }
 
 function parseRoutineReminderViaCbx(template) {
@@ -1244,6 +1256,7 @@ function initializeScrollOldMessages() {
         recipient_container = recipient_container.filter(function (el) {
           return el != null;
         });
+        
         try {
             let msg = {
                 type: "loadOldMessages",

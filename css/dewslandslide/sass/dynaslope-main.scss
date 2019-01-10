@@ -94,6 +94,11 @@ html, body {
     color: $primary-blue;
     line-height: 55px;
     font-weight: 800;
+    transition: 0.2s;
+
+    &:hover {
+        color: $primary-orange;
+    }
 
 }
 
@@ -131,7 +136,7 @@ html, body {
 }
 
 #navigation {
-    background-color: $primary-orange;
+    background-color: $primary-blue;
     text-align: center;
     // height: 90px;
     border-radius: 0;
@@ -154,7 +159,7 @@ html, body {
             font-weight: bold;
             font-size: 20px;
             transition: 0.2s;
-            color: $primary-blue;
+            color: #FFFFFF;
 
             .dropdown-content {
                 display: none;
@@ -165,7 +170,7 @@ html, body {
                 text-align: left;
                 font-size: 14px;
                 padding: 6px 0px;
-                background-color: $primary-orange;
+                background-color: $primary-blue;
                 min-width: 185px;
                 box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
                 z-index: 10;
@@ -173,14 +178,14 @@ html, body {
 
                 a {
                     padding: 1px 20px;
-                    color: $primary-blue;
+                    color: #FFFFFF;
                     text-decoration: none;
                     display: block;
                     transition: 0.2s;
                 }
 
                 a:hover {
-                    background-color: #EEEEEE;
+                    background-color: #FFFFFF;
                     color: $primary-orange;
                 }
             }
@@ -190,13 +195,13 @@ html, body {
                 padding: 3px 20px;
                 font-size: 12px;
                 line-height: 1.42857143;
-                color: $primary-blue;
+                color: #FFFFFF;
                 white-space: nowrap;
             }
         }
 
         li:hover {
-            background-color: #ffffff;
+            background-color: #FFFFFF;
             color: $primary-orange;
             
             .dropdown-content { display: table; }
@@ -225,12 +230,17 @@ html, body {
         font-size: 30px;
         font-weight: 800;
         padding-top: 22px;
-        color: $primary-blue;
+        color: #FFFFFF;
 
         a {
             font-family: 'Open Sans Bold', sans-serif;
             text-decoration: none;
-            color: $primary-blue;
+            color: #FFFFFF;
+            transition: 0.2s;
+        }
+
+        a:hover {
+            color: $primary-orange;
         }
     }
 }
