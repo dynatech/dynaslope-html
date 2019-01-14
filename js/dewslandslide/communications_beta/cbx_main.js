@@ -682,10 +682,10 @@ function displayUpdateCommunityDetails (community_data) {
 		}
 	}
 
-	if(community_data.has_heirarchy == false){
+	if(community_data.has_hierarchy == false){
 		let request = {
 			'type': 'saveContactHierarchy',
-			'site_ids': community_data.site_ids,
+			'site_id': community_data.site_id,
 			'user_id': community_data.contact_info.id
 		};
 		wss_connect.send(JSON.stringify(request));
@@ -693,21 +693,87 @@ function displayUpdateCommunityDetails (community_data) {
 		$("#contact_priority").val(1);
 	}else{
 		//display current priority
-		$("#contact_priority").val(community_data.has_heirarchy[0].priority);
+		$("#contact_priority").val(community_data.has_hierarchy[0].priority);
 	}
-
+	initializeContactPriorityBehavior(community_data.site_id, community_data.contact_info.id);
 	displaySiteSelection(community_data.list_of_sites, community_data.org_data);
 	displayOrganizationSelection(community_data.list_of_orgs, community_data.org_data);
 }
 
-function initializeContactPriorityBehavior(){
-	$("#contact_priority" ).keyup(function() {
-		if($("#contact_priority").val().length == 0){
-			$("#save-contact-priority").hide(300);
+function initializeContactPriorityBehavior(site_id, user_id){
+	$("#contact_priority").unbind();
+	$("#contact_priority").keyup(function() {
+		if($("#contact_priority").val().length == 0 || $("#contact_priority").val() == 0){
+			$("#contact-priority-panel").hide(300);
+			$("#contact-priority-alert-message").hide();
+			$("#contact-hierarchy-table-container").hide();
 		}else{
-			$("#save-contact-priority").show(300);
+			checkIfHasExistingContactPriority(site_id, user_id);
 		}
 	});
+}
+
+function displayContactHierarchy(data){
+	if(data != null || data.length == 0){
+		if(data.length == 0){
+			$("#contact-priority-panel").hide(300);
+			$("#contact-priority-alert-message").hide(300);
+			$("#contact-hierarchy-table").hide();
+			$("#contact-hierarchy-table-container").hide();
+		}else{
+			$("#contact-priority-panel").show(300);
+			$("#contact-priority-alert-message").show(300);
+			$("#contact-hierarchy-table").hide();
+			$("#contact-hierarchy-table").empty();
+			$("#contact-hierarchy-table-container").show();
+			data.forEach(function(priority){
+				let site_and_org = priority.site_code + " - " + priority.org_name;
+				let name = priority.first_name + " " + priority.last_name;
+				$("#contact-hierarchy-table").append(
+					"<tr>"+
+	                "<td>"+site_and_org.toUpperCase()+"</td>"+
+	                "<td>"+name+"</td>"+
+	                "<td>"+
+	                "<input type='number' class='form-control contact_priority_value' name='contact_priority_value[]' value='"+priority.priority+"'/>"+
+	                "<input type='hidden' class='form-control contact_priority_id' name='contact_priority_id[]' value='"+priority.contact_hierarchy_id+"'/>"+
+	                "</td>"+
+	                "</tr>"
+				);
+			});
+			console.log(data);
+			initializeContactHierarchyPanelBehavior();
+		}
+		
+		//display all hierarchy
+	}else{
+		console.log("no data received");
+	}
+}
+
+function initializeContactHierarchyPanelBehavior(){
+	$("#edit-priorities").unbind();
+	$("#cancel-priorities").unbind();
+
+	$("#edit-priorities").click(function() {
+		$("#contact-priority-alert-message").hide(300);
+		$("#contact-hierarchy-table-container").show(300);
+		$("#contact-hierarchy-table").show();
+	});
+
+	$("#cancel-priorities").click(function() {
+		$("#contact-hierarchy-table-container").hide();
+		$("#contact-priority-panel").hide();
+		$("#contact-hierarchy-table").hide();
+	});
+}
+
+function checkIfHasExistingContactPriority(site_id, user_id){
+	let request = {
+		'type': 'checkIfHasExistingContactPriority',
+		'site_id': site_id,
+		'user_id' : user_id
+	};
+	wss_connect.send(JSON.stringify(request));
 }
 
 function displayUnregisteredMobiles(data){

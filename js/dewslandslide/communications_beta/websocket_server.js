@@ -56,6 +56,9 @@ function connectWS() {
 					displayConversationPanel(msg_data.data,msg_data.full_name,msg_data.recipients,msg_data.titles);
 					$('#chatterbox-loader-modal').modal("hide");
 					break;
+				case "fetchContactHierarchy":
+					displayContactHierarchy(msg_data.data);
+					break;
 				case "updatedDwslContact":
 					contactSettingsFeedback(msg_data);
 					break;
