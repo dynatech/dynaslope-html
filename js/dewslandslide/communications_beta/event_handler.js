@@ -1083,38 +1083,23 @@ function initializeOnClickConfirmTagging () {
 		const important = [];
 		const new_tag = [];
 		let delete_tag = [];
-
+		
 		if (TAG_INFORMATION != null) {
 			let counter = 0;
 			TAG_INFORMATION.forEach(function(tag){
-				if ($.inArray(tag['tag_name'], gintag_selected) == -1) {
-					delete_tag.push(tag['gintags_id']);
-					TAG_INFORMATION.splice(counter,1);
+				if (gintag_selected.length > 0) {
+					if ($.inArray(tag['tag_name'], gintag_selected) == -1) {
+						delete_tag.push(tag['gintags_id']);
+						TAG_INFORMATION.splice(counter,1);
+					}
+					counter++;
+				} else {
+					TAG_INFORMATION.forEach(function(tag){
+						delete_tag.push(tag['gintags_id']);
+						TAG_INFORMATION = [];
+					});
 				}
-				counter++;
 			});
-
-			if (new_tag.length > 0){
-				addNewTags(message_details, new_tag, false, recipient_container, site_code);
-			}
-
-			if(important.length > 0){
-				$("#narrative-modal").modal({backdrop: 'static', keyboard: false});
-				$("#gintag-modal").modal("hide");
-
-				$.grep(gintag_selected, function (current_tags) {
-				    if ($.inArray(current_tags, CONVERSATION_TAGS) == -1) {
-				        TEMP_IMPORTANT_TAG.push(current_tags);
-				    }
-				});
-				
-				$("#narrative_message").empty();
-				$("#narrative_message").append(
-					"Contact(s) to be tagged: " + "&#013;&#010;"+ 
-					"Timestamp: " + message_details[3] + "&#013;&#010;&#013;&#010;&#013;&#010;" +
-					message_details[4] + "&#013;&#010;"
-				);
-			}
 		}
 
 		if (delete_tag.length != 0) {
