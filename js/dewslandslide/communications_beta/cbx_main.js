@@ -31,6 +31,9 @@ let special_case_num = 0;
 let special_case_id = 0;
 let site_count = 0;
 
+let contact_priorities = [];
+let check_priority_status = false;
+
 Handlebars.registerHelper('breaklines', function(text) {
     text = Handlebars.Utils.escapeExpression(text);
     text = text.replace(/(\r\n|\n|\r)/gm, '<br>');
@@ -683,10 +686,17 @@ function displayUpdateCommunityDetails (community_data) {
 	}
 
 	if(community_data.has_hierarchy == false){
+		let org_data = community_data.org_data;
+		org_names = [];
+		org_data.forEach(function(data) {
+			org_names.push(data.org_name);
+		});
+
 		let request = {
 			'type': 'saveContactHierarchy',
 			'site_id': community_data.site_id,
-			'user_id': community_data.contact_info.id
+			'user_id': community_data.contact_info.id,
+			'org_data': org_names
 		};
 		wss_connect.send(JSON.stringify(request));
 		console.log("save_request");
@@ -694,21 +704,26 @@ function displayUpdateCommunityDetails (community_data) {
 	}else{
 		//display current priority
 		$("#contact_priority").val(community_data.has_hierarchy[0].priority);
+		$("#contact-priority-panel").hide();
+		$("#contact-priority-alert-message").hide();
+		$("#contact-hierarchy-table-container").hide();
 	}
-	initializeContactPriorityBehavior(community_data.site_id, community_data.contact_info.id);
+	initializeContactPriorityBehavior(community_data.site_id, community_data.contact_info.id, community_data.org_data);
 	displaySiteSelection(community_data.list_of_sites, community_data.org_data);
 	displayOrganizationSelection(community_data.list_of_orgs, community_data.org_data);
 }
 
-function initializeContactPriorityBehavior(site_id, user_id){
+function initializeContactPriorityBehavior(site_id, user_id, org_data){
 	$("#contact_priority").unbind();
 	$("#contact_priority").keyup(function() {
 		if($("#contact_priority").val().length == 0 || $("#contact_priority").val() == 0){
 			$("#contact-priority-panel").hide(300);
 			$("#contact-priority-alert-message").hide();
 			$("#contact-hierarchy-table-container").hide();
+			contact_priorities = [];
 		}else{
-			checkIfHasExistingContactPriority(site_id, user_id);
+			$("#contact-hierarchy-table-container").hide();
+			checkIfHasExistingContactPriority(site_id, user_id, org_data);
 		}
 	});
 }
@@ -725,7 +740,7 @@ function displayContactHierarchy(data){
 			$("#contact-priority-alert-message").show(300);
 			$("#contact-hierarchy-table").hide();
 			$("#contact-hierarchy-table").empty();
-			$("#contact-hierarchy-table-container").show();
+			$("#contact-hierarchy-table-container").hide();
 			data.forEach(function(priority){
 				let site_and_org = priority.site_code + " - " + priority.org_name;
 				let name = priority.first_name + " " + priority.last_name;
@@ -767,11 +782,16 @@ function initializeContactHierarchyPanelBehavior(){
 	});
 }
 
-function checkIfHasExistingContactPriority(site_id, user_id){
+function checkIfHasExistingContactPriority(site_id, user_id, org_data){
+	let org_names = [];
+	org_data.forEach(function(data) {
+		org_names.push(data.org_name);
+	});
 	let request = {
 		'type': 'checkIfHasExistingContactPriority',
 		'site_id': site_id,
-		'user_id' : user_id
+		'user_id' : user_id,
+		'org_data' : org_names
 	};
 	wss_connect.send(JSON.stringify(request));
 }
@@ -1111,15 +1131,15 @@ function displayEWIAlertLvlInternalLvl(data) {
 function displaySearchedKey(data) {
 	if (data != null) {
 		data.forEach(function(result_data) {
-		console.log(result_data);
-		let search_key_container = [];
-		result_data.user == "You" ? result_data.isYou = 1 : result_data.isYou = 0;
-		search_key_container.unshift(result_data);
-		messages_html = search_key_template({'search_messages': search_key_container});
-		let html_string = $('#search-global-result').html();
-		$('#search-global-result').html(html_string+messages_html);
-		search_key_container = [];
-	});
+			console.log(result_data);
+			let search_key_container = [];
+			result_data.user == "You" ? result_data.isYou = 1 : result_data.isYou = 0;
+			search_key_container.unshift(result_data);
+			messages_html = search_key_template({'search_messages': search_key_container});
+			let html_string = $('#search-global-result').html();
+			$('#search-global-result').html(html_string+messages_html);
+			search_key_container = [];
+		});
 	}
 }
 

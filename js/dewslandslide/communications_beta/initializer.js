@@ -815,15 +815,54 @@ function communityContactFormValidation () {
 				$("#selection-feedback").text("organization selection");
                 $("#org-and-site-alert").show(300);
 			} else {
+                
 				$("#org-and-site-alert").hide(300);
 				//success function here
-				submitCommunityContactForm(site_selected, organization_selected);
-                initializeContactSuggestion("");
-                getCommunityContact();
+                let has_duplicate = checkChangesInPriority();
+                if(has_duplicate == false){
+                    submitCommunityContactForm(site_selected, organization_selected);
+                    initializeContactSuggestion("");
+                    getCommunityContact();
+                }else{
+                    $.notify("Duplicate entry in priority", "warn");
+                }
 			}
-            
         }
     });
+}
+
+function checkChangesInPriority(){
+    contact_priorities = [];
+    // let current_user_hierarchy_data = {
+    //     hierarchy_id : $("#contact_priority_id").val(),
+    //     hierarchy_priority: $("#contact_priority").val()
+    // }
+    // contact_priorities.push(current_user_hierarchy_data);
+    $('.contact_priority_id').each(function(){
+        let hierarchy_data = {
+            hierarchy_id : $(this).val(),
+            hierarchy_priority: $(this).prev().val()
+        }
+
+       contact_priorities.push(hierarchy_data);
+    });
+
+    var check_array = contact_priorities.map(function(item){ return item.hierarchy_priority });
+    var has_duplicate = check_array.some(function(item, idx){ 
+        return check_array.indexOf(item) != idx 
+    });
+    
+    if(has_duplicate == false){
+        if(contact_priorities.length > 1){
+            const message = {
+                type: "updateContactHierarchy",
+                data: contact_priorities
+            }
+            wss_connect.send(JSON.stringify(message));
+        } 
+    }
+
+    return has_duplicate;
 }
 
 function unregisteredCommunityContactFormValidation () {
