@@ -189,10 +189,8 @@ function intializeSubmitButtons () {
         const event_id = $(currentTarget).attr("data-event");
         const internal_alert = $(currentTarget).attr("data-alert");
         const btn_id = $(currentTarget).attr("id");
-    const validity = $(currentTarget).attr("data-validity");
-    const status = $(currentTarget).attr("data-status");
-
-    console.log(site_code, event_id, internal_alert, btn_id, validity, status);
+        const validity = $(currentTarget).attr("data-validity");
+        const status = $(currentTarget).attr("data-status");
 
         switch (btn_id) {
             case "send": sendReport(site_code, event_id, validity, status); break;
@@ -630,12 +628,12 @@ function buildEndOfShiftReportSiteTabs (data, hasActiveTabAlready) {
 
     $(`#${field_id} .submit_area button`)
     .attr({
-        disabled: false, 
-    "data-site": site_code, 
-    "data-event": event_id, 
-    "data-alert": alert, 
-    "data-validity": validity, 
-    "data-status": status
+        disabled: false,
+        "data-site": site_code,
+        "data-event": event_id,
+        "data-alert": alert,
+        "data-validity": validity,
+        "data-status": status
     })
     .addClass("submit_buttons");
 
@@ -953,7 +951,6 @@ function sendReport (site_code, event_id, validity, status) {
     // Get files attached
     // Send
     // Save data analysis/expert opinion part
-    console.log(validity, status);
     let final_report = "";
     let analysis_report;
     const recipients = $("#recipients").tagsinput("items");
