@@ -204,8 +204,8 @@ function getUnique (arr, prop, type) {
 
 function prepareSearchByStaffFunctions () {
     $("#duration_start").datetimepicker({
-        format: "YYYY-MM-DD HH:00:00",
-        enabledHours: [8, 20],
+        format: "YYYY-MM-DD HH:30:00",
+        enabledHours: [7, 19],
         allowInputToggle: true,
         widgetPositioning: {
             horizontal: "right",
@@ -213,11 +213,11 @@ function prepareSearchByStaffFunctions () {
         }
     })
     .on("dp.hide", (e) => {
-        $("#duration_end").val(moment(e.date).add(12, "hours").format("YYYY-MM-DD HH:30:00"));
+        $("#duration_end").val(moment(e.date).add(13, "hours").format("YYYY-MM-DD HH:30:00"));
     });
 
     $("#duration_end").datetimepicker({
-        format: "YYYY-MM-DD HH:00:00",
+        format: "YYYY-MM-DD HH:30:00",
         allowInputToggle: true,
         widgetPositioning: {
             horizontal: "right",
@@ -229,8 +229,10 @@ function prepareSearchByStaffFunctions () {
     $("#check").click(() => {
         if ($("#display-option").val() === "staff") {
             const staff_id = $("#staff-name").val();
-            const start = $("#duration_start").val();
-            const end = $("#duration_end").val();
+            const start = moment($("#duration_start").val()).add(30, "minutes").format("YYYY-MM-DD HH:mm:ss");
+            const end = moment($("#duration_end").val()).subtract(1, "hours").format("YYYY-MM-DD HH:mm:ss");
+
+            console.log(start, end);
 
             getReleasesByStaff(staff_id, start, end)
             .then((releases) => {
@@ -240,8 +242,8 @@ function prepareSearchByStaffFunctions () {
                     if (reporter_id_ct === staff_id) role = "CT";
                     release.role = role;
                 });
-                console.log(releases);
                 plotReleasesTable(releases);
+                console.log(releases);
             });
         }
     });
@@ -253,7 +255,6 @@ function getReleasesByStaff (staff_id, start, end) {
 
 function plotReleasesTable (table_data) {
     $("#releases-table").empty();
-    console.log("PASOK SA plotReleasesTable", table_data);
     $("#releases-table").DataTable({
         destroy: true,
         data: table_data,
@@ -263,14 +264,14 @@ function plotReleasesTable (table_data) {
         },
         columns: [
             {
-                data: "data_timestamp",
+                data: "shift_timestamp",
                 title: "Date",
                 render (data, type, full, meta) {
                     return moment(data).format("YYYY-MM-DD");
                 }
             },
             {
-                data: "last_release_data_timestamp",
+                data: "data_timestamp",
                 title: "Shift Sched",
                 render (data, type, full, meta) {
                     let shift_sched = "";
@@ -291,11 +292,11 @@ function plotReleasesTable (table_data) {
                 }
             },
             {
-                data: "last_release_id",
+                data: "latest_release_id",
                 title: "EWI Release",
                 render (data, type, full, meta) {
-                    const time_of_release = moment(full.last_release_data_timestamp).add(30, "m").format("HH:mm");
-                    return `<a href='/../monitoring/events/${full.event_id}/${data}'>EWI Release for ${time_of_release}</a>`;
+                    const time_of_release = moment(full.shift_timestamp).format("HH:mm");
+                    return `<a href='/../monitoring/events/${full.event_id}/${data}'>EWI Release for ${full.time_of_release}</a>`;
                 }
             },
             {
