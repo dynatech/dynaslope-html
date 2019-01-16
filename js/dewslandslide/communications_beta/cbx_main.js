@@ -32,7 +32,6 @@ let special_case_id = 0;
 let site_count = 0;
 
 let contact_priorities = [];
-let check_priority_status = false;
 
 Handlebars.registerHelper('breaklines', function(text) {
     text = Handlebars.Utils.escapeExpression(text);
@@ -642,7 +641,7 @@ function displayUpdateEmployeeDetails (employee_data) {
 }
   
 function displayUpdateCommunityDetails (community_data) {
-	console.log(community_data);
+	// console.log(community_data);
 	let user_orgs = [];
 	$("#user_id_cc").val(community_data.contact_info.id);
 	$("#salutation_cc").val(community_data.contact_info.salutation);
