@@ -46,6 +46,7 @@ $(document).ready(function() {
 	initializeOnClickAddMobileForCommunity();
 	initializeOnClickUnregistered();
 	getUnregisteredNumber();
+	initializeOnClickCallLogModal();
 });
 
 function initializeOnClickSendRoutine () {
@@ -1772,3 +1773,4 @@ function loadSiteConvoViaQacess() {
     });
 
 }
+

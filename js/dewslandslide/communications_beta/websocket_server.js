@@ -71,6 +71,15 @@ function connectWS() {
 				case "sendSms":
 					updateConversationBubble(msg_data);
 					break;
+				case "callLogSaved":
+					$("#call-log-modal").modal('hide');
+					$("#data_timestamp").val("");
+					$("#call_log_message").val("");
+					updateSmsInbox(msg_data);
+					updateConversationBubble(msg_data);
+					$.notify("Succesfully added call log!", "success");
+					$("li.clearfix").last().addClass("tagged");
+					break;
 				case "newAddedDwslContact":
 					displayAddEmployeeContactMessage(msg_data);
 					break;
@@ -141,6 +150,7 @@ function connectWS() {
 				case "messageTaggingStatus":
 					if (msg_data.status == true) {
 						$.notify(msg_data.status_message, "success");
+						console.log($(this));
 						$(this).closest("li.clearfix").find("input[class='msg_details']").addClass("tagged");
 					} else {
 						$.notify(msg_data.status_message, "err");
