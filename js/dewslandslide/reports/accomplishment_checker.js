@@ -236,6 +236,7 @@ function prepareSearchByStaffFunctions () {
 
             getReleasesByStaff(staff_id, start, end)
             .then((releases) => {
+                console.log(releases);
                 releases.forEach((release, index, group) => {
                     const { reporter_id_ct } = release;
                     let role = "MT";
@@ -243,7 +244,6 @@ function prepareSearchByStaffFunctions () {
                     release.role = role;
                 });
                 plotReleasesTable(releases);
-                console.log(releases);
             });
         }
     });
@@ -258,13 +258,13 @@ function plotReleasesTable (table_data) {
     $("#releases-table").DataTable({
         destroy: true,
         data: table_data,
-        // autoWidth: true,
+        'rowsGroup': [5],
         language: {
             emptyTable: "No shifts found in the specified data range."
         },
         columns: [
             {
-                data: "shift_timestamp",
+                data: "data_timestamp",
                 title: "Date",
                 render (data, type, full, meta) {
                     return moment(data).format("YYYY-MM-DD");
@@ -292,11 +292,11 @@ function plotReleasesTable (table_data) {
                 }
             },
             {
-                data: "latest_release_id",
+                data: "release_id",
                 title: "EWI Release",
                 render (data, type, full, meta) {
-                    const time_of_release = moment(full.shift_timestamp).format("HH:mm");
-                    return `<a href='/../monitoring/events/${full.event_id}/${data}'>EWI Release for ${full.time_of_release}</a>`;
+                    const time_of_release = moment(full.data_timestamp).add(30, "minutes").format("HH:mm");
+                    return `<a href='/../monitoring/events/${full.event_id}/${data}'>EWI Release for ${time_of_release}</a>`;
                 }
             },
             {
