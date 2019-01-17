@@ -75,7 +75,6 @@ function connectWS() {
 					$("#call-log-modal").modal('hide');
 					$("#data_timestamp").val("");
 					$("#call_log_message").val("");
-					updateSmsInbox(msg_data);
 					updateConversationBubble(msg_data);
 					$.notify("Succesfully added call log!", "success");
 					$("li.clearfix").last().addClass("tagged");
