@@ -45,7 +45,9 @@ $(document).ready(function() {
 	initializeOnClickAddMobileForEmployee();
 	initializeOnClickAddMobileForCommunity();
 	initializeOnClickUnregistered();
-	getUnregisteredNumber();
+	if (window.location == window.location.host+"/communications/chatterbox_beta") {
+		getUnregisteredNumber();
+	}
 });
 
 function initializeOnClickSendRoutine () {
@@ -1529,7 +1531,7 @@ function initializeEmployeeContactGroupSending() {
 }
 
 function initializeSemiAutomatedGroundMeasurementReminder() {
-    $("#btn-automation-settings").on("click",function() {
+    $('#btn-automation-settings, #dashboard-gndmeas-settings').on("click",function() {
     	$("#gnd-meas-category").val("event");
         let special_case_length = $(".special-case-template").length;
         special_case_num = 0;
@@ -1770,5 +1772,4 @@ function loadSiteConvoViaQacess() {
 		}
     	
     });
-
 }

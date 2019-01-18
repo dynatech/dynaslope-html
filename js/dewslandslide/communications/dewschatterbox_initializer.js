@@ -583,6 +583,7 @@ function getInitialQuickInboxMessages () {
 
 function displaySitesForGndMeasReminder(data) {
     gnd_meas_overwrite = "new";
+    console.log(data);
     ground_meas_reminder_data = data;
     const currentDate = new Date();
     const current_meridiem = currentDate.getHours();
