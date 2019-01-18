@@ -1,484 +1,503 @@
 /****
  *
  *  Created by Kevin Dhale dela Cruz
- *  JS file for Accomplishment Report Filing Form - 
+ *  JS file for Accomplishment Report Filing Form -
  *  Narrative Tab[reports/accomplishment_report.php]
  *  [host]/reports/accomplishment/form
- *  
+ *
 ****/
 
-$(document).ready(function() 
-{
-	$('.timestamp_date').datetimepicker({
-        format: 'YYYY-MM-DD',
+let SITES_ARR = [];
+let SELECTION_ARR = [];
+
+let NARRATIVE_TABLE = null;
+let NARRATIVES_ARR = [];
+let HAS_EDITS = false;
+
+let CURRENT_NARRATIVE_INDEX = null;
+let CURRENT_NARRATIVE_ID = null;
+
+$(document).ready(() => {
+    reposition("#narrative-confirmation-modal");
+    reposition("#edit-modal");
+    reposition("#narrative-success-modal");
+
+    initializeFormTimestamps();
+    NARRATIVE_TABLE = initializeNarrativeTable(NARRATIVES_ARR);
+    initializeNarrativeTableIconsOnClick();
+
+    initializeSiteLinkOnDropDownOnClick();
+    initializeClearSitesBtnOnClick();
+    initializeNarrativeForm();
+    initializeEditModalForm();
+
+    initializeDeleteNarrativeBtnOnClick();
+});
+
+function initializeFormTimestamps () {
+    $(".timestamp_date").datetimepicker({
+        format: "YYYY-MM-DD",
         allowInputToggle: true,
         widgetPositioning: {
-            horizontal: 'right',
-            vertical: 'bottom'
+            horizontal: "right",
+            vertical: "bottom"
         }
     });
-    $('.timestamp_time').datetimepicker({
-        format: 'HH:mm:00',
+    $(".timestamp_time").datetimepicker({
+        format: "HH:mm:00",
         allowInputToggle: true,
         widgetPositioning: {
-            horizontal: 'right',
-            vertical: 'bottom'
+            horizontal: "right",
+            vertical: "bottom"
         }
     });
+}
 
-	let narrativeTable = null, narratives = [], original = [];
-    let hasEdit = false;
-    narrativeTable = showNarrative(narratives);
+function initializeNarrativeTable (result) {
+    $.fn.dataTable.moment("D MMMM YYYY HH:mm:ss");
 
-    reposition("#saveNarrativeModal");
+    const table = $("#narrative-table").DataTable({
+        data: result,
+        columns: [
+            {
+                data: "site_code",
+                render (data, type, full) {
+                    return data.toUpperCase();
+                },
+                className: "text-left"
+            },
+            {
+                data: "timestamp",
+                render (data, type, full) {
+                    return data == null ? "N/A" : moment(data).format("D MMMM YYYY HH:mm:ss");
+                },
+                name: "timestamp",
+                className: "text-right"
+            },
+            {
+                data: "narrative"
+            },
+            {
+                data: "id",
+                render (data, type, full) {
+                    const x = typeof data === "undefined" ? -1 : data;
+                    return `<i class="glyphicon glyphicon-edit" aria-hidden="true"></i>&emsp;<i id=${x} class="glyphicon glyphicon-trash" aria-hidden="true"></i>`;
+                },
+                className: "text-center"
+            }
+        ],
+        columnDefs: [
+            { orderable: false, targets: [2, 3] }
+        ],
+        rowCallback (row, data, index) {
+            if (typeof data.id === "undefined") $(row).css("background-color", "rgba(0, 255, 89, 0.5)");
+            else if (typeof data.isEdited !== "undefined") { $(row).css("background-color", "rgba(255, 255, 51, 0.5)"); }
+        },
+        dom: "Bfrtip",
+        buttons: [
+            {
+                className: "btn btn-danger save",
+                text: "Save Narratives",
+                action (e, dt, node, config) {
+                    $("#save_message, #cancel").show();
+                    $("#change_message, #discard").hide();
 
-    $('#site-list').dropdown();
-    let sites = [], event_ids = [];
-    $( '#site-list.dropdown-menu a' ).on( 'click', function( event )
-    {
-        console.log("Clicked");
-        var $target = $( event.currentTarget ),
-        val = $target.attr( 'data-value' ),
-        event_id = $target.attr( 'data-event' ),
-        $inp = $target.find( 'input' ),
-        idx;
+                    NARRATIVES_ARR.forEach((item, i, arr) => {
+                        if (item.event_id === "none") item.event_id = null;
+                    });
+                    const data = { narratives: JSON.stringify(NARRATIVES_ARR) };
+                    insertNarratives(data);
+                }
+            }
+        ],
+        processing: true,
+        order: [[1, "desc"]],
+        filter: true,
+        info: false,
+        paginate: true
+    });
 
-        if ( ( idx = sites.indexOf( val ) ) > -1 ) 
-        {
-            sites.splice( idx, 1 ); event_ids.splice(idx, 1);
-            setTimeout( function() { $inp.prop( 'checked', false ) }, 0);
+    $("td").css("vertical-align", "middle");
+
+    return table;
+}
+
+function initializeNarrativeTableIconsOnClick () {
+    const $narrative_tbody = $("#narrative-table tbody");
+
+    $narrative_tbody.on("click", "tr .glyphicon-trash", ({ currentTarget }) => {
+        const self = $(currentTarget);
+        CURRENT_NARRATIVE_ID = self.prop("id");
+        delegate(self);
+
+        $(".delete-warning").show();
+        $("#edit-modal input, #edit-modal textarea").prop("disabled", true);
+        $("#update").hide();
+        $("#edit-modal").modal({ backdrop: "static", keyboard: false, show: true });
+    });
+
+    $narrative_tbody.on("click", "tr .glyphicon-edit", ({ currentTarget }) => {
+        const self = $(currentTarget);
+        delegate(self);
+
+        $(".delete-warning").hide();
+        $("#update").show();
+        $("#edit-modal input, #edit-modal textarea").prop("disabled", false);
+        $("#edit-modal").modal({ backdrop: "static", keyboard: false, show: true });
+    });
+}
+
+function delegate (self) {
+    const index = NARRATIVE_TABLE.row(self.parents("tr")).index();
+    const x = NARRATIVES_ARR.slice(index, index + 1).pop();
+    const temp = {};
+    for (let key in x) {
+        if (x.hasOwnProperty(key)) {
+            temp[key] = x[key];
+        }
+    }
+    CURRENT_NARRATIVE_INDEX = index;
+    temp.id = index;
+
+    for (let key in temp) {
+        if (temp.hasOwnProperty(key)) {
+            $(`#${key}_edit`).val(temp[key]);
+        }
+    }
+}
+
+function initializeSiteLinkOnDropDownOnClick () {
+    String.prototype.replaceAll = function (search, replacement) {
+        const target = this;
+        return target.replace(new RegExp(search, "g"), replacement);
+    };
+
+    $("#site-list.dropdown-menu a").on("click", (event) => {
+        const $target = $(event.currentTarget);
+        const {
+            value: val,
+            event: event_id,
+            site: site_id
+        } = $target.data();
+        const $inp = $target.find("input");
+        const idx = SITES_ARR.indexOf(val);
+
+        if (idx > -1) {
+            SITES_ARR.splice(idx, 1);
+            SELECTION_ARR.splice(idx, 1);
+            setTimeout(() => { $inp.prop("checked", false); }, 0);
         } else {
-            sites.push( val ); event_ids.push( event_id );
-            setTimeout( function() { $inp.prop( 'checked', true ) }, 0);
+            SITES_ARR.push(val);
+            SELECTION_ARR.push({ event_id, site_id });
+            setTimeout(() => { $inp.prop("checked", true); }, 0);
         }
 
-        $( event.target ).blur();
-        var str = sites.toString();
-        String.prototype.replaceAll = function(search, replacement) {
-            var target = this;
-            return target.replace(new RegExp(search, 'g'), replacement);
-        };
-        str = str.replaceAll("," , ", ");
+        $(event.target).blur();
+        let str = SITES_ARR.toString();
+        str = str.replaceAll(",", ", ");
         $("#sites").val(str);
 
-        if( event_ids.length > 0 )
-        {
-            if(hasEdit)
-            {
+        if (SELECTION_ARR.length > 0) {
+            if (HAS_EDITS) {
                 $("#save_message, #cancel").hide();
                 $("#change_message, #discard").show();
-                $('#saveNarrativeModal').modal({ backdrop: 'static', keyboard: false });
-                $("#saveNarrativeModal").modal("show");
-            }
-            else getNarratives(event_ids);
-        }
-        else 
-        {
-            narrativeTable.clear();
-            narrativeTable.draw();
-            hasEdit = false;
+                $("#narrative-confirmation-modal").modal({ backdrop: "static", keyboard: false, show: true });
+            } else getNarratives(SELECTION_ARR);
+        } else {
+            NARRATIVE_TABLE.clear();
+            NARRATIVE_TABLE.draw();
+            HAS_EDITS = false;
         }
 
         return false;
     });
+}
 
-    $("#clear-sites").click( function (argument) {
-        if(hasEdit)
-        {
+function initializeClearSitesBtnOnClick () {
+    $("#clear-sites").click(() => {
+        if (HAS_EDITS) {
             $("#save_message, #cancel").hide();
             $("#change_message, #discard").show();
-            $('#saveNarrativeModal').modal({ backdrop: 'static', keyboard: false });
-            $("#saveNarrativeModal").modal("show");
-        }
-        else {
-            sites = []; event_ids = [];
+            $("#narrative-confirmation-modal").modal({ backdrop: "static", keyboard: false, show: true });
+        } else {
+            SITES_ARR = [];
+            SELECTION_ARR = [];
             $(".site-checkbox").prop("checked", false);
             $("#sites").val("");
-            hasEdit = false;
-            narrativeTable.clear();
-            narratives = [];
-            narrativeTable.rows.add(narratives).draw();
+            HAS_EDITS = false;
+            NARRATIVE_TABLE.clear();
+            NARRATIVES_ARR = [];
+            NARRATIVE_TABLE.rows.add(NARRATIVES_ARR).draw();
         }
-        
+    });
+}
+
+function getNarratives (selection_arr) {
+    const event_ids = [];
+    const site_ids = [];
+    selection_arr.forEach(({ event_id, site_id }) => {
+        event_ids.push(event_id);
+        site_ids.push(site_id);
     });
 
-    function getNarratives(event_ids) 
-    {
-        $.get( "../../accomplishment/getNarratives/", {event_ids: event_ids})
-        .done( function (data) {
-                let arr = JSON.parse(data);
-                original = arr.slice(0);
-                narratives = arr.slice(0);
-                console.log(narratives);
-                narrativeTable.clear();
-                narrativeTable.rows.add(narratives).draw();
-        });
-    }
+    $.getJSON("../../accomplishment/getNarratives/", { event_ids, site_ids })
+    .done((data) => {
+        NARRATIVES_ARR = data.slice();
+        NARRATIVE_TABLE.clear();
+        NARRATIVE_TABLE.rows.add(NARRATIVES_ARR).draw();
+    });
+}
 
-    let index_global = null, narrative_id = null;
-    jQuery.validator.addMethod("isUniqueTimestamp", function(value, element, param) {
-    	let timestamp = null;
-    	if( $(element).prop('id') == "timestamp_time" )
-    	{
-    		let date = $("#timestamp_date").val();
-        	timestamp = date + " " + value;
-    	} else timestamp = $("#timestamp_edit").val();
+function insertNarratives (data) {
+    $("#loading .progress-bar").text("Saving...");
+    $("#loading").modal("show");
 
-        let i = narratives.map( el => el.timestamp ).indexOf(timestamp);
-        if( $(element).prop("id") === 'timestamp_time' ) 
-        { 
-        	if( i < 0 ) return true; else false; 
+    $.ajax({
+        url: "../../accomplishment/insertNarratives",
+        type: "POST",
+        data
+    })
+    .done((result) => {
+        console.log(result);
+        setTimeout(() => {
+            $("#narrative-success-modal").modal({ backdrop: "static", keyboard: false, show: true });
+        }, 500);
+    })
+    .fail(({ xhr, status, error }) => {
+        const err = xhr.responseText;
+        console.log(err);
+        alert(err);
+    })
+    .always(() => {
+        $("#loading").modal("hide");
+    });
+}
+
+function initializeNarrativeForm () {
+    jQuery.validator.addMethod("isUniqueTimestamp", (value, element, param) => {
+        let timestamp = null;
+        if ($(element).prop("id") === "timestamp_time") {
+            const date = $("#timestamp_date").val();
+            timestamp = `${date} ${value}`;
+        } else timestamp = $("#timestamp_edit").val();
+
+        const i = NARRATIVES_ARR.map(el => el.timestamp).indexOf(timestamp);
+        if ($(element).prop("id") === "timestamp_time") {
+            if (i < 0) return true;
+            return false;
         }
-        else { if( i < 0 || i == index_global ) return true; else false; }
-        
+
+        if (i < 0 || i === CURRENT_NARRATIVE_INDEX) return true;
+
+        return false;
     }, "Add a new timestamp or edit the entry with the same timestamp to include new narrative development.");
 
-    jQuery.validator.addMethod("noSpace", function(value, element) { 
-        console.log(value[0]);
-        return value.trim() != ""; 
-    }, "Write a narrative before adding.");
+    jQuery.validator.addMethod("noSpace", (value, element) => value.trim() !== "", "Write a narrative before adding.");
 
-    jQuery.validator.addMethod("hasSiteChecked", function(value, element) {
-        if( $('.site-checkbox:checked').length > 0 ) {
+    jQuery.validator.addMethod("hasSiteChecked", (value, element) => {
+        if ($(".site-checkbox:checked").length > 0) {
             return true;
-        } else false;
-         
+        }
+        return false;
     }, "Please choose a site.");
 
-    $("#narrativeForm").validate(
-    {
-        rules: {
-            sites: {
-                hasSiteChecked: true
-            },
-            timestamp_date: {
-                required: true,
-            },
-            timestamp_time: {
-                required: true,
-                isUniqueTimestamp: true
-            },
-            event_id: {
-                required: true
-            },
-            narrative: {
-                required: true,
-                noSpace: true
-            }
-        },
-        errorPlacement: function ( error, element ) {
-
-            var placement = $(element).closest('.form-group');
-            //console.log(placement);
-            
-            if( $(element).hasClass("cbox_trigger_switch") )
-            {
-                $("#errorLabel").append(error).show();
-            }
-            else if (placement) {
-                $(placement).append(error)
-            } else {
-                error.insertAfter(placement);
-            } //remove on success 
-
-            element.parents( ".form-group" ).addClass( "has-feedback" );
-
-            // Add the span element, if doesn't exists, and apply the icon classes to it.
-            if ( !element.next( "span" )[ 0 ] ) {
-                if(element.parent().is(".datetime") || element.parent().is(".datetime")) element.next("span").css("right", "15px");
-                if(element.is("select")) element.next("span").css({"top": "18px", "right": "30px"});
-                if(element.is("input[type=number]")) element.next("span").css({"top": "18px", "right": "13px"});
-            }
-        },
-        success: function ( label, element ) {
-            // Add the span element, if doesn't exists, and apply the icon classes to it.
-            if ( !$( element ).next( "span" )) {
-                $( "<span class='glyphicon glyphicon-ok form-control-feedback' style='top:0px; right:37px;'></span>" ).insertAfter( $( element ) );
-            }
-
-            $(element).closest(".form-group").children("label.error").remove();
-        },
-        highlight: function ( element, errorClass, validClass ) {
-            $( element ).parents( ".form-group" ).addClass( "has-error" ).removeClass( "has-success" );
-            if($(element).parent().is(".datetime") || $(element).parent().is(".time")) {
-                $( element ).nextAll( "span.glyphicon" ).remove();
-                $( "<span class='glyphicon glyphicon-remove form-control-feedback' style='top:0px; right:37px;'></span>" ).insertAfter( $( element ) );
-            }
-            else $( element ).next( "span" ).addClass( "glyphicon-remove" ).removeClass( "glyphicon-ok" );
-        },
-        unhighlight: function ( element, errorClass, validClass ) {
-            $( element ).parents( ".form-group" ).addClass( "has-success" ).removeClass( "has-error" );
-            if($(element).parent().is(".datetime") || $(element).parent().is(".time")) {
-                $( element ).nextAll( "span.glyphicon" ).remove();
-                $( "<span class='glyphicon glyphicon-ok form-control-feedback' style='top:0px; right:37px;'></span>" ).insertAfter( $( element ) );
-            }
-            else $( element ).next( "span" ).addClass( "glyphicon-ok" ).removeClass( "glyphicon-remove" );
-        },
-        submitHandler: function (form) 
+    $("#narrative-form").validate(
         {
-            let data = $( "#narrativeForm" ).serializeArray();
-            let temp = {};
-            temp.narrative = $("#narrative").val();
-            temp.narrative = temp.narrative.trim();
-            temp.timestamp = $("#timestamp_date").val() + " " + $("#timestamp_time").val();
-
-            $(".site-checkbox:checked").each(function (i, obj) {
-                let x = jQuery.extend(true, {}, temp);
-                x.event_id = $(obj).parent().data("event");
-                x.name = $(obj).parent().data("value");
-                narratives.push(x);
-            });
-
-            console.log("NEW", narratives);
-            hasEdit = true;
-            narrativeTable.clear();
-            narrativeTable.rows.add(narratives).draw();
-        }
-    });
-
-    function showNarrative(result) 
-    {
-        $.fn.dataTable.moment( 'D MMMM YYYY HH:mm:ss' );
-        
-        var table = $('#narrativeTable').DataTable({
-            data: result,
-            "columns": [
-                { 
-                    "data": "name",
-                    "render": function (data, type, full) {
-                        return data.toUpperCase();
-                    },
-                    className: "text-left"
+            rules: {
+                sites: {
+                    hasSiteChecked: true
                 },
-                { 
-                    "data": "timestamp",
-                    "render": function (data, type, full) {
-                        return full.timestamp == null ? "N/A" : moment(full.timestamp).format("D MMMM YYYY HH:mm:ss");
-                    },
-                    "name": "timestamp",
-                    className: "text-right"
+                timestamp_date: {
+                    required: true
                 },
-                {
-                    data: "narrative"
+                timestamp_time: {
+                    required: true,
+                    isUniqueTimestamp: true
                 },
-                {
-                    data: "id",
-                    "render": function (data, type, full) {                        
-                        let x = typeof data == 'undefined' ? -1 : data;
-                        return '<i class="glyphicon glyphicon-edit" aria-hidden="true"></i>&emsp;<i id='+ x +' class="glyphicon glyphicon-trash" aria-hidden="true"></i>';
-                    },
-                    className: "text-center"
+                event_id: {
+                    required: true
+                },
+                narrative: {
+                    required: true,
+                    noSpace: true
                 }
-            ],
-            "columnDefs": [
-                { "orderable": false, "targets": [2, 3] }
-            ],
-            "rowCallback": function( row, data, index ) 
-            {
-                if( typeof data.id == "undefined" )
-                    $(row).css("background-color", "rgba(0, 255, 89, 0.5)" );
-                else if ( typeof data.isEdited !== "undefined" ) 
-                    $(row).css("background-color", "rgba(255, 255, 51, 0.5)" );
             },
-            dom: 'Bfrtip',
-            "buttons": [
-                {
-                    className: 'btn btn-danger save',
-                    text: 'Save Narratives',
-                    action: function ( e, dt, node, config ) 
-                    {
-                        $("#save_message, #cancel").show();
-                        $("#change_message, #discard").hide();
-                        $("#saveNarrativeModal").modal("show");
-                    }
+            errorPlacement (error, element) {
+                var placement = $(element).closest(".form-group");
+                // console.log(placement);
+
+                if ($(element).hasClass("cbox_trigger_switch")) {
+                    $("#errorLabel").append(error).show();
+                } else if (placement) {
+                    $(placement).append(error);
+                } else {
+                    error.insertAfter(placement);
+                } // remove on success
+
+                element.parents(".form-group").addClass("has-feedback");
+
+                // Add the span element, if doesn't exists, and apply the icon classes to it.
+                if (!element.next("span")[0]) {
+                    if (element.parent().is(".datetime") || element.parent().is(".datetime")) element.next("span").css("right", "15px");
+                    if (element.is("select")) element.next("span").css({ top: "18px", right: "30px" });
+                    if (element.is("input[type=number]")) element.next("span").css({ top: "18px", right: "13px" });
                 }
-            ],
-            "processing": true,
-            "order" : [[1, "desc"]],
-            "filter": true,
-            "info": false,
-            "paginate": true        
-        });
-
-        $("td").css("vertical-align", "middle");
-
-        return table;
-    }
-
-    function delegate(self) 
-    {
-        let index = narrativeTable.row(self.parents("tr")).index();
-        let x = narratives.slice(index, index + 1).pop();
-        let temp = {};
-        for (var key in x) {
-            if (x.hasOwnProperty(key)) {
-                temp[key] = x[key];
-            }
-        }
-        index_global = temp.id = index;
-        // console.log(temp);
-        // console.log(narratives);
-        for (var key in temp) {
-            if (temp.hasOwnProperty(key)) {
-                $("#" + key + "_edit").val(temp[key]);
-            }
-        }
-    }
-
-    reposition("#editModal");
-
-    $("#narrativeTable tbody").on("click", "tr .glyphicon-trash", function (e) {
-        let self = $(this);
-        narrative_id = this.id;
-        console.log(narrative_id);
-        delegate(self);
-        $(".delete-warning").show();
-        $("#editModal input, #editModal textarea").prop("disabled", true);
-        $("#update").hide();
-        $('#editModal').modal({ backdrop: 'static', keyboard: false, show: true });
-    });
-
-    $("#delete").click(function () {
-        narratives.splice(index_global, 1);
-        narrativeTable.clear();
-        narrativeTable.rows.add(narratives).draw();
-        if( narrative_id != -1 ) {
-            $.post("../../accomplishment/deleteNarrative", { narrative_id: narrative_id } )
-            .fail(function(xhr, status, error) {
-              let err = eval("(" + xhr.responseText + ")");
-              console.log(err.Message);
-            });
-        }
-    });
-
-    $("#narrativeTable tbody").on("click", "tr .glyphicon-edit", function (e) {
-        let self = $(this);
-        delegate(self);
-        $(".delete-warning").hide();
-        $("#update").show();
-        $("#editModal input, #editModal textarea").prop("disabled", false);
-        $('#editModal').modal({ backdrop: 'static', keyboard: false, show: true });
-    });
-
-    let edit_validate = $("#editForm").validate(
-    {
-        rules: {
-            timestamp_edit: {
-                required: true,
-                isUniqueTimestamp: true
             },
-            narrative_edit: {
-                required: true
-            }
-        },
-        errorPlacement: function ( error, element ) {
-
-            var placement = $(element).closest('.form-group');
-            //console.log(placement);
-            
-            if( $(element).hasClass("cbox_trigger_switch") )
-            {
-                $("#errorLabel").append(error).show();
-            }
-            else if (placement) {
-                $(placement).append(error)
-            } else {
-                error.insertAfter(placement);
-            } //remove on success 
-
-            element.parents( ".form-group" ).addClass( "has-feedback" );
-
+            success (label, element) {
             // Add the span element, if doesn't exists, and apply the icon classes to it.
-            if ( !element.next( "span" )[ 0 ] ) {
-                if(element.parent().is(".datetime") || element.parent().is(".datetime")) element.next("span").css("right", "15px");
-                if(element.is("select")) element.next("span").css({"top": "18px", "right": "30px"});
-                if(element.is("input[type=number]")) element.next("span").css({"top": "18px", "right": "13px"});
-            }
-        },
-        success: function ( label, element ) {
-            // Add the span element, if doesn't exists, and apply the icon classes to it.
-            if ( !$( element ).next( "span" )) {
-                $( "<span class='glyphicon glyphicon-ok form-control-feedback' style='top:0px; right:37px;'></span>" ).insertAfter( $( element ) );
-            }
+                if (!$(element).next("span")) {
+                    $("<span class='glyphicon glyphicon-ok form-control-feedback' style='top:0px; right:37px;'></span>").insertAfter($(element));
+                }
 
-            $(element).closest(".form-group").children("label.error").remove();
-        },
-        highlight: function ( element, errorClass, validClass ) {
-            $( element ).parents( ".form-group" ).addClass( "has-error" ).removeClass( "has-success" );
-            if($(element).parent().is(".datetime") || $(element).parent().is(".time")) {
-                $( element ).nextAll( "span.glyphicon" ).remove();
-                $( "<span class='glyphicon glyphicon-remove form-control-feedback' style='top:0px; right:37px;'></span>" ).insertAfter( $( element ) );
+                $(element).closest(".form-group").children("label.error").remove();
+            },
+            highlight (element, errorClass, validClass) {
+                $(element).parents(".form-group").addClass("has-error").removeClass("has-success");
+                if ($(element).parent().is(".datetime") || $(element).parent().is(".time")) {
+                    $(element).nextAll("span.glyphicon").remove();
+                    $("<span class='glyphicon glyphicon-remove form-control-feedback' style='top:0px; right:37px;'></span>").insertAfter($(element));
+                } else $(element).next("span").addClass("glyphicon-remove").removeClass("glyphicon-ok");
+            },
+            unhighlight (element, errorClass, validClass) {
+                $(element).parents(".form-group").addClass("has-success").removeClass("has-error");
+                if ($(element).parent().is(".datetime") || $(element).parent().is(".time")) {
+                    $(element).nextAll("span.glyphicon").remove();
+                    $("<span class='glyphicon glyphicon-ok form-control-feedback' style='top:0px; right:37px;'></span>").insertAfter($(element));
+                } else $(element).next("span").addClass("glyphicon-ok").removeClass("glyphicon-remove");
+            },
+            submitHandler (form) {
+                const temp = {};
+                temp.narrative = $("#narrative").val();
+                temp.narrative = temp.narrative.trim();
+                temp.timestamp = `${$("#timestamp_date").val()} ${$("#timestamp_time").val()}`;
+
+                $(".site-checkbox:checked").each((i, obj) => {
+                    const {
+                        event: event_id,
+                        site: site_id,
+                        value: site_code
+                    } = $(obj).parent().data();
+                    const x = {
+                        ...temp,
+                        event_id,
+                        site_id,
+                        site_code
+                    };
+                    NARRATIVES_ARR.push(x);
+                });
+
+                HAS_EDITS = true;
+                NARRATIVE_TABLE.clear();
+                NARRATIVE_TABLE.rows.add(NARRATIVES_ARR).draw();
             }
-            else $( element ).next( "span" ).addClass( "glyphicon-remove" ).removeClass( "glyphicon-ok" );
-        },
-        unhighlight: function ( element, errorClass, validClass ) {
-            $( element ).parents( ".form-group" ).addClass( "has-success" ).removeClass( "has-error" );
-            if($(element).parent().is(".datetime") || $(element).parent().is(".time")) {
-                $( element ).nextAll( "span.glyphicon" ).remove();
-                $( "<span class='glyphicon glyphicon-ok form-control-feedback' style='top:0px; right:37px;'></span>" ).insertAfter( $( element ) );
-            }
-            else $( element ).next( "span" ).addClass( "glyphicon-ok" ).removeClass( "glyphicon-remove" );
-        },
-        submitHandler: function (form) 
+        }
+    );
+}
+
+function initializeEditModalForm () {
+    const edit_validate = $("#edit-narrative-form").validate(
         {
-            let data = $( "#editForm" ).serializeArray();
-            let temp = {};
-            data.forEach(function (value) {
-                value.name = value.name.replace("_edit", "");
-                temp[value.name] = value.value == "" ? null : value.value;
-            });
+            rules: {
+                timestamp_edit: {
+                    required: true,
+                    isUniqueTimestamp: true
+                },
+                narrative_edit: {
+                    required: true
+                }
+            },
+            errorPlacement (error, element) {
+                var placement = $(element).closest(".form-group");
+                // console.log(placement);
 
-            console.log(temp);
-            let index = temp.id;
-            narratives[index].timestamp = temp.timestamp;
-            narratives[index].narrative = temp.narrative;
-            if(typeof narratives[index].id !== 'undefined') narratives[index].isEdited = true;
-            console.log("NAR", narratives);
-            $("#editModal").modal("hide");
-            hasEdit = true;
+                if ($(element).hasClass("cbox_trigger_switch")) {
+                    $("#errorLabel").append(error).show();
+                } else if (placement) {
+                    $(placement).append(error);
+                } else {
+                    error.insertAfter(placement);
+                } // remove on success
 
-            narrativeTable.clear();
-            narrativeTable.rows.add(narratives).draw();
+                element.parents(".form-group").addClass("has-feedback");
+
+                // Add the span element, if doesn't exists, and apply the icon classes to it.
+                if (!element.next("span")[0]) {
+                    if (element.parent().is(".datetime") || element.parent().is(".datetime")) element.next("span").css("right", "15px");
+                    if (element.is("select")) element.next("span").css({ top: "18px", right: "30px" });
+                    if (element.is("input[type=number]")) element.next("span").css({ top: "18px", right: "13px" });
+                }
+            },
+            success (label, element) {
+            // Add the span element, if doesn't exists, and apply the icon classes to it.
+                if (!$(element).next("span")) {
+                    $("<span class='glyphicon glyphicon-ok form-control-feedback' style='top:0px; right:37px;'></span>").insertAfter($(element));
+                }
+
+                $(element).closest(".form-group").children("label.error").remove();
+            },
+            highlight (element, errorClass, validClass) {
+                $(element).parents(".form-group").addClass("has-error").removeClass("has-success");
+                if ($(element).parent().is(".datetime") || $(element).parent().is(".time")) {
+                    $(element).nextAll("span.glyphicon").remove();
+                    $("<span class='glyphicon glyphicon-remove form-control-feedback' style='top:0px; right:37px;'></span>").insertAfter($(element));
+                } else $(element).next("span").addClass("glyphicon-remove").removeClass("glyphicon-ok");
+            },
+            unhighlight (element, errorClass, validClass) {
+                $(element).parents(".form-group").addClass("has-success").removeClass("has-error");
+                if ($(element).parent().is(".datetime") || $(element).parent().is(".time")) {
+                    $(element).nextAll("span.glyphicon").remove();
+                    $("<span class='glyphicon glyphicon-ok form-control-feedback' style='top:0px; right:37px;'></span>").insertAfter($(element));
+                } else $(element).next("span").addClass("glyphicon-ok").removeClass("glyphicon-remove");
+            },
+            submitHandler (form) {
+                const data = $("#edit-narrative-form").serializeArray();
+                const temp = {};
+                data.forEach((value) => {
+                    value.name = value.name.replace("_edit", "");
+                    temp[value.name] = value.value === "" ? null : value.value;
+                });
+
+                const index = temp.id;
+                NARRATIVES_ARR[index].timestamp = temp.timestamp;
+                NARRATIVES_ARR[index].narrative = temp.narrative;
+                if (typeof NARRATIVES_ARR[index].id !== "undefined") NARRATIVES_ARR[index].isEdited = true;
+                $("#edit-modal").modal("hide");
+                HAS_EDITS = true;
+
+                NARRATIVE_TABLE.clear();
+                NARRATIVE_TABLE.rows.add(NARRATIVES_ARR).draw();
+            }
+        }
+    );
+
+    $("#cancel").click(() => { edit_validate.resetForm(); });
+}
+
+function initializeDeleteNarrativeBtnOnClick () {
+    $("#edit-modal #delete").click(() => {
+        NARRATIVES_ARR.splice(CURRENT_NARRATIVE_INDEX, 1);
+        NARRATIVE_TABLE.clear();
+        NARRATIVE_TABLE.rows.add(NARRATIVES_ARR).draw();
+
+        if (CURRENT_NARRATIVE_ID !== -1) {
+            deleteNarratives(CURRENT_NARRATIVE_ID);
         }
     });
 
-    $("#cancel").click(function () { edit_validate.resetForm(); })
-
-    $("#save_narrative").click(function () 
-    {
-        $("#saveNarrativeModal").modal('hide');
-        setTimeout(function () 
-        {
-            $("#loading .progress-bar").text("Saving...");
-            $("#loading").modal("show");
-
-            let data = { narratives: JSON.stringify(narratives) };
-            $.ajax({
-                url: "../../accomplishment/insertNarratives",
-                type: "POST",
-                data : data,
-                success: function(result, textStatus, jqXHR)
-                {
-                    $('.js-loading-bar').modal('hide');
-                    console.log(result);
-                    setTimeout(function () 
-                    {
-                        reposition("#saveNarrativeSuccess");
-                        $('#saveNarrativeSuccess').modal({ backdrop: 'static', keyboard: false, show: true });
-                    }, 500);
-                },
-                error: function(xhr, status, error) {
-                  var err = eval("(" + xhr.responseText + ")");
-                  alert(err.Message);
-                }
-            });
-        }, 500)
-        
+    $(".okay, #discard").click(() => {
+        getNarratives(SELECTION_ARR);
+        HAS_EDITS = false;
     });
+}
 
-    $(".okay, #discard").click(function (argument) {
-        getNarratives(event_ids);
-        hasEdit = false;
+function deleteNarratives (narrative_id) {
+    $.post("../../accomplishment/deleteNarrative", { narrative_id })
+    .done(() => {
+        $("#narrative-success-modal").modal({ backdrop: "static", keyboard: false, show: true });
+    })
+    .fail((xhr, status, error) => {
+        const err = xhr.responseText;
+        console.log(err);
+        alert(err);
     });
-
-});
+}

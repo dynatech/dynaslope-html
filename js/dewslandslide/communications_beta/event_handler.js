@@ -46,6 +46,7 @@ $(document).ready(function() {
 	initializeOnClickAddMobileForCommunity();
 	initializeOnClickUnregistered();
 	getUnregisteredNumber();
+	initializeOnClickCallLogModal();
 });
 
 function initializeOnClickSendRoutine () {
@@ -165,6 +166,9 @@ function initializeContactSettingsButton () {
 
 function initializeContactCategoryOnSelectDesign () {
 	$('#contact-category option').prop('selected', function() {
+		$("#contact-priority-panel").hide(300);
+		$("#contact-priority-alert-message").hide();
+		$("#contact-hierarchy-table-container").hide();
 		$('#contact-category').css("border-color", "#d6d6d6");
 		$('#contact-category').css("background-color", "inherit");
 		return this.defaultSelected;
@@ -173,6 +177,9 @@ function initializeContactCategoryOnSelectDesign () {
 
 function initializeSettingsOnSelectDesign () {
 	$('#settings-cmd option').prop('selected', function() {
+		$("#contact-priority-panel").hide(300);
+		$("#contact-priority-alert-message").hide();
+		$("#contact-hierarchy-table-container").hide();
 		$('#settings-cmd').prop('disabled',true);
 		$('#settings-cmd').css("border-color", "#d6d6d6");
 		$('#settings-cmd').css("background-color", "inherit");
@@ -222,6 +229,7 @@ function initializeContactSettingsOnChange () {
 		$("#landline-div").empty();
 		$("#mobile-div-cc").empty();
 		$("#landline-div-cc").empty();
+		$("#contact-hierarchy-table-container").hide();
 		if ($('#settings-cmd').val() != 'default') {
 			$('#settings-cmd').css("border-color", "#3c763d");
 			$('#settings-cmd').css("background-color", "#dff0d8");
@@ -1765,3 +1773,4 @@ function loadSiteConvoViaQacess() {
     });
 
 }
+

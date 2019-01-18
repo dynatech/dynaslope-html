@@ -56,6 +56,9 @@ function connectWS() {
 					displayConversationPanel(msg_data.data,msg_data.full_name,msg_data.recipients,msg_data.titles);
 					$('#chatterbox-loader-modal').modal("hide");
 					break;
+				case "fetchContactHierarchy":
+					displayContactHierarchy(msg_data.data);
+					break;
 				case "updatedDwslContact":
 					contactSettingsFeedback(msg_data);
 					break;
@@ -67,6 +70,19 @@ function connectWS() {
 					break;
 				case "sendSms":
 					updateConversationBubble(msg_data);
+					break;
+				case "callLogSaved":
+					$("#call-log-modal").modal('hide');
+					$("#data_timestamp").val("");
+					$("#call_log_message").val("");
+
+					updateConversationBubble(msg_data);
+					if(current_user_id == msg_data.account_id){
+						$.notify("Succesfully added call log!", "success");
+						$(`li.clearfix :input[value="${msg_data.convo_id}<split>${msg_data.mobile_id}<split>${msg_data.user}<split>${msg_data.timestamp}<split>${msg_data.sms_msg}"]`).closest('li.clearfix').addClass('tagged');
+					}else{
+						$(`li.clearfix :input[value="${msg_data.convo_id}<split>${msg_data.mobile_id}<split>${msg_data.user}<split>${msg_data.timestamp}<split>${msg_data.sms_msg}"]`).closest('li.clearfix').remove();
+					}
 					break;
 				case "newAddedDwslContact":
 					displayAddEmployeeContactMessage(msg_data);
@@ -138,6 +154,7 @@ function connectWS() {
 				case "messageTaggingStatus":
 					if (msg_data.status == true) {
 						$.notify(msg_data.status_message, "success");
+						console.log($(this));
 						$(this).closest("li.clearfix").find("input[class='msg_details']").addClass("tagged");
 					} else {
 						$.notify(msg_data.status_message, "err");

@@ -189,11 +189,13 @@ function intializeSubmitButtons () {
         const event_id = $(currentTarget).attr("data-event");
         const internal_alert = $(currentTarget).attr("data-alert");
         const btn_id = $(currentTarget).attr("id");
+        const validity = $(currentTarget).attr("data-validity");
+        const status = $(currentTarget).attr("data-status");
 
         switch (btn_id) {
-            case "send": sendReport(site_code, event_id); break;
+            case "send": sendReport(site_code, event_id, validity, status); break;
             case "refresh-narratives": refreshNarrativesTextArea(event_id, internal_alert, site_code); break;
-            case "download-charts": downloadCharts(site_code); break;
+            case "download-charts": downloadCharts(site_code, validity, status); break;
             default: break;
         }
     });
@@ -469,7 +471,9 @@ function prepareReportDataAndHTML ([shift_triggers, all_triggers]) {
 function getReportBackboneData ([event_release], shift_triggers, all_triggers) {
     const {
         site_code, event_id,
-        mt_first, mt_last, ct_first, ct_last
+        mt_first, mt_last, 
+    ct_first, ct_last,
+    validity
     } = event_release;
 
     const data = {
@@ -485,6 +489,9 @@ function getReportBackboneData ([event_release], shift_triggers, all_triggers) {
     // arranged in DESCENDING TIMESTAMP
     let index = shift_triggers.map(([{ event_id: id }]) => id).indexOf(event_id);
     const triggers_in_shift = index > -1 ? shift_triggers[index] : null;
+
+    // Get validity for EOS timestamp
+    data.validity = validity;
 
     let alert_triggers = null;
     if (data.internal_alert_level !== "A0") {
@@ -598,7 +605,7 @@ function getMostRecentTriggersBeforeShift ({
 
 function buildEndOfShiftReportSiteTabs (data, hasActiveTabAlready) {
     const site_code = data.site;
-    const { event_id, internal_alert_level: alert, validity } = data;
+    const { event_id, internal_alert_level: alert, validity, status } = data;
     const nav_id = `report_nav_${site_code}`;
     const field_id = `report_field_${site_code}`;
 
@@ -621,7 +628,12 @@ function buildEndOfShiftReportSiteTabs (data, hasActiveTabAlready) {
 
     $(`#${field_id} .submit_area button`)
     .attr({
-        disabled: false, "data-site": site_code, "data-event": event_id, "data-alert": alert
+        disabled: false,
+        "data-site": site_code,
+        "data-event": event_id,
+        "data-alert": alert,
+        "data-validity": validity,
+        "data-status": status
     })
     .addClass("submit_buttons");
 
@@ -934,17 +946,17 @@ function initializeFileUploading () {
     });
 }
 
-function sendReport (site_code, event_id) {
+function sendReport (site_code, event_id, validity, status) {
     // Get all three values on textarea reports
     // Get files attached
     // Send
     // Save data analysis/expert opinion part
-
     let final_report = "";
     let analysis_report;
     const recipients = $("#recipients").tagsinput("items");
     const form_data = new FormData();
     const file_data = typeof upload_files[site_code] !== "undefined" ? upload_files[site_code] : [];
+    const time_filed = status === "on-going" ? shift_timestamps.end : validity;
     const is_test = (HOSTNAME.includes("dynaslope.phivolcs.dost.gov.ph")) ? false : true;
     const form = {
         event_id,
@@ -971,7 +983,7 @@ function sendReport (site_code, event_id) {
     .then(
         (x) => {
             form.toAttachRender = true;
-            form.filename = `${site_code.toUpperCase()}_${moment(shift_timestamps.end).format("DDMMMYYYY_hA")}`;
+            form.filename = `${site_code.toUpperCase()}_${moment(time_filed).format("DDMMMYYYY_hA")}`;
         },
         () => {
             form.toAttachRender = false;
@@ -1052,12 +1064,14 @@ function createAutoSaveDataAnalysisInterval () {
     }, 60000);
 }
 
-function downloadCharts (site_code) {
+function downloadCharts (site_code, validity, status) {
+    console.log(validity, status);
+    const time_filed = status === "on-going" ? shift_timestamps.end : validity;
     renderCharts(site_code)
     .done((data) => {
         $("#loading").modal("hide");
         if (data === "Finished") {
-            const filename = `${site_code.toUpperCase()}_${moment(shift_timestamps.end).format("DDMMMYYYY_hA")}`;
+            const filename = `${site_code.toUpperCase()}_${moment(time_filed).format("DDMMMYYYY_hA")}`;
             window.location.href = `/../../chart_export/viewPDF/${filename}.pdf`;
         } else {
             $("#resultModal .modal-body").html("<strong>ERROR:</strong>&ensp;Charts Rendering and Download<br/><br/><i></i>");
