@@ -75,9 +75,14 @@ function connectWS() {
 					$("#call-log-modal").modal('hide');
 					$("#data_timestamp").val("");
 					$("#call_log_message").val("");
+
 					updateConversationBubble(msg_data);
-					$.notify("Succesfully added call log!", "success");
-					$("li.clearfix").last().addClass("tagged");
+					if(current_user_id == msg_data.account_id){
+						$.notify("Succesfully added call log!", "success");
+						$(`li.clearfix :input[value="${msg_data.convo_id}<split>${msg_data.mobile_id}<split>${msg_data.user}<split>${msg_data.timestamp}<split>${msg_data.sms_msg}"]`).closest('li.clearfix').addClass('tagged');
+					}else{
+						$(`li.clearfix :input[value="${msg_data.convo_id}<split>${msg_data.mobile_id}<split>${msg_data.user}<split>${msg_data.timestamp}<split>${msg_data.sms_msg}"]`).closest('li.clearfix').remove();
+					}
 					break;
 				case "newAddedDwslContact":
 					displayAddEmployeeContactMessage(msg_data);
