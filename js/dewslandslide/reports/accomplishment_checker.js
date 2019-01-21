@@ -321,10 +321,14 @@ function plotReleasesTable (staff_id, table_data) {
         language: {
             emptyTable: "No shifts found in the specified data range."
         },
+        order: [
+            [0, "asc"]
+        ],
         columns: [
             {
                 data: "date",
-                title: "Date"
+                title: "Date",
+                display: "none"
             },
             {
                 data: "site_event_code",
