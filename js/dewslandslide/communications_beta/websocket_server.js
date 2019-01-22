@@ -113,7 +113,7 @@ function connectWS() {
 					updateSmsConversationBubble(msg_data.data);
 					break;
 				case "smsoutboxStatusUpdate":
-					updateSmsoutboxConversationBubble(msg_data.data)
+					updateSmsoutboxConversationBubble(msg_data.data);
 					break;
 				case "fetchedImportantTags":
 					displayImportantTags(msg_data.data, true);
