@@ -128,9 +128,9 @@ function sendRoutineSMSToLEWC(raw) { // To be refactored to accomodate custom ro
 						type: 'sendSmsToRecipients',
 						recipients: [contact.mobile_id],
 						message: message + sender,
-						sender_id: current_user_id
+						sender_id: current_user_id,
+						site_id: site.site_id
 					};
-					// console.log(convo_details);
 					wss_connect.send(JSON.stringify(convo_details));   		
 				} catch(err) {
 					console.log(err);
