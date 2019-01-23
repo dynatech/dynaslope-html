@@ -1,3 +1,7 @@
+$(document).ready(() => {
+	initializeAddSpecialCaseButtonOnClick();
+});
+
 function initializeAddSpecialCaseButtonOnClick () {
     $("#add-special-case").click(() => {
         addSpecialCase();

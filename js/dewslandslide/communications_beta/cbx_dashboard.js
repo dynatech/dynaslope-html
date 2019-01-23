@@ -4,6 +4,11 @@ let ewi_timestamp = null;
 let ewi_data_timestamp = null;
 let ewi_event_start = null;
 let temp_ewi_button_container = null;
+
+let special_case_num = 0;
+let special_case_id = 0;
+let site_count = 0;
+
 $(document).ready(() => {
 	let temp_ewi_template_holder = "";
 	console.log("Chatterbox: Dashboard mode...");
