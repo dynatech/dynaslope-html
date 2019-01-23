@@ -41,7 +41,23 @@ let special_case_id = 0;
 let site_count = 0;
 
 let contact_priorities = [];
+let call_log_site = [];
 
+
+Handlebars.registerHelper('breaklines', function(text) {
+    text = Handlebars.Utils.escapeExpression(text);
+    text = text.replace(/(\r\n|\n|\r)/gm, '<br>');
+    return new Handlebars.SafeString(text);
+});
+
+$("#data_timestamp").datetimepicker({
+    format: "YYYY-MM-DD HH:mm:00",
+    allowInputToggle: true,
+    widgetPositioning: {
+        horizontal: "right",
+        vertical: "bottom"
+    }
+});
 
 function getQuickGroupSelection () {
 	getQuickCommunitySelection();
@@ -179,6 +195,7 @@ function displaySitesSelection(data) {
 function startConversation(details) {
 	$('#chatterbox-loader-modal').modal({backdrop: 'static', keyboard: false});
 	try {
+		call_log_site.push(details.site);
 		let convo_details = {
 			type: 'loadSmsConversation',
 			data: details
@@ -506,6 +523,42 @@ function displayConversationPanel(msg_data, full_data, recipients, titles, isOld
 		}
 		displayUpdatedMessages(data, isOld);
 		counter++;
+	});
+
+	initializeOnClickCallLogModal(recipient_container);
+}
+
+function initializeOnClickCallLogModal(recipients){
+	$("#open-call-log").unbind();
+	$("#open-call-log").click(() => {
+		$("#call-log-modal").modal({backdrop: 'static',keyboard: false});
+		saveCallLog(recipients);
+	});
+}
+
+function saveCallLog(recipients){
+	$("#save-call-log").unbind();
+	$("#save-call-log").click(() => {
+		let timestamp = $("#data_timestamp").val();
+		let message = $("#call_log_message").val();
+		
+		if(timestamp.length == 0 || message.length == 0){
+			$.notify("All fields are required", "error");
+		}else{
+			let log_data = {
+				'timestamp' : timestamp,
+				'message' : "Call log: "+message,
+				'tagger_user_id': current_user_id,
+				'site_code': call_log_site
+			}
+			
+			let request = {
+				'type': 'callLogMessage',
+				'data': log_data,
+				'recipients': recipients
+			};
+			wss_connect.send(JSON.stringify(request));
+		}
 	});
 }
 
@@ -982,7 +1035,8 @@ function sendSms(recipients, message) {
 		let convo_details = {
 			type: 'sendSmsToRecipients',
 			recipients: recipients,
-			message: message + chatterbox_sms_signature
+			message: message + chatterbox_sms_signature,
+			sender_id: 0
 		};
 		wss_connect.send(JSON.stringify(convo_details));
 	} catch(err) {

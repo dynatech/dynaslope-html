@@ -797,7 +797,8 @@ function prepareEwiCard (release_data, $template, validity, event_start, status)
 
             if (trigger_type.toUpperCase() === "M") {
                 const { manifestation_info } = trigger;
-                prepareManifestationInfo(manifestation_info); // Refactor this to remove array on manifestation info
+                const $div = prepareManifestationInfo(manifestation_info);
+                $trigger_ul.after($div);
             }
         });
     }
