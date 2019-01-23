@@ -1025,7 +1025,8 @@ function sendSms(recipients, message) {
 		let convo_details = {
 			type: 'sendSmsToRecipients',
 			recipients: recipients,
-			message: message + chatterbox_sms_signature
+			message: message + chatterbox_sms_signature,
+			sender_id: 0
 		};
 		wss_connect.send(JSON.stringify(convo_details));
 	} catch(err) {
