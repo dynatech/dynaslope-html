@@ -20,21 +20,19 @@ let important_tags = null;
 let conversation_details_label = null;
 
 
-if (window.location == window.location.host+"/communications/chatterbox_beta") {
-	let quick_inbox_template = Handlebars.compile($('#quick-inbox-template').html());
-	let quick_unregistered_template = Handlebars.compile($('#quick-unregistered-inbox-template').html());
-	let event_inbox_template = Handlebars.compile($('#event-inbox-template').html());
-	let messages_template_both = Handlebars.compile($('#messages-template-both').html());
-	let selected_contact_template = Handlebars.compile($('#selected-contact-template').html());
-	let quick_release_template = Handlebars.compile($('#quick-release-template').html());
-	let search_key_template = Handlebars.compile($('#search-message-key-template').html());
+let quick_inbox_template = Handlebars.compile($('#quick-inbox-template').html());
+let quick_unregistered_template = Handlebars.compile($('#quick-unregistered-inbox-template').html());
+let event_inbox_template = Handlebars.compile($('#event-inbox-template').html());
+let messages_template_both = Handlebars.compile($('#messages-template-both').html());
+let selected_contact_template = Handlebars.compile($('#selected-contact-template').html());
+let quick_release_template = Handlebars.compile($('#quick-release-template').html());
+let search_key_template = Handlebars.compile($('#search-message-key-template').html());
 
-	Handlebars.registerHelper('breaklines', function(text) {
-	    text = Handlebars.Utils.escapeExpression(text);
-	    text = text.replace(/(\r\n|\n|\r)/gm, '<br>');
-	    return new Handlebars.SafeString(text);
-	});
-}
+Handlebars.registerHelper('breaklines', function(text) {
+    text = Handlebars.Utils.escapeExpression(text);
+    text = text.replace(/(\r\n|\n|\r)/gm, '<br>');
+    return new Handlebars.SafeString(text);
+});
 
 let special_case_num = 0;
 let special_case_id = 0;

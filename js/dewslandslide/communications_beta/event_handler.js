@@ -47,9 +47,10 @@ $(document).ready(function() {
 	initializeOnClickUnregistered();
 	if (window.location == window.location.host+"/communications/chatterbox_beta") {
 		getUnregisteredNumber();
+		initializeOnClickCallLogModal();
 	}
 
-	initializeOnClickCallLogModal();
+	
 });
 
 function initializeOnClickSendRoutine () {
