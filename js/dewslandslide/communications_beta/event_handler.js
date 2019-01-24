@@ -45,11 +45,8 @@ $(document).ready(function() {
 	initializeOnClickAddMobileForEmployee();
 	initializeOnClickAddMobileForCommunity();
 	initializeOnClickUnregistered();
-	if (window.location == window.location.host+"/communications/chatterbox_beta") {
-		getUnregisteredNumber();
-		initializeOnClickCallLogModal();
-	}
-
+	getUnregisteredNumber();
+	initializeOnClickCallLogModal();
 	
 });
 
@@ -103,7 +100,7 @@ function sendRoutineSMSToLEWC(raw) { // To be refactored to accomodate custom ro
 	console.log("hereSend");
 	raw.data.forEach(function(contact) {
 		raw.sites.forEach(function(site) {
-			// console.log(site);
+			console.log(site);
 			if (contact.fk_site_id == site.site_id) {
 				let temp = "";
 				if (site.purok == null && site.sitio == null) {
@@ -122,14 +119,12 @@ function sendRoutineSMSToLEWC(raw) { // To be refactored to accomodate custom ro
 				message = message.replace("(current_date)", raw.date);
 				message = message.replace("(greetings)", "umaga");
 				message = message.replace("(gndmeas_time_submission)","bago-mag 11:30 AM");
-				
+				// console.log(message);
 				try {
 					let convo_details = {
 						type: 'sendSmsToRecipients',
 						recipients: [contact.mobile_id],
-						message: message + sender,
-						sender_id: current_user_id,
-						site_id: site.site_id
+						message: message + sender
 					};
 					wss_connect.send(JSON.stringify(convo_details));   		
 				} catch(err) {
@@ -1536,7 +1531,7 @@ function initializeEmployeeContactGroupSending() {
 }
 
 function initializeSemiAutomatedGroundMeasurementReminder() {
-    $('#btn-automation-settings, #dashboard-gndmeas-settings').on("click",function() {
+    $("#btn-automation-settings").on("click",function() {
     	$("#gnd-meas-category").val("event");
         let special_case_length = $(".special-case-template").length;
         special_case_num = 0;
@@ -1777,4 +1772,6 @@ function loadSiteConvoViaQacess() {
 		}
     	
     });
+
 }
+
