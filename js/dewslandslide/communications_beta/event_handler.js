@@ -1140,29 +1140,23 @@ function initializeOnClickConfirmTagging () {
 					if(message_details[2] != "You"){
 						const check_tags = (important.indexOf("#EwiMessage") > -1)
 						if(check_tags == true){
-							console.log("bawal");
 							$("#gintag_warning_message").show(300).effect("shake");
 							$("#gintag_warning_message_text").text("Invalid tag!");
 						}else{
 							$("#narrative-modal").modal({backdrop: 'static', keyboard: false});
 							$("#gintag-modal").modal("hide");
 							$("#gintag_warning_message").hide(300);
-							console.log("pwede2");
 						}
 					}else{
 						const check_tags = (important.indexOf("#EwiResponse") > -1)
 						if(check_tags == true){
-							console.log("bawal");
 							$("#gintag_warning_message").show(300).effect("shake");
 							$("#gintag_warning_message_text").text("Invalid tag!");
 						}else{
-							console.log("pwede2");
 							$("#narrative-modal").modal({backdrop: 'static', keyboard: false});
 							$("#gintag-modal").modal("hide");
 							$("#gintag_warning_message").hide(300);
 						}
-						
-						console.log("pwede");
 					}
 					$.grep(gintag_selected, function (current_tags) {
 					    if ($.inArray(current_tags, CONVERSATION_TAGS) == -1) {
