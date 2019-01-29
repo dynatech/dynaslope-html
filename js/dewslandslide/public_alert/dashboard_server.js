@@ -112,6 +112,12 @@ function onMessage (evt) {
                 $("#bulletin_sending").prop("checked", true);
                 $("#bulletin_sending_staff").text(`(Activated by ${data.bulletin_sending.staff_name})`);
             } else { $("#bulletin_sending").prop("checked", false); $("#bulletin_sending_staff").text(""); }
+        } else if (code === "showGndMeasMenu") {
+            if (data.action === "show") {
+                $("#gndmeas-row").show();
+            } else {
+                $("#gndmeas-row").hide();
+            }
         }
     }
 

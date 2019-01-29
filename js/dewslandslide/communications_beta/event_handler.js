@@ -45,7 +45,11 @@ $(document).ready(function() {
 	initializeOnClickAddMobileForEmployee();
 	initializeOnClickAddMobileForCommunity();
 	initializeOnClickUnregistered();
-	getUnregisteredNumber();
+	if(window.location.href == window.location.origin+window.location.pathname || window.location.href == window.location.origin+window.location.pathname+"#"){
+		getUnregisteredNumber();
+		initializeOnClickCallLogModal();
+	}
+
 });
 
 function initializeOnClickSendRoutine () {
@@ -122,7 +126,8 @@ function sendRoutineSMSToLEWC(raw) { // To be refactored to accomodate custom ro
 					let convo_details = {
 						type: 'sendSmsToRecipients',
 						recipients: [contact.mobile_id],
-						message: message + sender
+						message: message + sender,
+						site_id: site.site_id
 					};
 					wss_connect.send(JSON.stringify(convo_details));   		
 				} catch(err) {
@@ -1772,3 +1777,4 @@ function loadSiteConvoViaQacess() {
     });
 
 }
+

@@ -166,8 +166,8 @@ function renderPDF (id) {
     .done((response) => {
         if (response === "Success.") {
             console.log("PDF RENDERED");
-            $LOADING.modal("hide");
-            $LOADING.find(".progress-bar").text("Loading...");
+            // $LOADING.modal("hide");
+            // $LOADING.find(".progress-bar").text("Loading...");
         } else console.log(response);
     })
     .catch((x) => {

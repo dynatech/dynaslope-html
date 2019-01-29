@@ -8,6 +8,7 @@
  *  Updates by John Louie Nepomuceno on Shifter checker by staff
  *
 ****/
+var STAFF_ID;
 
 $(document).ready((a) => {
     // Initializers
@@ -228,84 +229,118 @@ function prepareSearchByStaffFunctions () {
 
     $("#check").click(() => {
         if ($("#display-option").val() === "staff") {
-            const staff_id = $("#staff-name").val();
+            STAFF_ID = $("#staff-name").val();
             const start = moment($("#duration_start").val()).add(30, "minutes").format("YYYY-MM-DD HH:mm:ss");
             const end = moment($("#duration_end").val()).subtract(1, "hours").format("YYYY-MM-DD HH:mm:ss");
 
             console.log(start, end);
 
-            getReleasesByStaff(staff_id, start, end)
+            getReleasesByStaff(start, end)
             .then((releases) => {
-                releases.forEach((release, index, group) => {
-                    const { reporter_id_ct } = release;
-                    let role = "MT";
-                    if (reporter_id_ct === staff_id) role = "CT";
-                    release.role = role;
-                });
-                plotReleasesTable(releases);
-                console.log(releases);
+                console.log("Releases", releases);
+                return prepareTableData(releases);
+            })
+            .then((table_data) => {
+                console.log("Table Data", table_data);
+                plotReleasesTable(STAFF_ID, table_data);
             });
         }
     });
 }
 
-function getReleasesByStaff (staff_id, start, end) {
-    return $.getJSON(`../../accomplishment/getReleasesByStaff/${staff_id}/${start}/${end}`);
+function getReleasesByStaff (start, end) {
+    return $.getJSON(`../../accomplishment/getReleasesByStaff/${STAFF_ID}/${start}/${end}`);
 }
 
-function plotReleasesTable (table_data) {
+function prepareTableData (raw_table_data) {
+    let table_data = [];
+    raw_table_data.forEach((row, index, group) => {
+        const {
+            // The status, validity, reporter_id_mt are still not needed in this part of code
+            // status, validity, reporter_id_mt,
+            status, data_timestamp, event_id, internal_alert_level,
+            release_id, reporter_id_ct, site_code
+        } = row;
+
+        const date = moment(data_timestamp).format("MMMM Do YYYY");
+        const shift_sched = prepareShiftSched(data_timestamp);
+        const site_event_code = prepareSiteCodeWithLink(event_id, site_code);
+        const ewi_release = prepareEWIRelease(data_timestamp, event_id, release_id);
+        const role = prepareStaffRole(STAFF_ID, reporter_id_ct);
+
+        const obj = {
+            date,
+            shift_sched,
+            site_event_code,
+            ewi_release,
+            internal_alert_level,
+            role,
+            status,
+            groupings: `${shift_sched} ${role}-Shift of ${date}`
+        };
+
+        table_data.push(obj);
+    });
+    return table_data;
+}
+
+function prepareShiftSched (data_timestamp) {
+    let shift_sched = "";
+    const hour = moment(data_timestamp).format("HH:mm");
+
+    // If shift release data_timestamp is between 8:00 and 19:30,
+    // it is AM shift. PM shift, otherwise.
+    hour >= "08:00" && hour <= "19:30" ? shift_sched = "AM" : shift_sched = "PM";
+
+    return shift_sched;
+}
+
+function prepareSiteCodeWithLink (event_id, site_code) {
+    return `<a href='/../monitoring/events/${event_id}'>${site_code.toUpperCase()} <span class="fa fa-link"></span></a>`;
+}
+
+function prepareEWIRelease (data_timestamp, event_id, release_id) {
+    const time_of_release = moment(data_timestamp).add(30, "minutes").format("HH:mm");
+    return `<a href='/../monitoring/events/${event_id}/${release_id}'>EWI Release for ${time_of_release}</a>`;
+}
+
+function prepareStaffRole (staff_id, reporter_id_ct) {
+    let role = "MT";
+    if (reporter_id_ct === staff_id) role = "CT";
+    return role;
+}
+
+function plotReleasesTable (staff_id, table_data) {
     $("#releases-table").empty();
     $("#releases-table").DataTable({
         destroy: true,
         data: table_data,
-        // autoWidth: true,
+        rowGroup: {
+            dataSrc: "groupings"
+        },
         language: {
             emptyTable: "No shifts found in the specified data range."
         },
+        order: [
+            [0, "asc"]
+        ],
         columns: [
             {
-                data: "shift_timestamp",
+                data: "date",
                 title: "Date",
-                render (data, type, full, meta) {
-                    return moment(data).format("YYYY-MM-DD");
-                }
+                display: "none"
             },
             {
-                data: "data_timestamp",
-                title: "Shift Sched",
-                render (data, type, full, meta) {
-                    let shift_sched = "";
-                    const hour = moment(data).format("HH:mm");
-
-                    // If shift release data_timestamp is between 8:00 and 19:30,
-                    // it is AM shift. PM shift, otherwise.
-                    hour >= "08:00" && hour <= "19:30" ? shift_sched = "AM" : shift_sched = "PM";
-
-                    return shift_sched;
-                }
+                data: "site_event_code",
+                title: "Site Code"
             },
             {
-                data: "site_code",
-                title: "Site Code",
-                render (data, type, full, meta) {
-                    return `<a href='/../monitoring/events/${full.event_id}'>${data.toUpperCase()} <span class="fa fa-link"></span></a>`;
-                }
-            },
-            {
-                data: "latest_release_id",
-                title: "EWI Release",
-                render (data, type, full, meta) {
-                    const time_of_release = moment(full.shift_timestamp).format("HH:mm");
-                    return `<a href='/../monitoring/events/${full.event_id}/${data}'>EWI Release for ${full.time_of_release}</a>`;
-                }
+                data: "ewi_release",
+                title: "EWI Release"
             },
             {
                 data: "internal_alert_level",
                 title: "Internal Alert"
-            },
-            {
-                data: "role",
-                title: "Role"
             }
         ]
     });

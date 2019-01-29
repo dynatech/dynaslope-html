@@ -396,7 +396,7 @@ table {
   table select {
     color: black; }
 
-.alert-3 {
+.alert-3, .alert-on-going {
   background-color: rgba(201, 48, 44, 0.5); }
 
 .alert-2 {
