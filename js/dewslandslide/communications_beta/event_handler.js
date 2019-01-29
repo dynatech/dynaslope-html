@@ -45,7 +45,8 @@ $(document).ready(function() {
 	initializeOnClickAddMobileForEmployee();
 	initializeOnClickAddMobileForCommunity();
 	initializeOnClickUnregistered();
-	if(window.location.href == window.location.origin+window.location.pathname || window.location.href == window.location.origin+window.location.pathname+"#"){
+
+	if(window.location.origin+window.location.pathname == window.location.origin+"/communications/chatterbox_beta"){
 		getUnregisteredNumber();
 		initializeOnClickCallLogModal();
 	}
@@ -99,7 +100,6 @@ function getRoutineMobileIDs(offices, sites_on_routine) {
 function sendRoutineSMSToLEWC(raw) { // To be refactored to accomodate custom routine message per site
 	let message = $("#routine-default-message").val();
 	let sender = " - " + $("#user_name").html() + " from PHIVOLCS-DYNASLOPE";
-	console.log("hereSend");
 	raw.data.forEach(function(contact) {
 		raw.sites.forEach(function(site) {
 			console.log(site);
@@ -127,7 +127,9 @@ function sendRoutineSMSToLEWC(raw) { // To be refactored to accomodate custom ro
 						type: 'sendSmsToRecipients',
 						recipients: [contact.mobile_id],
 						message: message + sender,
-						site_id: site.site_id
+						sender_id: current_user_id,
+						site_id: site.site_id,
+						rain_info: false
 					};
 					wss_connect.send(JSON.stringify(convo_details));   		
 				} catch(err) {
@@ -404,12 +406,17 @@ function initializeGoLoadOnClick () {
 
 function initializeSendMessageOnClick () {
 	$("#send-msg").click(function() {
-		console.log(recipient_container);
 		if($.trim($("#msg").val()) == ""){
 	    	$("#chatbox-warning").show(300);
 	    }else{
 	    	$("#chatbox-warning").hide();
-			sendSms(recipient_container,$("#msg").val());
+			const check_rain_info = $('#msg').val().includes('day cumulative rainfall');
+			if(check_rain_info == true){
+				sendRainInfo(recipient_container,$("#msg").val());
+			}else{
+				sendSms(recipient_container,$("#msg").val());
+			}
+			
 	    }
 	});
 }
@@ -1013,6 +1020,7 @@ function initializeOnAvatarClickForTagging() {
 		message_details = null;
 		tag_container = $(this).closest("li.clearfix");
 		message_details = $(this).closest("li.clearfix").find("input[class='msg_details']").val().split('<split>');
+		console.log(message_details);
 		const gintag_selected = $("#gintag_selected").tagsinput("items");
 		user = message_details[2].split(" ");
 		getSmsTags(message_details[0],message_details[1]);
@@ -1046,12 +1054,11 @@ function getSmsTags (sms_id, mobile_id) {
 }
 
 function initializeEWITemplateModal() {
-	$("#btn-ewi").click(function() {
+	$("#btn_ewi").on("click", ({ currentTarget }) => {
 		$("#alert-lvl").empty();
         $("#sites").empty();
         $("#alert_status").empty();
-        $("#alert_lvl").empty();
-        $("#internal_alert").empty();
+        $("#internal-alert").empty();
 
         $("#alert_status").append($("<option>", {
             value: "------------",
@@ -1083,7 +1090,8 @@ function initializeEWITemplateModal() {
 
 function initializeOnClickConfirmTagging () {
 	$("#confirm-tagging").on("click", ({ currentTarget }) => {
-		const gintag_selected = $("#gintag_selected").tagsinput("items");
+		let gintag_selected = [];
+		gintag_selected = $("#gintag_selected").tagsinput("items");
 		TEMP_IMPORTANT_TAG = [];
 		const important = [];
 		const new_tag = [];
@@ -1112,6 +1120,7 @@ function initializeOnClickConfirmTagging () {
 		} else {
 			if (gintag_selected.length === 0 ) {
 				$("#gintag_warning_message").show(300).effect("shake");
+				$("#gintag_warning_message_text").text("This field is required!");
 			} else {
 				$("#gintag_warning_message").hide(300);
 				gintag_selected.forEach(function(selected) {
@@ -1128,8 +1137,33 @@ function initializeOnClickConfirmTagging () {
 				}
 
 				if(important.length > 0){
-					$("#narrative-modal").modal({backdrop: 'static', keyboard: false});
-					$("#gintag-modal").modal("hide");
+					if(message_details[2] != "You"){
+						const check_tags = (important.indexOf("#EwiMessage") > -1)
+						if(check_tags == true){
+							console.log("bawal");
+							$("#gintag_warning_message").show(300).effect("shake");
+							$("#gintag_warning_message_text").text("Invalid tag!");
+						}else{
+							$("#narrative-modal").modal({backdrop: 'static', keyboard: false});
+							$("#gintag-modal").modal("hide");
+							$("#gintag_warning_message").hide(300);
+							console.log("pwede2");
+						}
+					}else{
+						const check_tags = (important.indexOf("#EwiResponse") > -1)
+						if(check_tags == true){
+							console.log("bawal");
+							$("#gintag_warning_message").show(300).effect("shake");
+							$("#gintag_warning_message_text").text("Invalid tag!");
+						}else{
+							console.log("pwede2");
+							$("#narrative-modal").modal({backdrop: 'static', keyboard: false});
+							$("#gintag-modal").modal("hide");
+							$("#gintag_warning_message").hide(300);
+						}
+						
+						console.log("pwede");
+					}
 					$.grep(gintag_selected, function (current_tags) {
 					    if ($.inArray(current_tags, CONVERSATION_TAGS) == -1) {
 					        TEMP_IMPORTANT_TAG.push(current_tags);
@@ -1405,7 +1439,7 @@ function resetValuesInEWITemplate(){
 function initializeConfirmEWITemplateViaChatterbox() {
 	resetValuesInEWITemplate()
 	$("#confirm-ewi").click(() => {
-		$("#msg").val(' ');
+		$("#msg").val('');
         let samar_sites = ["jor", "bar", "ime", "lpa", "hin", "lte", "par", "lay"];
         if ($("#rainfall-sites").val() != "#") {
             let rain_info_template = "";
@@ -1434,13 +1468,14 @@ function initializeConfirmEWITemplateViaChatterbox() {
 		    	 }
 		        
 			for (let counter = 0; counter < samar_sites_details.length; counter++ ) {
-                		let sbmp = `${samar_sites_details[counter].sitio}, ${samar_sites_details[counter].barangay}, ${samar_sites_details[counter].municipality}`;
-                		let formatSbmp = sbmp.replace("null", "");
-                		if (formatSbmp.charAt(0) == ",") {
-                	    		formatSbmp = formatSbmp.substr(1);
-                		}
-                		rain_info_template = rain_info_template.replace(samar_sites_details[counter].site_code, formatSbmp);
-            		}
+        		let sbmp = `${samar_sites_details[counter].sitio}, ${samar_sites_details[counter].barangay}, ${samar_sites_details[counter].municipality}`;
+        		let formatSbmp = sbmp.replace("null", "");
+        		if (formatSbmp.charAt(0) == ",") {
+        	    		formatSbmp = formatSbmp.substr(1);
+        		}
+        		rain_info_template = rain_info_template.replace(samar_sites_details[counter].site_code, formatSbmp);
+    		}
+    		console.log(rain_info_template);
 			$("#msg").val(rain_info_template);
 		}
 		});

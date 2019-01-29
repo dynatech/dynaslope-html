@@ -421,10 +421,9 @@ div.awesomplete > ul {
 .center {
     position: fixed;
     margin: auto;
-    top: -246px;
-    right: 0;
+    top: -559px;
+    right: 114px;
     bottom: 0;
-    left: -540px;
     /* z-index: 10000; */
 }
 
