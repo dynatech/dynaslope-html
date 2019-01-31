@@ -438,7 +438,7 @@ function displayQuickEventInbox (){
                 for (let counter = 0; counter < quick_release.length; counter++) {
                     event_site_code = quick_release[counter].site_code.toUpperCase();
                     if(event_site_code == inbox_site_code[0]){
-                        quick_inbox_event.unshift(inbox_data);
+                        quick_inbox_event.push(inbox_data);
                     }
                 }
             }

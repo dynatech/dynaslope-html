@@ -271,7 +271,7 @@ function displayUnregisteredInboxMain(msg_data) {
 			console.log(err);
 			
 		}
-
+		
 		quick_inbox_html = quick_unregistered_template({'quick_unregistered_inbox_messages': quick_inbox_unregistered});
 
 		$("#quick-unregistered-inbox-display").html(quick_inbox_html);
@@ -539,7 +539,7 @@ function saveCallLog(recipients){
 	$("#save-call-log").click(() => {
 		let timestamp = $("#data_timestamp").val();
 		let message = $("#call_log_message").val();
-		
+		message.replace(/\n/g, "<br />");
 		if(timestamp.length == 0 || message.length == 0){
 			$.notify("All fields are required", "error");
 		}else{
@@ -1034,8 +1034,23 @@ function sendSms(recipients, message) {
 			type: 'sendSmsToRecipients',
 			recipients: recipients,
 			message: message + chatterbox_sms_signature,
-			sender_id: 0,
+			sender_id: current_user_id,
 			site_id: 0
+		};
+		wss_connect.send(JSON.stringify(convo_details));
+	} catch(err) {
+		console.log(err);
+		// Add PMS here
+	}	
+}
+
+function sendRainInfo(recipients, message) {
+	try {
+		let convo_details = {
+			type: 'sendRainInfo',
+			recipients: recipients,
+			message: message + chatterbox_sms_signature,
+			sender_id: current_user_id
 		};
 		wss_connect.send(JSON.stringify(convo_details));
 	} catch(err) {
