@@ -82,8 +82,18 @@ function displayTemplatesAndRecipients(recipients,template) {
         $("#constructed-ewi-amd").text(template.data);
         $("#ewi-asap-modal").modal("show");
     } catch(err) {
+        const report = {
+            type: "error_logs",
+            metric_name: "display_templates_and_recipients_error_logs",
+            module_name: "Communications",
+            report_message: `${err}`,
+            reference_table: "",
+            reference_id: 0,
+            submetrics: []
+        };
+
+        PMS.send(report);
         sendReport(err.message);
-        // PMS
     }
 }
 
@@ -146,7 +156,17 @@ function displayEwiStatus(ewi_status,gtag_status) {
         }
         $("#ewi-asap-modal").modal("hide");
     } catch(err) {
+        const report = {
+            type: "error_logs",
+            metric_name: "display_ewi_status_error_logs",
+            module_name: "Communications",
+            report_message: `${err}`,
+            reference_table: "",
+            reference_id: 0,
+            submetrics: []
+        };
+
+        PMS.send(report);
         sendReport(err.message);
-        // PMS
     }
 }

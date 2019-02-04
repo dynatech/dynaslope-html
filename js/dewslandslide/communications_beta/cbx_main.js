@@ -269,8 +269,18 @@ function displayUnregisteredInboxMain(msg_data) {
 			}
 			
 		} catch(err) {
+			const report = {
+	            type: "error_logs",
+	            metric_name: "display_unregistered_error_logs",
+	            module_name: "Communications",
+	            report_message: `${err}`,
+	            reference_table: "",
+	            reference_id: 0,
+	            submetrics: []
+	        };
+
+	        PMS.send(report);
 	        sendReport(err.message);
-			// PMS
 		}
 		
 		quick_inbox_html = quick_unregistered_template({'quick_unregistered_inbox_messages': quick_inbox_unregistered});
@@ -278,8 +288,18 @@ function displayUnregisteredInboxMain(msg_data) {
 		$("#quick-unregistered-inbox-display").html(quick_inbox_html);
 		$("#quick-unregistered-inbox-display").scrollTop(0);
 	} catch (err) {
+    	const report = {
+            type: "error_logs",
+            metric_name: "display_unregistered_error_logs",
+            module_name: "Communications",
+            report_message: `${err}`,
+            reference_table: "",
+            reference_id: 0,
+            submetrics: []
+        };
+
+        PMS.send(report);
     	sendReport(err.message);
-    	//PMS
 	}
 }
 
@@ -291,8 +311,18 @@ function updateLatestPublicRelease (msg) {
         $("#quick-release-display").scrollTop(0);
 
     } catch (err) {
+		const report = {
+            type: "error_logs",
+            metric_name: "update_public_release_error_log",
+            module_name: "Communications",
+            report_message: `${err}`,
+            reference_table: "public_alert_release",
+            reference_id: 3,
+            submetrics: []
+        };
+
+        PMS.send(report);
 		sendReport(err.message);
-		// PMS
     }
 }
 
@@ -315,16 +345,36 @@ function displayNewSmsQuickInbox(msg_data) {
 				quick_inbox_registered.unshift(new_inbox[counter]);
 			}
 		} catch(err) {
+			const report = {
+	            type: "error_logs",
+	            metric_name: "quick_inbox_error_log",
+	            module_name: "Communications",
+	            report_message: `${err}`,
+	            reference_table: "smsinbox",
+	            reference_id: 23,
+	            submetrics: []
+	        };
+
+	        PMS.send(report);
 			sendReport(err.message);
-			// PMS
 		}
 
 		quick_inbox_html = quick_inbox_template({'quick_inbox_messages': quick_inbox_registered});
 		$("#quick-inbox-display").html(quick_inbox_html);
 		$("#quick-inbox-display").scrollTop(0);
 	} catch (err) {
+		const report = {
+            type: "error_logs",
+            metric_name: "quick_inbox_error_log",
+            module_name: "Communications",
+            report_message: `${err}`,
+            reference_table: "smsinbox",
+            reference_id: 23,
+            submetrics: []
+        };
+
+        PMS.send(report);
 		sendReport(err.message);
-		//Add PMS here
 	}
 }
 
@@ -341,8 +391,18 @@ function displayOrgSelection(data){
 			$("#offices-"+modIndex).append('<div class="checkbox"><label><input type="checkbox" id="id_'+office+'" name="orgs" class="form-group" value="'+office+'">'+office.toUpperCase()+'</label></div>');
 		}
 	} catch(err) {
+		const report = {
+            type: "error_logs",
+            metric_name: "orgs_error_logs",
+            module_name: "Communications",
+            report_message: `${err}`,
+            reference_table: "organization",
+            reference_id: 6,
+            submetrics: []
+        };
+
+        PMS.send(report);
 		sendReport(err.message);
-		// PMS
 	}
 
 }
@@ -376,8 +436,18 @@ function displayDataTableCommunityContacts(cmmty_contact_data){
 		});
 	$('#comm-response-contact-container').prop('hidden',false);
 	} catch (err) {
+		const report = {
+            type: "error_logs",
+            metric_name: "load_community_contact_error_logs",
+            module_name: "Communications",
+            report_message: `${err}`,
+            reference_table: "users",
+            reference_id: 9,
+            submetrics: []
+        };
+
+        PMS.send(report);
 		sendReport(err.message);
-		// PMS
 	}
 
 }
@@ -398,8 +468,18 @@ function displayDataTableEmployeeContacts(dwsl_contact_data) {
 		});
 		$('#emp-response-contact-container').prop('hidden',false);
 	} catch(err) {
+		const report = {
+            type: "error_logs",
+            metric_name: "load_employee_contact_error_logs",
+            module_name: "Communications",
+            report_message: `${err}`,
+            reference_table: "users",
+            reference_id: 9,
+            submetrics: []
+        };
+
+        PMS.send(report);
 		sendReport(err.message);
-		// PMS
 	}
 
 }
@@ -419,8 +499,18 @@ function displayDataTableUnregisteredContacts (unregistered_data){
 		});
 		$('#unregistered-contact-container').prop('hidden',false);
 	} catch(err) {
+		const report = {
+            type: "error_logs",
+            metric_name: "load_unregistered_contact_error_logs",
+            module_name: "Communications",
+            report_message: `${err}`,
+            reference_table: "users",
+            reference_id: 9,
+            submetrics: []
+        };
+
+        PMS.send(report);
 		sendReport(err.message);
-		// PMS
 	}
 
 }
@@ -467,8 +557,18 @@ function displaySiteSelection (sites,psgc_source = []) {
 		$('<div id="new-site" class="col-md-12"><a href="#" id="add-site"><span class="glyphicon glyphicon-info-sign"></span>&nbsp;Site not on the list?</a></div>').appendTo('#site-accord .panel-body');
 
 	} catch(err) {
+		const report = {
+            type: "error_logs",
+            metric_name: "user_site_error_log",
+            module_name: "Communications",
+            report_message: `${err}`,
+            reference_table: "user_organization",
+            reference_id: 8,
+            submetrics: []
+        };
+
+        PMS.send(report);
 		sendReport(err.message);
-		// PMS
 	}
 }
 
@@ -497,8 +597,18 @@ function displayOrganizationSelection (orgs,user_orgs = []) {
 		}
 		$('<div id="new-org" class="col-md-12"><a href="#" id="add-org"><span class="glyphicon glyphicon-info-sign"></span>&nbsp;Organization not on the list?</a></div>').appendTo('#organization-selection-div');
 	} catch (err) {
+		const report = {
+            type: "error_logs",
+            metric_name: "user_org_error_log",
+            module_name: "Communications",
+            report_message: `${err}`,
+            reference_table: "user_organization",
+            reference_id: 8,
+            submetrics: []
+        };
+
+        PMS.send(report);
 		sendReport(err.message);
-		// PMS
 	}
 }
 
@@ -562,8 +672,29 @@ function displayConversationPanel(msg_data, full_data, recipients, titles, isOld
 
 		initializeOnClickCallLogModal(recipient_container);
 	} catch(err) {
+		const report_outbox = {
+            type: "error_logs",
+            metric_name: "display_site_conversation_error_logs",
+            module_name: "Communications",
+            report_message: `${err}`,
+            reference_table: "smsoutbox_users",
+            reference_id: 2,
+            submetrics: []
+        };
+
+        const report_inbox = {
+            type: "error_logs",
+            metric_name: "display_site_conversation_error_logs",
+            module_name: "Communications",
+            report_message: `${err}`,
+            reference_table: "smsinbox_users",
+            reference_id: 23,
+            submetrics: []
+        };
+
+        PMS.send(report_outbox);
+        PMS.send(report_inbox);
 		sendReport(err.message);
-		// PMS
 	}
 }
 
@@ -619,8 +750,29 @@ function displayUpdatedMessages(data, isOld = false) {
 		}
 		message_container = [];
 	} catch(err) {
+		const report_outbox = {
+            type: "error_logs",
+            metric_name: "display_site_conversation_error_logs",
+            module_name: "Communications",
+            report_message: `${err}`,
+            reference_table: "smsoutbox_users",
+            reference_id: 2,
+            submetrics: []
+        };
+
+        const report_inbox = {
+            type: "error_logs",
+            metric_name: "display_site_conversation_error_logs",
+            module_name: "Communications",
+            report_message: `${err}`,
+            reference_table: "smsinbox_users",
+            reference_id: 23,
+            submetrics: []
+        };
+
+        PMS.send(report_outbox);
+        PMS.send(report_inbox);
 		sendReport(err.message);
-		// PMS
 	}
 }
 
@@ -648,8 +800,18 @@ function setLastTs(isOld, data) {
 			}
 		}
 	} catch(err) {
+		const reports = {
+            type: "error_logs",
+            metric_name: "set_last_ts_error_logs",
+            module_name: "Communications",
+            report_message: `${err}`,
+            reference_table: "",
+            reference_id: 0,
+            submetrics: []
+        };
+
+        PMS.send(reports);
 		sendReport(err.message);
-		// PMS
 	}
 }
 
@@ -744,8 +906,29 @@ function displayUpdateEmployeeDetails (employee_data) {
 			}
 		}
 	} catch(err) {
+		const report_user_details = {
+            type: "error_logs",
+            metric_name: "display_user_details_error_logs",
+            module_name: "Communications",
+            report_message: `${err}`,
+            reference_table: "users",
+            reference_id: 9,
+            submetrics: []
+        };
+
+        const report_user_mobile = {
+            type: "error_logs",
+            metric_name: "display_user_mobile_error_logs",
+            module_name: "Communications",
+            report_message: `${err}`,
+            reference_table: "user_mobile",
+            reference_id: 16,
+            submetrics: []
+        };
+
+        PMS.send(report_user_details);
+        PMS.send(report_user_mobile);
 		sendReport(err.message);
-		// PMS
 	}
 
 
@@ -822,8 +1005,29 @@ function displayUpdateCommunityDetails (community_data) {
 		displaySiteSelection(community_data.list_of_sites, community_data.org_data);
 		displayOrganizationSelection(community_data.list_of_orgs, community_data.org_data);
 	} catch(err) {
+		const report_user_details = {
+            type: "error_logs",
+            metric_name: "display_user_details_error_logs",
+            module_name: "Communications",
+            report_message: `${err}`,
+            reference_table: "users",
+            reference_id: 9,
+            submetrics: []
+        };
+
+        const report_user_mobile = {
+            type: "error_logs",
+            metric_name: "display_user_mobile_error_logs",
+            module_name: "Communications",
+            report_message: `${err}`,
+            reference_table: "user_mobile",
+            reference_id: 16,
+            submetrics: []
+        };
+
+        PMS.send(report_user_details);
+        PMS.send(report_user_mobile);
 		sendReport(err.message);
-		// PMS
 	}
 }
 
@@ -842,8 +1046,17 @@ function initializeContactPriorityBehavior(site_id, user_id, org_data){
 			}
 		});
 	} catch (err) {
-		sendReport();
-		// PMS
+		const report_contact_behavior = {
+            type: "error_logs",
+            metric_name: "contact_priority_behavior_error_logs",
+            module_name: "Communications",
+            report_message: `${err}`,
+            reference_table: "",
+            reference_id: 0,
+            submetrics: []
+        };
+		PMS.send(report_contact_behavior);
+		sendReport(err.message);
 	}
 }
 
@@ -882,8 +1095,17 @@ function displayContactHierarchy(data){
 			console.log("no data received");
 		}
 	} catch(err) {
-		sendReport();
-		// PMS
+		const report_contact_hierarchy = {
+            type: "error_logs",
+            metric_name: "display_contact_hierarchy_error_logs",
+            module_name: "Communications",
+            report_message: `${err}`,
+            reference_table: "contact_hierarchy",
+            reference_id: 25,
+            submetrics: []
+        };
+		PMS.send(report_contact_hierarchy);
+		sendReport(err.message);
 	}
 }
 
@@ -935,8 +1157,17 @@ function displayUnregisteredMobiles(data){
 			}
 		}
 	} catch (err) {
+		const report = {
+            type: "error_logs",
+            metric_name: "display_unregistered_error_logs",
+            module_name: "Communications",
+            report_message: `${err}`,
+            reference_table: "",
+            reference_id: 0,
+            submetrics: []
+        };
+		PMS.send(report);
 		sendReport(err.message);
-		// PMS
 	}
 }
 
@@ -1041,8 +1272,17 @@ function appendContactForms (type, number_count, category, data) {
 			community_input_count_landline += 1;
 		}
 	} catch(err) {
+		const report = {
+            type: "error_logs",
+            metric_name: "display_mobile_number_error_logs",
+            module_name: "Communications",
+            report_message: `${err}`,
+            reference_table: "user_mobile",
+            reference_id: 16,
+            submetrics: []
+        };
+		PMS.send(report);
 		sendReport(err.message);
-		// PMS
 	}
 }
 
@@ -1117,8 +1357,18 @@ function sendSms(recipients, message) {
 		};
 		wss_connect.send(JSON.stringify(convo_details));
 	} catch(err) {
+		const report = {
+            type: "error_logs",
+            metric_name: "sms_fails_error",
+            module_name: "Communications",
+            report_message: `${err}`,
+            reference_table: "",
+            reference_id: 0,
+            submetrics: []
+        };
+
+        PMS.send(report);
 		console.log(err);
-		// Add PMS here
 	}	
 }
 
@@ -1164,14 +1414,23 @@ function updateSmsConversationBubble(data) {
 			displayUpdatedMessages(msg_container);		
 		} 
 	} catch(err) {
+		const report = {
+            type: "error_logs",
+            metric_name: "update_sms_conversation_error_log",
+            module_name: "Communications",
+            report_message: `${err}`,
+            reference_table: "",
+            reference_id: 0,
+            submetrics: []
+        };
+
+        PMS.send(report);
 		sendReport(err.message);
-		// PMS
 	}
 
 }
 
 function updateSmsoutboxConversationBubble(data) {
-	console.log($("#messages li:last #chat-user").text());
 	if ($("#messages li:last #chat-user").text() == "You" && $("#messages li:last #timestamp-written").text() == latest_conversation_timestamp) {
 		$("#messages li:last #timestamp-sent").html(data.ts_sent);
 	}
@@ -1196,8 +1455,18 @@ function displayImportantTags (data , is_loaded = false) {
 			});
 		}
 	} catch(err) {
+		const report = {
+            type: "error_logs",
+            metric_name: "get_important_tags_error_logs",
+            module_name: "Communications",
+            report_message: `${err}`,
+            reference_table: "gintag_reference",
+            reference_id: 24,
+            submetrics: []
+        };
+
+        PMS.send(report);
 		sendReport(err.message);
-		// PMS
 	}
 }
 
@@ -1221,8 +1490,18 @@ function addSitesActivity (sites) {
 	    recent_sites_collection.push(sites);
 	    localStorage.rv_sites = JSON.stringify(recent_sites_collection);
 	} catch(err) {
+		const report = {
+            type: "error_logs",
+            metric_name: "site_activity_error_logs",
+            module_name: "Communications",
+            report_message: `${err}`,
+            reference_table: "",
+            reference_id: 0,
+            submetrics: []
+        };
+
+        PMS.send(report);
 		sendReport(err.message);
-		// PMS
 	}
 
 }
@@ -1241,8 +1520,18 @@ function addContactsActivity (contacts) {
 	    recent_contacts_collection.push(contacts);
 	    localStorage.rv_contacts = JSON.stringify(recent_contacts_collection);
 	} catch(err) {
+		const report = {
+            type: "error_logs",
+            metric_name: "contact_activity_error_logs",
+            module_name: "Communications",
+            report_message: `${err}`,
+            reference_table: "",
+            reference_id: 0,
+            submetrics: []
+        };
+
+        PMS.send(report);
 		sendReport(err.message);
-		// PMS
 	}
 }
 
@@ -1263,8 +1552,18 @@ function displayEWITemplateOptions(data) {
 	    }
     	$("#early-warning-modal").modal("toggle");
 	} catch(err) {
+		const report = {
+            type: "error_logs",
+            metric_name: "ewi_template_option_error_logs",
+            module_name: "Communications",
+            report_message: `${err}`,
+            reference_table: "",
+            reference_id: 0,
+            submetrics: []
+        };
+
+        PMS.send(report);
 		sendReport(err.message);
-		// PMS
 	}
 }
 
@@ -1297,8 +1596,18 @@ function displayEWIAlertLvlInternalLvl(data) {
 	        }
 	    }
 	} catch(err) {
+		const report = {
+            type: "error_logs",
+            metric_name: "ewi_alert_level_error_logs",
+            module_name: "Communications",
+            report_message: `${err}`,
+            reference_table: "",
+            reference_id: 0,
+            submetrics: []
+        };
+
+        PMS.send(report);
 		sendReport(err.message);
-		// PMS
 	}
 }
 
@@ -1316,8 +1625,18 @@ function displaySearchedKey(data) {
 			});
 		}
 	} catch(err) {
+		const report = {
+            type: "error_logs",
+            metric_name: "search_key_error_logs",
+            module_name: "Communications",
+            report_message: `${err}`,
+            reference_table: "",
+            reference_id: 0,
+            submetrics: []
+        };
+
+        PMS.send(report);
 		sendReport(err.message);
-		// PMS
 	}
 }
 
@@ -1343,7 +1662,17 @@ function displayTeamsGroupSending(data) {
 	        }
 	    }
 	} catch(err) {
+		const report = {
+            type: "error_logs",
+            metric_name: "group_send_error_logs",
+            module_name: "Communications",
+            report_message: `${err}`,
+            reference_table: "",
+            reference_id: 0,
+            submetrics: []
+        };
+
+        PMS.send(report);
 		sendReport(err.message);
-		// PMS
 	}
 }
