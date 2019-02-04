@@ -101,10 +101,7 @@ function getContactSuggestion (name_suggestion) {
         awesomplete.list = contact_suggestion_container;
         initializeGoChatOnClick(awesomplete);
     } catch(err) {
-<<<<<<< HEAD
         sendReport(err.message,0);;
-        // PMS
-=======
         const report = {
             type: "error_logs",
             metric_name: "get_contact_suggetions_error_logs",
@@ -116,8 +113,6 @@ function getContactSuggestion (name_suggestion) {
         };
 
         PMS.send(report);
-        sendReport(err.message);
->>>>>>> 4106adee95d5ee9960c03afce7d449fd074d1c9c
     }
 }
 
@@ -140,10 +135,7 @@ function initializeGoChatOnClick (awesomplete) {
             $("#quick-access-panel").hide(400);
             $("#conversation-panel").show(400)
         } catch(err) {
-<<<<<<< HEAD
             sendReport(err.message,0);;
-            // PMS
-=======
             const report = {
                 type: "error_logs",
                 metric_name: "chat_search_users_error_logs",
@@ -155,8 +147,6 @@ function initializeGoChatOnClick (awesomplete) {
             };
 
             PMS.send(report);
-            sendReport(err.message);
->>>>>>> 4106adee95d5ee9960c03afce7d449fd074d1c9c
         }
     });
 }
@@ -182,10 +172,7 @@ function validateContactSearchKey(searchKey, contact_suggestion) {
             return true;
         }
     } catch(err) {
-<<<<<<< HEAD
         sendReport(err.message,0);;
-        // PMS
-=======
         const report = {
             type: "error_logs",
             metric_name: "contact_search_validation_error_logs",
@@ -197,8 +184,6 @@ function validateContactSearchKey(searchKey, contact_suggestion) {
         };
 
         PMS.send(report);
-        sendReport(err.message)
->>>>>>> 4106adee95d5ee9960c03afce7d449fd074d1c9c
     }
 }
 
@@ -257,10 +242,7 @@ function prepareConversationDetails(multiple_contact) {
         }    
         return conversation_details;
     } catch(err) {
-<<<<<<< HEAD
         sendReport(err.message,0);;
-        // PMS
-=======
         const report = {
             type: "error_logs",
             metric_name: "prepare_conversation_details_error_logs",
@@ -272,8 +254,6 @@ function prepareConversationDetails(multiple_contact) {
         };
 
         PMS.send(report);
-        sendReport(err.message);
->>>>>>> 4106adee95d5ee9960c03afce7d449fd074d1c9c
     }
 }
 
@@ -483,10 +463,7 @@ function initLoadLatestAlerts (data) {
         }
         displayQuickEventInbox(quick_inbox_registered, quick_release);
     } catch(err) {
-<<<<<<< HEAD
-        sendReport(err.message,0);;
-        // PMS
-=======
+        sendReport(err.message,0);
         const report = {
             type: "error_logs",
             metric_name: "load_latest_alerts_error_logs",
@@ -498,8 +475,6 @@ function initLoadLatestAlerts (data) {
         };
 
         PMS.send(report);
-        sendReport(err.message);
->>>>>>> 4106adee95d5ee9960c03afce7d449fd074d1c9c
     }
 }
 
@@ -534,11 +509,7 @@ function displayQuickEventInbox (){
             console.log(err);
         }
     } catch (err) {
-<<<<<<< HEAD
-        console.log(err);
-        sendReport(err.message,0);;
-        //Add PMS here
-=======
+        sendReport(err.message,0);
         const report = {
             type: "error_logs",
             metric_name: "load_quick_inbox_error_logs",
@@ -550,8 +521,6 @@ function displayQuickEventInbox (){
         };
 
         PMS.send(report);
-        sendReport(err.message);
->>>>>>> 4106adee95d5ee9960c03afce7d449fd074d1c9c
     }
 }
 
@@ -693,10 +662,7 @@ function initializeOnSubmitEmployeeContactForm () {
         try{
             employeeContactFormValidation();
         } catch (err) {
-<<<<<<< HEAD
-            sendReport(err.message,0);;
-            //PMS
-=======
+            sendReport(err.message,0);
             const report = {
                 type: "error_logs",
                 metric_name: "on_click_submit_employee_form_error_logs",
@@ -708,8 +674,6 @@ function initializeOnSubmitEmployeeContactForm () {
             };
 
             PMS.send(report);
-            sendReport(err.message);
->>>>>>> 4106adee95d5ee9960c03afce7d449fd074d1c9c
         }
 	});
 }
@@ -719,10 +683,7 @@ function initializeOnSubmitCommunityContactForm () {
 		try{
 			communityContactFormValidation();
 		} catch (err) {
-<<<<<<< HEAD
 			sendReport(err.message,0);;
-            //PMS
-=======
             const report = {
                 type: "error_logs",
                 metric_name: "on_click_submit_community_form_error_logs",
@@ -734,8 +695,6 @@ function initializeOnSubmitCommunityContactForm () {
             };
 
             PMS.send(report);
-			sendReport(err.message);
->>>>>>> 4106adee95d5ee9960c03afce7d449fd074d1c9c
 		}
 	});
 }
@@ -745,10 +704,7 @@ function initializeOnSubmitUnregisteredEmployeeContactForm (){
         try{
             unregisteredEmployeeContactFormValidation();
         } catch (err) {
-<<<<<<< HEAD
             sendReport(err.message,0);;
-            //PMS
-=======
             const report = {
                 type: "error_logs",
                 metric_name: "on_click_submit_unregistered_form_error_logs",
@@ -760,8 +716,6 @@ function initializeOnSubmitUnregisteredEmployeeContactForm (){
             };
 
             PMS.send(report);
-            sendReport(err.message);
->>>>>>> 4106adee95d5ee9960c03afce7d449fd074d1c9c
         }
     });
 }
@@ -771,10 +725,7 @@ function initializeOnSubmitUnregisteredCommunityContactForm (){
         try{
             unregisteredCommunityContactFormValidation();
         } catch (err) {
-<<<<<<< HEAD
             sendReport(err.message,0);;
-            //PMS
-=======
             const report = {
             type: "error_logs",
             metric_name: "display_ewi_status_error_logs",
@@ -786,8 +737,6 @@ function initializeOnSubmitUnregisteredCommunityContactForm (){
         };
 
         PMS.send(report);
-            sendReport(err.message);
->>>>>>> 4106adee95d5ee9960c03afce7d449fd074d1c9c
         }
     });
 }
@@ -1033,10 +982,7 @@ function checkChangesInPriority(){
 
         return has_duplicate;
     } catch(err) {
-<<<<<<< HEAD
         sendReport(err.message,0);;
-        // PMS
-=======
         const report = {
             type: "error_logs",
             metric_name: "check_changes_in_priority_error_logs",
@@ -1048,8 +994,6 @@ function checkChangesInPriority(){
         };
 
         PMS.send(report);
-        sendReport(err.message);
->>>>>>> 4106adee95d5ee9960c03afce7d449fd074d1c9c
     }
 }
 
@@ -1497,10 +1441,7 @@ function initializeScrollOldMessages() {
             };
             wss_connect.send(JSON.stringify(msg));
         } catch(err) {
-<<<<<<< HEAD
-            sendReport(err.message,0);;
-            // Add PMS here
-=======
+            sendReport(err.message,0);
             const report = {
                 type: "error_logs",
                 metric_name: "load_old_messages_error_logs",
@@ -1513,9 +1454,7 @@ function initializeScrollOldMessages() {
 
             PMS.send(report);
             sendReport(err.message);
->>>>>>> 4106adee95d5ee9960c03afce7d449fd074d1c9c
         }
-        
       }
     });
 }

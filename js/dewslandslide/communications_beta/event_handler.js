@@ -73,7 +73,17 @@ function initializeOnClickSendRoutine () {
 	    });
 	} catch(err) {
 		sendReport(err.message,0);
-		// PMS
+		const report = {
+            type: "error_logs",
+            metric_name: "send_routine_error_logs",
+            module_name: "Communications",
+            report_message: `${err}`,
+            reference_table: "",
+            reference_id: 0,
+            submetrics: []
+        };
+
+        PMS.send(report);
 	}
 
 }
@@ -139,7 +149,17 @@ function sendRoutineSMSToLEWC(raw) {
 					wss_connect.send(JSON.stringify(convo_details));   		
 				} catch(err) {
 					sendReport(err.message,0);
-					// Add PMS here
+					const report = {
+			            type: "error_logs",
+			            metric_name: "send_routine_error_logs",
+			            module_name: "Communications",
+			            report_message: `${err}`,
+			            reference_table: "",
+			            reference_id: 0,
+			            submetrics: []
+			        };
+
+			        PMS.send(report);
 				}
 				message = $("#routine-default-message").val();
 			}
@@ -343,7 +363,17 @@ function initializeOnClickQuickInbox () {
 			startConversation(conversation_details);
 		} catch(err) {
 			sendReport(err.message,0);
-			// PMS
+			const report = {
+	            type: "error_logs",
+	            metric_name: "click_quick_inbox_error_logs",
+	            module_name: "Communications",
+	            report_message: `${err}`,
+	            reference_table: "",
+	            reference_id: 0,
+	            submetrics: []
+	        };
+
+	        PMS.send(report);
 		}
 	});
 }
@@ -369,7 +399,17 @@ function initializeOnClickEventInbox () {
 			startConversation(conversation_details);
 		} catch(err) {
 			sendReport(err.message,0);
-			// PMS
+			const report = {
+	            type: "error_logs",
+	            metric_name: "click_event_inbox_error_logs",
+	            module_name: "Communications",
+	            report_message: `${err}`,
+	            reference_table: "",
+	            reference_id: 0,
+	            submetrics: []
+	        };
+
+	        PMS.send(report);
 		}
 	});
 }
@@ -391,7 +431,17 @@ function initializeOnClickUnregistered() {
 			startConversation(conversation_details);
 		} catch(err) {
 			sendReport(err.message,0);
-			// PMS
+			const report = {
+	            type: "error_logs",
+	            metric_name: "click_unregistered_inbox_error_logs",
+	            module_name: "Communications",
+	            report_message: `${err}`,
+	            reference_table: "",
+	            reference_id: 0,
+	            submetrics: []
+	        };
+
+	        PMS.send(report);
 		}
 	});
 }
@@ -424,7 +474,17 @@ function initializeGoLoadOnClick () {
 			}
 		} catch(err) {
 			sendReport(err.message,0);
-			// PMS
+			const report = {
+	            type: "error_logs",
+	            metric_name: "load_multiple_site_org_error_logs",
+	            module_name: "Communications",
+	            report_message: `${err}`,
+	            reference_table: "",
+	            reference_id: 0,
+	            submetrics: []
+	        };
+
+	        PMS.send(report);
 		}
 
 	});
@@ -447,7 +507,17 @@ function initializeSendMessageOnClick () {
 		    }
 		} catch(err) {
 			sendReport(err.message,0);
-			// PMS
+			const report = {
+	            type: "error_logs",
+	            metric_name: "sms_fails_error",
+	            module_name: "Communications",
+	            report_message: `${err}`,
+	            reference_table: "",
+	            reference_id: 0,
+	            submetrics: []
+	        };
+
+	        PMS.send(report);
 		}
 	});
 }
@@ -1032,7 +1102,17 @@ function initializeOnAvatarClickForTagging() {
 			getSmsTags(message_details[0],message_details[1]);	
 		} catch(err) {
 			sendReport(err.message,0);
-			// PMS
+			const report = {
+	            type: "error_logs",
+	            metric_name: "get_sms_tag_error_logs",
+	            module_name: "Communications",
+	            report_message: `${err}`,
+	            reference_table: "gintags",
+	            reference_id: 12,
+	            submetrics: []
+	        };
+
+	        PMS.send(report);
 		}
 	});
 }
@@ -1052,8 +1132,8 @@ function getSmsTags (sms_id, mobile_id) {
             metric_name: "get_sms_tag_error_logs",
             module_name: "Communications",
             report_message: `${err}`,
-            reference_table: "gintags_reference",
-            reference_id: 10,
+            reference_table: "gintags",
+            reference_id: 12,
             submetrics: []
         };
 
@@ -1186,7 +1266,17 @@ function initializeOnClickConfirmTagging () {
 			}
 		} catch(err) {
 			sendReport(err.message,0);
-			// PMS
+			const report = {
+	            type: "error_logs",
+	            metric_name: "confirm_tagging_error_logs",
+	            module_name: "Communications",
+	            report_message: `${err}`,
+	            reference_table: "gintags",
+	            reference_id: 12,
+	            submetrics: []
+	        };
+
+	        PMS.send(report);
 		}
 	});
 }
@@ -1201,7 +1291,17 @@ function initializeDeleteTag (tag){
 		wss_connect.send(JSON.stringify(message));
 	} catch(err) {
 		sendReport(err.message,0);
-		// PMS
+		const report = {
+            type: "error_logs",
+            metric_name: "delete_tag_error_logs",
+            module_name: "Communications",
+            report_message: `${err}`,
+            reference_table: "gintags",
+            reference_id: 12,
+            submetrics: []
+        };
+
+        PMS.send(report);
 	}
 }
 
@@ -1287,7 +1387,17 @@ function initializeOnClickConfirmNarrative () {
 			}
 		} catch(err) {
 			sendReport(err.message,0);
-			// PMS
+			const report = {
+	            type: "error_logs",
+	            metric_name: "confirm_narrative_error_logs",
+	            module_name: "Communications",
+	            report_message: `${err}`,
+	            reference_table: "narratives",
+	            reference_id: 26,
+	            submetrics: []
+	        };
+
+	    	PMS.send(report);
 		}
 	});
 }
@@ -1334,7 +1444,17 @@ function displaySitesToTag(sites) {
 			}
 		} catch(err) {
 			sendReport(err.message,0);
-			// PMS
+			const report = {
+	            type: "error_logs",
+	            metric_name: "display_sites_to_tag_error_logs",
+	            module_name: "Communications",
+	            report_message: `${err}`,
+	            reference_table: "",
+	            reference_id: 0,
+	            submetrics: []
+	        };
+
+	        PMS.send(report);
 		}
 	}
 }
@@ -1438,7 +1558,17 @@ function initializeQuickSearchMessages () {
 			wss_connect.send(JSON.stringify(request));
 		} catch(err) {
 			sendReport(err.message,0);
-			// PMS
+			const report = {
+	            type: "error_logs",
+	            metric_name: "quick_search_error_logs",
+	            module_name: "Communications",
+	            report_message: `${err}`,
+	            reference_table: "",
+	            reference_id: 0,
+	            submetrics: []
+	        };
+
+	        PMS.send(report);
 		}
 
 	});
@@ -1504,7 +1634,17 @@ function initializeConfirmEWITemplateViaChatterbox() {
 						$("#msg").val(rain_info_template);
                 	} catch(err) {
                 		sendReport(err.message,0);
-                		// PMS
+                		const report = {
+				            type: "error_logs",
+				            metric_name: "display_rain_info_error_logs",
+				            module_name: "Communications",
+				            report_message: `${err}`,
+				            reference_table: "",
+				            reference_id: 0,
+				            submetrics: []
+				        };
+
+				        PMS.send(report);
                 	}
 				}
 			});
@@ -1563,7 +1703,17 @@ function initializeLoadSearchedKeyMessage() {
 	        wss_connect.send(JSON.stringify(search_request));
 		} catch(err) {
 			sendReport(err.message,0);
-			// Add PMS here
+			const report = {
+	            type: "error_logs",
+	            metric_name: "search_key_error_logs",
+	            module_name: "Communications",
+	            report_message: `${err}`,
+	            reference_table: "",
+	            reference_id: 0,
+	            submetrics: []
+	        };
+
+	        PMS.send(report);
 		}
         
         $(".recent_activities").hide();
@@ -1674,7 +1824,17 @@ function initializeGndMeasSaveButton() {
 	            			$.notify('Ground measurement settings saved for special case!','success');
 						} catch(err) {
 							sendReport(err.message,0);
-							// Add PMS here
+							const report = {
+					            type: "error_logs",
+					            metric_name: "set_groud_meas_settings_error_logs",
+					            module_name: "Communications",
+					            report_message: `${err}`,
+					            reference_table: "",
+					            reference_id: 0,
+					            submetrics: []
+					        };
+
+					        PMS.send(report);
 						}
 			            
 		            }
@@ -1698,7 +1858,17 @@ function initializeGndMeasSaveButton() {
 	            	$.notify('Ground measurement settings saved!','success');
 				} catch(err) {
 					sendReport(err.message,0);
-					// Add PMS here
+					const report = {
+			            type: "error_logs",
+			            metric_name: "set_groud_meas_settings_error_logs",
+			            module_name: "Communications",
+			            report_message: `${err}`,
+			            reference_table: "",
+			            reference_id: 0,
+			            submetrics: []
+			        };
+
+			        PMS.send(report);
 				}
             	
           
@@ -1726,7 +1896,17 @@ function initializeGndMeasSaveButton() {
 		                wss_connect.send(JSON.stringify(gnd_meas_settings));
 					} catch(err) {
 						sendReport(err.message,0);
-						// Add PMS here
+						const report = {
+				            type: "error_logs",
+				            metric_name: "set_groud_meas_settings_error_logs",
+				            module_name: "Communications",
+				            report_message: `${err}`,
+				            reference_table: "",
+				            reference_id: 0,
+				            submetrics: []
+				        };
+
+				        PMS.send(report);
 					}
 	                
 	                if (special_case_length > 0) {
@@ -1750,11 +1930,19 @@ function initializeGndMeasSaveButton() {
 		                        $.notify('Ground measurement settings saved!','success');       
 							} catch(err) {
 								sendReport(err.message,0);
-								// Add PMS here
-							}
-	                             
+								const report = {
+						            type: "error_logs",
+						            metric_name: "set_groud_meas_settings_error_logs",
+						            module_name: "Communications",
+						            report_message: `${err}`,
+						            reference_table: "",
+						            reference_id: 0,
+						            submetrics: []
+						        };
+
+						        PMS.send(report);
+							} 
 	                    }
-	                	
 		            } else {
 		            	// $.notify('Please check at least on site on special cases','error');
 		            }

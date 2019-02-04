@@ -137,7 +137,6 @@ function getCommunityContact(){
 		};
 		wss_connect.send(JSON.stringify(community_details));
 	} catch(err) {
-		console.log(err);
 		const report = {
             type: "error_logs",
             metric_name: "load_community_contact_error_logs",
@@ -263,8 +262,24 @@ function displayQuickInboxMain(msg_data) {
 
 function displayUnregisteredInboxMain(msg_data) {
 	try {
-		for (let counter = 0; counter < msg_data.length; counter++) {
-			quick_inbox_unregistered.push(msg_data[counter]);
+		try {
+			for (let counter = 0; counter < msg_data.length; counter++) {
+				quick_inbox_unregistered.push(msg_data[counter]);
+			}
+			
+		} catch(err) {
+			const report = {
+	            type: "error_logs",
+	            metric_name: "display_unregistered_error_logs",
+	            module_name: "Communications",
+	            report_message: `${err}`,
+	            reference_table: "",
+	            reference_id: 0,
+	            submetrics: []
+	        };
+
+	        PMS.send(report);
+	        sendReport(err.message,0);
 		}
 		
 	
@@ -272,9 +287,8 @@ function displayUnregisteredInboxMain(msg_data) {
 
 		$("#quick-unregistered-inbox-display").html(quick_inbox_html);
 		$("#quick-unregistered-inbox-display").scrollTop(0);
-	} catch(err) {
-        sendReport(err.message,0);
-		const report = {
+	} catch (err) {
+    	const report = {
             type: "error_logs",
             metric_name: "display_unregistered_error_logs",
             module_name: "Communications",
@@ -285,7 +299,8 @@ function displayUnregisteredInboxMain(msg_data) {
         };
 
         PMS.send(report);
-	} 
+    	sendReport(err.message,0);
+
 }
 
 function updateLatestPublicRelease (msg) {
@@ -307,6 +322,7 @@ function updateLatestPublicRelease (msg) {
         };
 
         PMS.send(report);
+		sendReport(err.message,0);
     }
 }
 
@@ -323,17 +339,29 @@ function displayNewSmsQuickInbox(msg_data) {
 	}
 
 	try {
-		for (let counter = 0; counter < new_inbox.length; counter++) {
-			new_inbox[counter].isunknown = 0;
-			quick_inbox_registered.unshift(new_inbox[counter]);
+		try {
+			for (let counter = 0; counter < new_inbox.length; counter++) {
+				new_inbox[counter].isunknown = 0;
+				quick_inbox_registered.unshift(new_inbox[counter]);
+			}
+		} catch(err) {
+			const report = {
+	            type: "error_logs",
+	            metric_name: "quick_inbox_error_log",
+	            module_name: "Communications",
+	            report_message: `${err}`,
+	            reference_table: "smsinbox",
+	            reference_id: 23,
+	            submetrics: []
+	        };
+
+	        PMS.send(report);
+			sendReport(err.message,0);
 		}
 		quick_inbox_html = quick_inbox_template({'quick_inbox_messages': quick_inbox_registered});
 		$("#quick-inbox-display").html(quick_inbox_html);
 		$("#quick-inbox-display").scrollTop(0);
-	} catch(err) {
-
-		sendReport(err.message,0);
-
+	} catch (err) {
 		const report = {
             type: "error_logs",
             metric_name: "quick_inbox_error_log",
@@ -345,6 +373,7 @@ function displayNewSmsQuickInbox(msg_data) {
         };
 
         PMS.send(report);
+		sendReport(err.message,0);
 	}
 }
 
@@ -567,7 +596,6 @@ function displayOrganizationSelection (orgs,user_orgs = []) {
 		}
 		$('<div id="new-org" class="col-md-12"><a href="#" id="add-org"><span class="glyphicon glyphicon-info-sign"></span>&nbsp;Organization not on the list?</a></div>').appendTo('#organization-selection-div');
 	} catch (err) {
-		sendReport(err.message,0);
 		const report = {
             type: "error_logs",
             metric_name: "user_org_error_log",
