@@ -67,19 +67,34 @@ function initializeEwiPhoneExtendedButton() {
 }
 
 function displayTemplatesAndRecipients(recipients,template) {
-	temp_ewi_template_holder = template.data;
-	$("#ewi-recipients-dashboard").tagsinput('removeAll');
-	recipients.forEach(function(row) {
-		let construct_name = row.site_code.toUpperCase()+" "+row.org_name.toUpperCase()+" - "+row.firstname.toUpperCase()+". "+row.lastname.toUpperCase();
-		$("#ewi-recipients-dashboard").tagsinput('add', construct_name );
-	});
-    $("#constructed-ewi-amd").prop("disabled", true);
-    $("#constructed-ewi-amd").val(temp_ewi_template_holder);
-    $("#edit-btn-ewi-amd").attr("class", "btn btn-warning");
-    $("#edit-btn-ewi-amd").text("Edit");
-    $("#edit-btn-ewi-amd").val("edit");
-	$("#constructed-ewi-amd").text(template.data);
-	$("#ewi-asap-modal").modal("show");
+    try {
+        temp_ewi_template_holder = template.data;
+        $("#ewi-recipients-dashboard").tagsinput('removeAll');
+        recipients.forEach(function(row) {
+            let construct_name = row.site_code.toUpperCase()+" "+row.org_name.toUpperCase()+" - "+row.firstname.toUpperCase()+". "+row.lastname.toUpperCase();
+            $("#ewi-recipients-dashboard").tagsinput('add', construct_name );
+        });
+        $("#constructed-ewi-amd").prop("disabled", true);
+        $("#constructed-ewi-amd").val(temp_ewi_template_holder);
+        $("#edit-btn-ewi-amd").attr("class", "btn btn-warning");
+        $("#edit-btn-ewi-amd").text("Edit");
+        $("#edit-btn-ewi-amd").val("edit");
+        $("#constructed-ewi-amd").text(template.data);
+        $("#ewi-asap-modal").modal("show");
+    } catch(err) {
+        sendReport(err.message);
+        const report = {
+            type: "error_logs",
+            metric_name: "display_templates_and_recipients_error_logs",
+            module_name: "Communications",
+            report_message: `${err}`,
+            reference_table: "",
+            reference_id: 0,
+            submetrics: []
+        };
+
+        PMS.send(report);
+    }
 }
 
 
@@ -121,22 +136,37 @@ function initializeSendButton() {
 }
 
 function displayEwiStatus(ewi_status,gtag_status) {
-	let temp = "";
-	ewi_status.forEach(function(ewi) {
-		if (ewi.status == null || ewi.status[0].status == false) {
-			if (temp == "") {
-				temp = "Failed to send EWI to: "+ewi.recipient;
-			} else {
-				temp = temp+", "+ewi.recipient;
-			}
-		}
-	});
-  	
-	if (temp == "") {
-		$.notify("Successfully Tagged message as #EwiMessage", "success", {hideDuration: 400});
-		$.notify("Successfully Sent Early Warning Information.", "success",{hideDuration: 400});
-	} else {
-		$.notify(temp, "error",{hideDuration: 400});
-	}
-	$("#ewi-asap-modal").modal("hide");
+    try {
+        let temp = "";
+        ewi_status.forEach(function(ewi) {
+            if (ewi.status == null || ewi.status[0].status == false) {
+                if (temp == "") {
+                    temp = "Failed to send EWI to: "+ewi.recipient;
+                } else {
+                    temp = temp+", "+ewi.recipient;
+                }
+            }
+        });
+        
+        if (temp == "") {
+            $.notify("Successfully Tagged message as #EwiMessage", "success", {hideDuration: 400});
+            $.notify("Successfully Sent Early Warning Information.", "success",{hideDuration: 400});
+        } else {
+            $.notify(temp, "error",{hideDuration: 400});
+        }
+        $("#ewi-asap-modal").modal("hide");
+    } catch(err) {
+        sendReport(err.message);
+        const report = {
+            type: "error_logs",
+            metric_name: "display_ewi_status_error_logs",
+            module_name: "Communications",
+            report_message: `${err}`,
+            reference_table: "",
+            reference_id: 0,
+            submetrics: []
+        };
+
+        PMS.send(report);
+    }
 }

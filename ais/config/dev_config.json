@@ -1,0 +1,10 @@
+{
+	"data" : [
+		{"user_id": "56", "nickname" : "John", "mobile_id" : ["30"], "internal_team": [0,2]},
+		{"user_id": "76", "nickname" : "David", "mobile_id" : ["562"], "internal_team": [0,2]},
+		{"user_id": "37", "nickname" : "Kevin", "mobile_id" : ["47"], "internal_team": [1,2]},
+		{"user_id": "77", "nickname" : "Louie", "mobile_id" : ["51"], "internal_team": [1,2]},
+		{"user_id": "20", "nickname" : "Ivy", "mobile_id" : ["13","49"], "internal_team": [2]}
+	],
+	"modules": ["chatterbox","public_alert_generation","general_module"]
+}
