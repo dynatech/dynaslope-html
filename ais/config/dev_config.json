@@ -1,9 +1,10 @@
 {
 	"data" : [
-		{"mobie_id": "56", "nickaname" : "John", "mobile_id" : ["30"]},
-		{"mobie_id": "76", "nickaname" : "David", "mobile_id" : ["562"]},
-		{"mobie_id": "37", "nickaname" : "Kevin", "mobile_id" : ["47"]},
-		{"mobie_id": "77", "nickaname" : "Louie", "mobile_id" : ["51"]},
-		{"mobie_id": "20", "nickaname" : "Ivy", "mobile_id" : ["13","49"]}
-	]
+		{"user_id": "56", "nickname" : "John", "mobile_id" : ["30"], "internal_team": [0,2]},
+		{"user_id": "76", "nickname" : "David", "mobile_id" : ["562"], "internal_team": [0,2]},
+		{"user_id": "37", "nickname" : "Kevin", "mobile_id" : ["47"], "internal_team": [1,2]},
+		{"user_id": "77", "nickname" : "Louie", "mobile_id" : ["51"], "internal_team": [1,2]},
+		{"user_id": "20", "nickname" : "Ivy", "mobile_id" : ["13","49"], "internal_team": [2]}
+	],
+	"modules": ["chatterbox","public_alert_generation","general_module"]
 }

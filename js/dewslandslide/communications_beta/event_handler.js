@@ -72,7 +72,7 @@ function initializeOnClickSendRoutine () {
 	        getRoutineMobileIDs(offices, sites_on_routine);                
 	    });
 	} catch(err) {
-		sendReport(err.message);
+		sendReport(err.message,0);
 		// PMS
 	}
 
@@ -99,7 +99,7 @@ function getRoutineMobileIDs(offices, sites_on_routine) {
         };
 
         PMS.send(report);
-        sendReport(err.message);
+        sendReport(err.message,0);
 	}
 }
 
@@ -138,7 +138,7 @@ function sendRoutineSMSToLEWC(raw) {
 					};
 					wss_connect.send(JSON.stringify(convo_details));   		
 				} catch(err) {
-					sendReport(err.message);
+					sendReport(err.message,0);
 					// Add PMS here
 				}
 				message = $("#routine-default-message").val();
@@ -342,7 +342,7 @@ function initializeOnClickQuickInbox () {
 			conversation_details_label = site+" "+office+" - "+firstname+" "+lastname;
 			startConversation(conversation_details);
 		} catch(err) {
-			sendReport(err.message);
+			sendReport(err.message,0);
 			// PMS
 		}
 	});
@@ -368,7 +368,7 @@ function initializeOnClickEventInbox () {
 			conversation_details_label = site+" "+office+" - "+firstname+" "+lastname;
 			startConversation(conversation_details);
 		} catch(err) {
-			sendReport(err.message);
+			sendReport(err.message,0);
 			// PMS
 		}
 	});
@@ -390,7 +390,7 @@ function initializeOnClickUnregistered() {
 			conversation_details_label = firstname+" "+lastname;
 			startConversation(conversation_details);
 		} catch(err) {
-			sendReport(err.message);
+			sendReport(err.message,0);
 			// PMS
 		}
 	});
@@ -423,7 +423,7 @@ function initializeGoLoadOnClick () {
 				loadSiteConversation();			
 			}
 		} catch(err) {
-			sendReport(err.message);
+			sendReport(err.message,0);
 			// PMS
 		}
 
@@ -446,7 +446,7 @@ function initializeSendMessageOnClick () {
 				
 		    }
 		} catch(err) {
-			sendReport(err.message);
+			sendReport(err.message,0);
 			// PMS
 		}
 	});
@@ -749,7 +749,7 @@ function submitEmployeeInformation () {
         };
 
         PMS.send(report);
-        sendReport(err.message);
+        sendReport(err.message,0);
 	}
 	
 }
@@ -826,7 +826,7 @@ function submitUnregisteredEmployeeInformation () {
         };
 
         PMS.send(report);
-        sendReport(err.message);
+        sendReport(err.message,0);
 	}
 	
 }
@@ -903,7 +903,7 @@ function submitCommunityContactForm (sites, organizations) {
         };
 
         PMS.send(report);
-        sendReport(err.message);
+        sendReport(err.message,0);
 	}
 }
 
@@ -975,7 +975,7 @@ function submitUnregisteredCommunityContactForm (sites, organizations) {
         };
 
         PMS.send(report);
-        sendReport(err.message);
+        sendReport(err.message,0);
 	}
 }
 
@@ -1031,7 +1031,7 @@ function initializeOnAvatarClickForTagging() {
 			user = message_details[2].split(" ");
 			getSmsTags(message_details[0],message_details[1]);	
 		} catch(err) {
-			sendReport(err.message);
+			sendReport(err.message,0);
 			// PMS
 		}
 	});
@@ -1058,7 +1058,7 @@ function getSmsTags (sms_id, mobile_id) {
         };
 
         PMS.send(report);
-        sendReport(err.message);
+        sendReport(err.message,0);
 	}
 	
 }
@@ -1093,7 +1093,7 @@ function initializeEWITemplateModal() {
 	        };
 
         	PMS.send(report);
-        	sendReport(err.message);
+        	sendReport(err.message,0);
 		}
         
 	});
@@ -1185,7 +1185,7 @@ function initializeOnClickConfirmTagging () {
 				}
 			}
 		} catch(err) {
-			sendReport(err.message);
+			sendReport(err.message,0);
 			// PMS
 		}
 	});
@@ -1200,7 +1200,7 @@ function initializeDeleteTag (tag){
 		}
 		wss_connect.send(JSON.stringify(message));
 	} catch(err) {
-		sendReport(err.message);
+		sendReport(err.message,0);
 		// PMS
 	}
 }
@@ -1266,7 +1266,7 @@ function addNewTags (message_details, new_tag, is_important, site_code, recipien
         };
 
     	PMS.send(report);
-    	sendReport(err.message);
+    	sendReport(err.message,0);
 	}
 	
 }
@@ -1286,7 +1286,7 @@ function initializeOnClickConfirmNarrative () {
 				addNewTags(message_details, TEMP_IMPORTANT_TAG, true, sites_selected, recipient_container);
 			}
 		} catch(err) {
-			sendReport(err.message);
+			sendReport(err.message,0);
 			// PMS
 		}
 	});
@@ -1333,7 +1333,7 @@ function displaySitesToTag(sites) {
 				$("#tag_sites").append('<div class="checkbox col-xs-2" style="margin-top: 10px;"><label class="sites-to-tag"><input name="sitenames" type="checkbox" value="'+site_id+'" checked>'+sitename.toUpperCase()+'</label></div>');
 			}
 		} catch(err) {
-			sendReport(err.message);
+			sendReport(err.message,0);
 			// PMS
 		}
 	}
@@ -1359,7 +1359,7 @@ function initializeAlertStatusOnChange() {
 	        };
 
 	    	PMS.send(report);
-	    	sendReport(err.message);
+	    	sendReport(err.message,0);
 		}
         
     });
@@ -1437,7 +1437,7 @@ function initializeQuickSearchMessages () {
 			}
 			wss_connect.send(JSON.stringify(request));
 		} catch(err) {
-			sendReport(err.message);
+			sendReport(err.message,0);
 			// PMS
 		}
 
@@ -1503,7 +1503,7 @@ function initializeConfirmEWITemplateViaChatterbox() {
 			    		}
 						$("#msg").val(rain_info_template);
                 	} catch(err) {
-                		sendReport(err.message);
+                		sendReport(err.message,0);
                 		// PMS
                 	}
 				}
@@ -1538,7 +1538,7 @@ function initializeConfirmEWITemplateViaChatterbox() {
 		        };
 
 		    	PMS.send(report);
-		    	sendReport(err.message);
+		    	sendReport(err.message,0);
 			}
 	    }
     });
@@ -1562,7 +1562,7 @@ function initializeLoadSearchedKeyMessage() {
 	        };
 	        wss_connect.send(JSON.stringify(search_request));
 		} catch(err) {
-			sendReport(err.message);
+			sendReport(err.message,0);
 			// Add PMS here
 		}
         
@@ -1591,7 +1591,7 @@ function initializeEmployeeContactGroupSending() {
 	        };
 
 	    	PMS.send(report);
-	    	sendReport(err.message);
+	    	sendReport(err.message,0);
 		}
         
 	});
@@ -1623,7 +1623,7 @@ function initializeSemiAutomatedGroundMeasurementReminder() {
 	        };
 
 	    	PMS.send(report);
-	    	sendReport(err.message);
+	    	sendReport(err.message,0);
 		}
         
     });
@@ -1673,7 +1673,7 @@ function initializeGndMeasSaveButton() {
 	                    	wss_connect.send(JSON.stringify(special_case_settings));
 	            			$.notify('Ground measurement settings saved for special case!','success');
 						} catch(err) {
-							sendReport(err.message);
+							sendReport(err.message,0);
 							// Add PMS here
 						}
 			            
@@ -1697,7 +1697,7 @@ function initializeGndMeasSaveButton() {
 		            wss_connect.send(JSON.stringify(gnd_meas_settings));
 	            	$.notify('Ground measurement settings saved!','success');
 				} catch(err) {
-					sendReport(err.message);
+					sendReport(err.message,0);
 					// Add PMS here
 				}
             	
@@ -1725,7 +1725,7 @@ function initializeGndMeasSaveButton() {
 		                };
 		                wss_connect.send(JSON.stringify(gnd_meas_settings));
 					} catch(err) {
-						sendReport(err.message);
+						sendReport(err.message,0);
 						// Add PMS here
 					}
 	                
@@ -1749,7 +1749,7 @@ function initializeGndMeasSaveButton() {
 		                        wss_connect.send(JSON.stringify(gnd_meas_settings));  
 		                        $.notify('Ground measurement settings saved!','success');       
 							} catch(err) {
-								sendReport(err.message);
+								sendReport(err.message,0);
 								// Add PMS here
 							}
 	                             
@@ -1802,7 +1802,7 @@ function resetSpecialCases() {
         };
 
     	PMS.send(report);
-    	sendReport(err.message);
+    	sendReport(err.message,0);
 	}
     
 }
@@ -1834,7 +1834,7 @@ function loadSiteConvoViaQacess() {
 	        };
 
 	    	PMS.send(report);
-	    	sendReport(err.message);
+	    	sendReport(err.message,0);
 		}
     	
     });

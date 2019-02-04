@@ -32,7 +32,7 @@ function reconstructSavedSettingsForGndMeasReminder(settings, def_event, def_ext
 	    	displaySavedReminderMessage(settings, def_event, def_extended, def_routine);
 	    }
 	} catch(err) {
-		sendReport(err.message);
+		sendReport(err.message,0);
 		// PMS
 	}
 }
@@ -127,7 +127,7 @@ function changeSemiAutomationSettings(category, data) {
 	        } 
 	    }
 	} catch(err) {
-		sendReport(err.message);
+		sendReport(err.message,0);
 		// PMS
 	}
 }
@@ -322,7 +322,7 @@ function displaySavedReminderMessage (settings, def_event, def_extended, def_rou
 	        break;
 	    }
     } catch(err) {
-    	sendReport(err.message);
+    	sendReport(err.message,0);
     	// PMS
     }
 
@@ -421,7 +421,7 @@ function displaySitesForGndMeasReminder(data) {
 	        } 
 	    }
 	} catch(err) {
-		sendReport(err.message);
+		sendReport(err.message,0);
 		// PMS
 	}
 }
@@ -457,7 +457,7 @@ function addSpecialCase () {
 	        if (site_count <= special_case_num) $("#add-special-case").prop('disabled',true); 
 	    }
     } catch(err) {
-    	sendReport(err.message);
+    	sendReport(err.message,0);
     	// PMS
     }
 }

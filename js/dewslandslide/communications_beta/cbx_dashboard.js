@@ -82,7 +82,7 @@ function displayTemplatesAndRecipients(recipients,template) {
         $("#constructed-ewi-amd").text(template.data);
         $("#ewi-asap-modal").modal("show");
     } catch(err) {
-        sendReport(err.message);
+        sendReport(err.message,0);
         // PMS
     }
 }
@@ -146,7 +146,7 @@ function displayEwiStatus(ewi_status,gtag_status) {
         }
         $("#ewi-asap-modal").modal("hide");
     } catch(err) {
-        sendReport(err.message);
+        sendReport(err.message,0);
         // PMS
     }
 }
