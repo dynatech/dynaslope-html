@@ -479,10 +479,12 @@ function initLoadLatestAlerts (data) {
 }
 
 function initializeUncheckSiteOnEventInRoutine(event_sites){
-    event_sites.forEach(function(site) {
-        const { site_code } = site;
-        $(".routine-site-selection label").find("input[value="+site_code+"]").prop("checked", false);
-    });
+    if(event_sites.length != 0){
+        event_sites.forEach(function(site) {
+            const { site_code } = site;
+            $(".routine-site-selection label").find("input[value="+site_code+"]").prop("checked", false);
+        });
+    }
 }
 
 function displayQuickEventInbox (){
