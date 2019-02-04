@@ -236,7 +236,7 @@ function displayQuickInboxMain(msg_data) {
 		    };
 
 		    PMS.send(report);
-        	sendReport(err.message);
+        	sendReport(err,0)
 		}
 
 		quick_inbox_html = quick_inbox_template({'quick_inbox_messages': quick_inbox_registered});
@@ -256,7 +256,7 @@ function displayQuickInboxMain(msg_data) {
         };
 
         PMS.send(report);
-        sendReport(err.message);
+        sendReport(err,0)
 	}
 }
 
@@ -279,7 +279,7 @@ function displayUnregisteredInboxMain(msg_data) {
 	        };
 
 	        PMS.send(report);
-	        sendReport(err.message);
+	        sendReport(err,0)
 		}
 		
 	
@@ -299,7 +299,7 @@ function displayUnregisteredInboxMain(msg_data) {
         };
 
         PMS.send(report);
-    	sendReport(err.message);
+    	sendReport(err,0)
     }
 }
 
@@ -322,7 +322,7 @@ function updateLatestPublicRelease (msg) {
         };
 
         PMS.send(report);
-		sendReport(err.message);
+		sendReport(err,0)
     }
 }
 
@@ -356,7 +356,7 @@ function displayNewSmsQuickInbox(msg_data) {
 	        };
 
 	        PMS.send(report);
-			sendReport(err.message);
+			sendReport(err,0)
 		}
 		quick_inbox_html = quick_inbox_template({'quick_inbox_messages': quick_inbox_registered});
 		$("#quick-inbox-display").html(quick_inbox_html);
@@ -373,7 +373,7 @@ function displayNewSmsQuickInbox(msg_data) {
         };
 
         PMS.send(report);
-		sendReport(err.message);
+		sendReport(err,0)
 	}
 }
 
@@ -390,7 +390,7 @@ function displayOrgSelection(data){
 			$("#offices-"+modIndex).append('<div class="checkbox"><label><input type="checkbox" id="id_'+office+'" name="orgs" class="form-group" value="'+office+'">'+office.toUpperCase()+'</label></div>');
 		}
 	} catch(err) {
-		sendReport(err.message);
+		sendReport(err,0)
 		const report = {
             type: "error_logs",
             metric_name: "orgs_error_logs",
@@ -435,7 +435,7 @@ function displayDataTableCommunityContacts(cmmty_contact_data){
 		});
 	$('#comm-response-contact-container').prop('hidden',false);
 	} catch (err) {
-		sendReport(err.message);
+		sendReport(err,0)
 		const report = {
             type: "error_logs",
             metric_name: "load_community_contact_error_logs",
@@ -467,7 +467,7 @@ function displayDataTableEmployeeContacts(dwsl_contact_data) {
 		});
 		$('#emp-response-contact-container').prop('hidden',false);
 	} catch(err) {
-		sendReport(err.message);
+		sendReport(err,0)
 		const report = {
             type: "error_logs",
             metric_name: "load_employee_contact_error_logs",
@@ -498,7 +498,7 @@ function displayDataTableUnregisteredContacts (unregistered_data){
 		});
 		$('#unregistered-contact-container').prop('hidden',false);
 	} catch(err) {
-		sendReport(err.message);
+		sendReport(err,0)
 		const report = {
             type: "error_logs",
             metric_name: "load_unregistered_contact_error_logs",
@@ -556,7 +556,7 @@ function displaySiteSelection (sites,psgc_source = []) {
 		$('<div id="new-site" class="col-md-12"><a href="#" id="add-site"><span class="glyphicon glyphicon-info-sign"></span>&nbsp;Site not on the list?</a></div>').appendTo('#site-accord .panel-body');
 
 	} catch(err) {
-		sendReport(err.message);
+		sendReport(err,0)
 		const report = {
             type: "error_logs",
             metric_name: "user_site_error_log",
@@ -607,7 +607,7 @@ function displayOrganizationSelection (orgs,user_orgs = []) {
         };
 
         PMS.send(report);
-		sendReport(err.message);;
+		sendReport(err,0);
 	}
 }
 
@@ -671,7 +671,7 @@ function displayConversationPanel(msg_data, full_data, recipients, titles, isOld
 
 		initializeOnClickCallLogModal(recipient_container);
 	} catch(err) {
-		sendReport(err.message);
+		sendReport(err,0)
 		const report_outbox = {
             type: "error_logs",
             metric_name: "display_site_conversation_error_logs",
@@ -749,7 +749,7 @@ function displayUpdatedMessages(data, isOld = false) {
 		}
 		message_container = [];
 	} catch(err) {
-		sendReport(err.message);
+		sendReport(err,0)
 		const report_outbox = {
             type: "error_logs",
             metric_name: "display_site_conversation_error_logs",
@@ -799,7 +799,7 @@ function setLastTs(isOld, data) {
 			}
 		}
 	} catch(err) {
-		sendReport(err.message);
+		sendReport(err,0)
 		const reports = {
             type: "error_logs",
             metric_name: "set_last_ts_error_logs",
@@ -905,7 +905,7 @@ function displayUpdateEmployeeDetails (employee_data) {
 			}
 		}
 	} catch(err) {
-		sendReport(err.message);
+		sendReport(err,0)
 		const report_user_details = {
             type: "error_logs",
             metric_name: "display_user_details_error_logs",
@@ -1004,7 +1004,7 @@ function displayUpdateCommunityDetails (community_data) {
 		displaySiteSelection(community_data.list_of_sites, community_data.org_data);
 		displayOrganizationSelection(community_data.list_of_orgs, community_data.org_data);
 	} catch(err) {
-		sendReport(err.message);
+		sendReport(err,0)
 		const report_user_details = {
             type: "error_logs",
             metric_name: "display_user_details_error_logs",
@@ -1055,7 +1055,7 @@ function initializeContactPriorityBehavior(site_id, user_id, org_data){
             submetrics: []
         };
 		PMS.send(report_contact_behavior);
-		sendReport(err.message);;
+		sendReport(err,0);
 	}
 }
 
@@ -1103,7 +1103,7 @@ function displayContactHierarchy(data){
             submetrics: []
         };
 		PMS.send(report_contact_hierarchy);
-		sendReport(err.message);
+		sendReport(err,0)
 	}
 }
 
@@ -1155,7 +1155,7 @@ function displayUnregisteredMobiles(data){
 			}
 		}
 	} catch (err) {
-		sendReport(err.message);
+		sendReport(err,0)
 		const report = {
             type: "error_logs",
             metric_name: "display_unregistered_error_logs",
@@ -1270,7 +1270,7 @@ function appendContactForms (type, number_count, category, data) {
 			community_input_count_landline += 1;
 		}
 	} catch(err) {
-		sendReport(err.message);
+		sendReport(err,0)
 		const report = {
             type: "error_logs",
             metric_name: "display_mobile_number_error_logs",
@@ -1334,7 +1334,7 @@ function siteConversation(){
         };
 
         PMS.send(report);
-        sendReport(err.message);
+        sendReport(err,0)
 	}
 
 }
@@ -1413,7 +1413,7 @@ function updateSmsConversationBubble(data) {
 			displayUpdatedMessages(msg_container);		
 		} 
 	} catch(err) {
-		sendReport(err.message);
+		sendReport(err,0)
 		const report = {
             type: "error_logs",
             metric_name: "update_sms_conversation_error_log",
@@ -1454,7 +1454,7 @@ function displayImportantTags (data , is_loaded = false) {
 			});
 		}
 	} catch(err) {
-		sendReport(err.message);
+		sendReport(err,0)
 		const report = {
             type: "error_logs",
             metric_name: "get_important_tags_error_logs",
@@ -1489,7 +1489,7 @@ function addSitesActivity (sites) {
 	    recent_sites_collection.push(sites);
 	    localStorage.rv_sites = JSON.stringify(recent_sites_collection);
 	} catch(err) {
-		sendReport(err.message);
+		sendReport(err,0)
 		const report = {
             type: "error_logs",
             metric_name: "site_activity_error_logs",
@@ -1519,7 +1519,7 @@ function addContactsActivity (contacts) {
 	    recent_contacts_collection.push(contacts);
 	    localStorage.rv_contacts = JSON.stringify(recent_contacts_collection);
 	} catch(err) {
-		sendReport(err.message);
+		sendReport(err,0)
 		const report = {
             type: "error_logs",
             metric_name: "contact_activity_error_logs",
@@ -1551,7 +1551,7 @@ function displayEWITemplateOptions(data) {
 	    }
     	$("#early-warning-modal").modal("toggle");
 	} catch(err) {
-		sendReport(err.message);
+		sendReport(err,0)
 		const report = {
             type: "error_logs",
             metric_name: "ewi_template_option_error_logs",
@@ -1595,7 +1595,7 @@ function displayEWIAlertLvlInternalLvl(data) {
 	        }
 	    }
 	} catch(err) {
-		sendReport(err.message);
+		sendReport(err,0)
 		const report = {
             type: "error_logs",
             metric_name: "ewi_alert_level_error_logs",
@@ -1624,7 +1624,7 @@ function displaySearchedKey(data) {
 			});
 		}
 	} catch(err) {
-		sendReport(err.message);
+		sendReport(err,0)
 		const report = {
             type: "error_logs",
             metric_name: "search_key_error_logs",
@@ -1661,7 +1661,7 @@ function displayTeamsGroupSending(data) {
 	        }
 	    }
 	} catch(err) {
-		sendReport(err.message);
+		sendReport(err,0)
 		const report = {
             type: "error_logs",
             metric_name: "group_send_error_logs",
