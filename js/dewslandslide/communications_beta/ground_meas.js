@@ -32,8 +32,18 @@ function reconstructSavedSettingsForGndMeasReminder(settings, def_event, def_ext
 	    	displaySavedReminderMessage(settings, def_event, def_extended, def_routine);
 	    }
 	} catch(err) {
+		const report = {
+            type: "error_logs",
+            metric_name: "reconstruct_saved_settings_error_logs",
+            module_name: "Communications",
+            report_message: `${err}`,
+            reference_table: "ground_meas_reminder_automation",
+            reference_id: 15,
+            submetrics: []
+        };
+
+        PMS.send(report);
 		sendReport(err.message);
-		// PMS
 	}
 }
 
@@ -127,8 +137,18 @@ function changeSemiAutomationSettings(category, data) {
 	        } 
 	    }
 	} catch(err) {
+		const report = {
+            type: "error_logs",
+            metric_name: "change_automation_settings_error_logs",
+            module_name: "Communications",
+            report_message: `${err}`,
+            reference_table: "ground_meas_reminder_automation",
+            reference_id: 15,
+            submetrics: []
+        };
+
+        PMS.send(report);
 		sendReport(err.message);
-		// PMS
 	}
 }
 
@@ -322,8 +342,18 @@ function displaySavedReminderMessage (settings, def_event, def_extended, def_rou
 	        break;
 	    }
     } catch(err) {
+    	const report = {
+            type: "error_logs",
+            metric_name: "display_saved_reminder_settings_error_logs",
+            module_name: "Communications",
+            report_message: `${err}`,
+            reference_table: "ground_meas_reminder_automation",
+            reference_id: 15,
+            submetrics: []
+        };
+
+        PMS.send(report);
     	sendReport(err.message);
-    	// PMS
     }
 
 }
@@ -422,7 +452,6 @@ function displaySitesForGndMeasReminder(data) {
 	    }
 	} catch(err) {
 		sendReport(err.message);
-		// PMS
 	}
 }
 
@@ -457,8 +486,18 @@ function addSpecialCase () {
 	        if (site_count <= special_case_num) $("#add-special-case").prop('disabled',true); 
 	    }
     } catch(err) {
+    	const report = {
+            type: "error_logs",
+            metric_name: "gndmeas_add_sepecial_case_error_logs",
+            module_name: "Communications",
+            report_message: `${err}`,
+            reference_table: "",
+            reference_id: 0,
+            submetrics: []
+        };
+
+        PMS.send(report);
     	sendReport(err.message);
-    	// PMS
     }
 }
 
@@ -490,8 +529,18 @@ function resetSpecialCases () {
 		};
 		wss_connect.send(JSON.stringify(data)); 
 	} catch(err) {
+		const report = {
+            type: "error_logs",
+            metric_name: "get_gnd_meas_default_settings_error_logs",
+            module_name: "Communications",
+            report_message: `${err}`,
+            reference_table: "ground_meas_reminder_automation",
+            reference_id: 15,
+            submetrics: []
+        };
+
+        PMS.send(report);
 		sendReport(err);
-		// Add PMS here
 	}
        
 }
