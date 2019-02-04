@@ -54,7 +54,7 @@ function initialize() {
                 $("#chatterbox-loader-modal").modal("hide");
             } catch (err) {
                 $("#chatterbox-loader-modal").modal("hide");
-                sendReport(err.message,0);
+                sendReport(err.message,0);;
                 // Add PMS HERE.
             }
             
@@ -91,7 +91,7 @@ function getContactSuggestion (name_suggestion) {
         awesomplete.list = contact_suggestion_container;
         initializeGoChatOnClick(awesomplete);
     } catch(err) {
-        sendReport(err.message,0);
+        sendReport(err.message,0);;
         // PMS
     }
 }
@@ -115,7 +115,7 @@ function initializeGoChatOnClick (awesomplete) {
             $("#quick-access-panel").hide(400);
             $("#conversation-panel").show(400)
         } catch(err) {
-            sendReport(err.message,0);
+            sendReport(err.message,0);;
             // PMS
         }
     });
@@ -142,7 +142,7 @@ function validateContactSearchKey(searchKey, contact_suggestion) {
             return true;
         }
     } catch(err) {
-        sendReport(err.message,0);
+        sendReport(err.message,0);;
         // PMS
     }
 }
@@ -202,7 +202,7 @@ function prepareConversationDetails(multiple_contact) {
         }    
         return conversation_details;
     } catch(err) {
-        sendReport(err.message,0);
+        sendReport(err.message,0);;
         // PMS
     }
 }
@@ -233,7 +233,7 @@ function getQuickInboxMain () {
         };
 
         PMS.send(report);
-        sendReport(err.message,0);
+        sendReport(err.message,0);;
     }
 	
 }
@@ -257,7 +257,7 @@ function getQuickInboxUnregistered() {
         };
 
         PMS.send(report);
-        sendReport(err.message,0);
+        sendReport(err.message,0);;
     }
     
 }
@@ -299,7 +299,7 @@ function initializeOnClickUpdateEmployeeContact () {
             };
 
             PMS.send(report);
-            sendReport(err.message,0);
+            sendReport(err.message,0);;
         }
 		
 	});
@@ -332,7 +332,7 @@ function initializeOnClickUpdateCommunityContact () {
             };
 
             PMS.send(report);
-            sendReport(err.message,0);
+            sendReport(err.message,0);;
         }
 		
 	});
@@ -374,7 +374,7 @@ function initializeOnClickUpdateUnregisteredContact () {
             };
 
             PMS.send(report);
-            sendReport(err.message,0);
+            sendReport(err.message,0);;
         }
         
     });
@@ -413,7 +413,7 @@ function initLoadLatestAlerts (data) {
         }
         displayQuickEventInbox(quick_inbox_registered, quick_release);
     } catch(err) {
-        sendReport(err.message,0);
+        sendReport(err.message,0);;
         // PMS
     }
 }
@@ -450,7 +450,7 @@ function displayQuickEventInbox (){
         }
     } catch (err) {
         console.log(err);
-        sendReport(err.message,0);
+        sendReport(err.message,0);;
         //Add PMS here
     }
 }
@@ -480,7 +480,7 @@ function getSiteSelection() {
         };
 
         PMS.send(report);
-        sendReport(err.message,0);
+        sendReport(err.message,0);;
     }
 	
 }
@@ -505,7 +505,7 @@ function getOrganizationSelection() {
         };
 
         PMS.send(report);
-        sendReport(err.message,0);
+        sendReport(err.message,0);;
     }
 	
 }
@@ -530,7 +530,7 @@ function initializeContactSuggestion(name_query) {
         };
 
         PMS.send(report);
-        sendReport(err.message,0);
+        sendReport(err.message,0);;
     }
 	
 }
@@ -554,7 +554,7 @@ function getImportantTags () {
         };
 
         PMS.send(report);
-        sendReport(err.message,0);
+        sendReport(err.message,0);;
     }
 	
 }
@@ -593,7 +593,7 @@ function initializeOnSubmitEmployeeContactForm () {
         try{
             employeeContactFormValidation();
         } catch (err) {
-            sendReport(err.message,0);
+            sendReport(err.message,0);;
             //PMS
         }
 	});
@@ -604,7 +604,7 @@ function initializeOnSubmitCommunityContactForm () {
 		try{
 			communityContactFormValidation();
 		} catch (err) {
-			sendReport(err.message,0);
+			sendReport(err.message,0);;
             //PMS
 		}
 	});
@@ -615,7 +615,7 @@ function initializeOnSubmitUnregisteredEmployeeContactForm (){
         try{
             unregisteredEmployeeContactFormValidation();
         } catch (err) {
-            sendReport(err.message,0);
+            sendReport(err.message,0);;
             //PMS
         }
     });
@@ -626,7 +626,7 @@ function initializeOnSubmitUnregisteredCommunityContactForm (){
         try{
             unregisteredCommunityContactFormValidation();
         } catch (err) {
-            sendReport(err.message,0);
+            sendReport(err.message,0);;
             //PMS
         }
     });
@@ -880,7 +880,7 @@ function checkChangesInPriority(){
 
         return has_duplicate;
     } catch(err) {
-        sendReport(err.message,0);
+        sendReport(err.message,0);;
         // PMS
     }
 }
@@ -1064,7 +1064,7 @@ function getRoutineSites() {
         };
 
         PMS.send(report);
-        sendReport(err.message,0);
+        sendReport(err.message,0);;
     }
 	
 }
@@ -1088,7 +1088,7 @@ function getRoutineReminder() {
         };
 
         PMS.send(report);
-        sendReport(err.message,0);
+        sendReport(err.message,0);;
     }
 	
 }
@@ -1118,7 +1118,7 @@ function getRoutineTemplate() {
         };
 
         PMS.send(report);
-        sendReport(err.message,0);
+        sendReport(err.message,0);;
     }
 }
 
@@ -1141,7 +1141,7 @@ function getLatestAlert() {
         };
 
         PMS.send(report);
-        sendReport(err.message,0);
+        sendReport(err.message,0);;
     }
     
 }
@@ -1322,7 +1322,7 @@ function initializeScrollOldMessages() {
             };
             wss_connect.send(JSON.stringify(msg));
         } catch(err) {
-            sendReport(err.message,0);
+            sendReport(err.message,0);;
             // Add PMS here
         }
         
