@@ -82,7 +82,7 @@ function displayTemplatesAndRecipients(recipients,template) {
         $("#constructed-ewi-amd").text(template.data);
         $("#ewi-asap-modal").modal("show");
     } catch(err) {
-        sendReport(err,0)
+        sendReport(err.stack,0)
         const report = {
             type: "error_logs",
             metric_name: "display_templates_and_recipients_error_logs",
@@ -156,7 +156,7 @@ function displayEwiStatus(ewi_status,gtag_status) {
         }
         $("#ewi-asap-modal").modal("hide");
     } catch(err) {
-        sendReport(err,0)
+        sendReport(err.stack,0)
         const report = {
             type: "error_logs",
             metric_name: "display_ewi_status_error_logs",
