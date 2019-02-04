@@ -65,7 +65,7 @@ function initialize() {
                 };
 
                 PMS.send(report);
-                sendReport(err.message,0);
+                sendReport(err.message);
             }
             
         }, 3000);
@@ -101,7 +101,7 @@ function getContactSuggestion (name_suggestion) {
         awesomplete.list = contact_suggestion_container;
         initializeGoChatOnClick(awesomplete);
     } catch(err) {
-        sendReport(err.message,0);;
+        sendReport(err.message);;
         const report = {
             type: "error_logs",
             metric_name: "get_contact_suggetions_error_logs",
@@ -135,7 +135,7 @@ function initializeGoChatOnClick (awesomplete) {
             $("#quick-access-panel").hide(400);
             $("#conversation-panel").show(400)
         } catch(err) {
-            sendReport(err.message,0);;
+            sendReport(err.message);;
             const report = {
                 type: "error_logs",
                 metric_name: "chat_search_users_error_logs",
@@ -172,7 +172,7 @@ function validateContactSearchKey(searchKey, contact_suggestion) {
             return true;
         }
     } catch(err) {
-        sendReport(err.message,0);;
+        sendReport(err.message);;
         const report = {
             type: "error_logs",
             metric_name: "contact_search_validation_error_logs",
@@ -242,7 +242,7 @@ function prepareConversationDetails(multiple_contact) {
         }    
         return conversation_details;
     } catch(err) {
-        sendReport(err.message,0);;
+        sendReport(err.message);;
         const report = {
             type: "error_logs",
             metric_name: "prepare_conversation_details_error_logs",
@@ -283,7 +283,7 @@ function getQuickInboxMain () {
         };
 
         PMS.send(report);
-        sendReport(err.message,0);;
+        sendReport(err.message);;
     }
 	
 }
@@ -307,7 +307,7 @@ function getQuickInboxUnregistered() {
         };
 
         PMS.send(report);
-        sendReport(err.message,0);;
+        sendReport(err.message);;
     }
     
 }
@@ -349,7 +349,7 @@ function initializeOnClickUpdateEmployeeContact () {
             };
 
             PMS.send(report);
-            sendReport(err.message,0);;
+            sendReport(err.message);;
         }
 		
 	});
@@ -382,7 +382,7 @@ function initializeOnClickUpdateCommunityContact () {
             };
 
             PMS.send(report);
-            sendReport(err.message,0);;
+            sendReport(err.message);;
         }
 		
 	});
@@ -424,7 +424,7 @@ function initializeOnClickUpdateUnregisteredContact () {
             };
 
             PMS.send(report);
-            sendReport(err.message,0);;
+            sendReport(err.message);;
         }
         
     });
@@ -463,7 +463,7 @@ function initLoadLatestAlerts (data) {
         }
         displayQuickEventInbox(quick_inbox_registered, quick_release);
     } catch(err) {
-        sendReport(err.message,0);
+        sendReport(err.message);
         const report = {
             type: "error_logs",
             metric_name: "load_latest_alerts_error_logs",
@@ -509,7 +509,7 @@ function displayQuickEventInbox (){
             console.log(err);
         }
     } catch (err) {
-        sendReport(err.message,0);
+        sendReport(err.message);
         const report = {
             type: "error_logs",
             metric_name: "load_quick_inbox_error_logs",
@@ -549,7 +549,7 @@ function getSiteSelection() {
         };
 
         PMS.send(report);
-        sendReport(err.message,0);;
+        sendReport(err.message);;
     }
 	
 }
@@ -574,7 +574,7 @@ function getOrganizationSelection() {
         };
 
         PMS.send(report);
-        sendReport(err.message,0);;
+        sendReport(err.message);;
     }
 	
 }
@@ -599,7 +599,7 @@ function initializeContactSuggestion(name_query) {
         };
 
         PMS.send(report);
-        sendReport(err.message,0);;
+        sendReport(err.message);;
     }
 	
 }
@@ -623,7 +623,7 @@ function getImportantTags () {
         };
 
         PMS.send(report);
-        sendReport(err.message,0);;
+        sendReport(err.message);;
     }
 	
 }
@@ -662,7 +662,7 @@ function initializeOnSubmitEmployeeContactForm () {
         try{
             employeeContactFormValidation();
         } catch (err) {
-            sendReport(err.message,0);
+            sendReport(err.message);
             const report = {
                 type: "error_logs",
                 metric_name: "on_click_submit_employee_form_error_logs",
@@ -683,7 +683,7 @@ function initializeOnSubmitCommunityContactForm () {
 		try{
 			communityContactFormValidation();
 		} catch (err) {
-			sendReport(err.message,0);;
+			sendReport(err.message);;
             const report = {
                 type: "error_logs",
                 metric_name: "on_click_submit_community_form_error_logs",
@@ -704,7 +704,7 @@ function initializeOnSubmitUnregisteredEmployeeContactForm (){
         try{
             unregisteredEmployeeContactFormValidation();
         } catch (err) {
-            sendReport(err.message,0);;
+            sendReport(err.message);;
             const report = {
                 type: "error_logs",
                 metric_name: "on_click_submit_unregistered_form_error_logs",
@@ -725,7 +725,7 @@ function initializeOnSubmitUnregisteredCommunityContactForm (){
         try{
             unregisteredCommunityContactFormValidation();
         } catch (err) {
-            sendReport(err.message,0);;
+            sendReport(err.message);;
             const report = {
             type: "error_logs",
             metric_name: "display_ewi_status_error_logs",
@@ -982,7 +982,7 @@ function checkChangesInPriority(){
 
         return has_duplicate;
     } catch(err) {
-        sendReport(err.message,0);;
+        sendReport(err.message);;
         const report = {
             type: "error_logs",
             metric_name: "check_changes_in_priority_error_logs",
@@ -1174,7 +1174,7 @@ function getRoutineSites() {
         };
 
         PMS.send(report);
-        sendReport(err.message,0);;
+        sendReport(err.message);;
     }
 	
 }
@@ -1198,7 +1198,7 @@ function getRoutineReminder() {
         };
 
         PMS.send(report);
-        sendReport(err.message,0);;
+        sendReport(err.message);;
     }
 	
 }
@@ -1228,7 +1228,7 @@ function getRoutineTemplate() {
         };
 
         PMS.send(report);
-        sendReport(err.message,0);;
+        sendReport(err.message);;
     }
 }
 
@@ -1251,7 +1251,7 @@ function getLatestAlert() {
         };
 
         PMS.send(report);
-        sendReport(err.message,0);;
+        sendReport(err.message);;
     }
     
 }
@@ -1441,7 +1441,7 @@ function initializeScrollOldMessages() {
             };
             wss_connect.send(JSON.stringify(msg));
         } catch(err) {
-            sendReport(err.message,0);
+            sendReport(err.message);
             const report = {
                 type: "error_logs",
                 metric_name: "load_old_messages_error_logs",

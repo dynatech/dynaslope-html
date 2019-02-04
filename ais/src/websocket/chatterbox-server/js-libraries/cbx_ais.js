@@ -48,7 +48,8 @@ function sendSMStoDevs(report_details, feature) {
 				recipients: report.mobile_ids,
 				message: report.message,
 				sender_id: 56, // TEST ID
-				site_id: 0
+				site_id: 0,
+				is_routine: false
 			};
 			wss_connect.send(JSON.stringify(convo_details));
 			status = true;

@@ -32,7 +32,7 @@ function reconstructSavedSettingsForGndMeasReminder(settings, def_event, def_ext
 	    	displaySavedReminderMessage(settings, def_event, def_extended, def_routine);
 	    }
 	} catch(err) {
-		sendReport(err.message,0);
+		sendReport(err.message);
 		const report = {
             type: "error_logs",
             metric_name: "reconstruct_saved_settings_error_logs",
@@ -137,7 +137,7 @@ function changeSemiAutomationSettings(category, data) {
 	        } 
 	    }
 	} catch(err) {
-		sendReport(err.message,0);
+		sendReport(err.message);
 		const report = {
             type: "error_logs",
             metric_name: "change_automation_settings_error_logs",
@@ -342,7 +342,7 @@ function displaySavedReminderMessage (settings, def_event, def_extended, def_rou
 	        break;
 	    }
     } catch(err) {
-    	sendReport(err.message,0);
+    	sendReport(err.message);
     	const report = {
             type: "error_logs",
             metric_name: "display_saved_reminder_settings_error_logs",
@@ -451,7 +451,18 @@ function displaySitesForGndMeasReminder(data) {
 	        } 
 	    }
 	} catch(err) {
-		sendReport(err.message,0);
+		sendReport(err.message);
+		const report = {
+            type: "error_logs",
+            metric_name: "display_site_gndmease_error_logs",
+            module_name: "Communications",
+            report_message: `${err}`,
+            reference_table: "",
+            reference_id: 0,
+            submetrics: []
+        };
+
+        PMS.send(report);
 	}
 }
 
@@ -486,7 +497,7 @@ function addSpecialCase () {
 	        if (site_count <= special_case_num) $("#add-special-case").prop('disabled',true); 
 	    }
     } catch(err) {
-    	sendReport(err.message,0);
+    	sendReport(err.message);
     	const report = {
             type: "error_logs",
             metric_name: "gndmeas_add_sepecial_case_error_logs",
