@@ -22,6 +22,7 @@ $(document).ready(function() {
     initializeOnSubmitUnregisteredCommunityContactForm();
     initializeDataTaggingButton();
     initializeContactPriorityBehavior();
+    sendReport();
 });
 
 
