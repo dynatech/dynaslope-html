@@ -72,7 +72,7 @@ function initializeOnClickSendRoutine () {
 	        getRoutineMobileIDs(offices, sites_on_routine);                
 	    });
 	} catch(err) {
-		sendReport(err,0)
+		sendReport(err.stack,0)
 		const report = {
             type: "error_logs",
             metric_name: "send_routine_error_logs",
@@ -109,7 +109,7 @@ function getRoutineMobileIDs(offices, sites_on_routine) {
         };
 
         PMS.send(report);
-        sendReport(err,0)
+        sendReport(err.stack,0)
 	}
 }
 
@@ -148,7 +148,7 @@ function sendRoutineSMSToLEWC(raw) {
 					};
 					wss_connect.send(JSON.stringify(convo_details));   		
 				} catch(err) {
-					sendReport(err,0)
+					sendReport(err.stack,0)
 					const report = {
 			            type: "error_logs",
 			            metric_name: "send_routine_error_logs",
@@ -362,7 +362,7 @@ function initializeOnClickQuickInbox () {
 			conversation_details_label = site+" "+office+" - "+firstname+" "+lastname;
 			startConversation(conversation_details);
 		} catch(err) {
-			sendReport(err,0)
+			sendReport(err.stack,0)
 			const report = {
 	            type: "error_logs",
 	            metric_name: "click_quick_inbox_error_logs",
@@ -398,7 +398,7 @@ function initializeOnClickEventInbox () {
 			conversation_details_label = site+" "+office+" - "+firstname+" "+lastname;
 			startConversation(conversation_details);
 		} catch(err) {
-			sendReport(err,0)
+			sendReport(err.stack,0)
 			const report = {
 	            type: "error_logs",
 	            metric_name: "click_event_inbox_error_logs",
@@ -430,7 +430,7 @@ function initializeOnClickUnregistered() {
 			conversation_details_label = firstname+" "+lastname;
 			startConversation(conversation_details);
 		} catch(err) {
-			sendReport(err,0)
+			sendReport(err.stack,0)
 			const report = {
 	            type: "error_logs",
 	            metric_name: "click_unregistered_inbox_error_logs",
@@ -473,7 +473,7 @@ function initializeGoLoadOnClick () {
 				loadSiteConversation();			
 			}
 		} catch(err) {
-			sendReport(err,0)
+			sendReport(err.stack,0)
 			const report = {
 	            type: "error_logs",
 	            metric_name: "load_multiple_site_org_error_logs",
@@ -506,7 +506,7 @@ function initializeSendMessageOnClick () {
 				
 		    }
 		} catch(err) {
-			sendReport(err,0)
+			sendReport(err.stack,0)
 			const report = {
 	            type: "error_logs",
 	            metric_name: "sms_fails_error",
@@ -819,7 +819,7 @@ function submitEmployeeInformation () {
         };
 
         PMS.send(report);
-        sendReport(err,0)
+        sendReport(err.stack,0)
 	}
 	
 }
@@ -896,7 +896,7 @@ function submitUnregisteredEmployeeInformation () {
         };
 
         PMS.send(report);
-        sendReport(err,0)
+        sendReport(err.stack,0)
 	}
 	
 }
@@ -973,7 +973,7 @@ function submitCommunityContactForm (sites, organizations) {
         };
 
         PMS.send(report);
-        sendReport(err,0)
+        sendReport(err.stack,0)
 	}
 }
 
@@ -1045,7 +1045,7 @@ function submitUnregisteredCommunityContactForm (sites, organizations) {
         };
 
         PMS.send(report);
-        sendReport(err,0)
+        sendReport(err.stack,0)
 	}
 }
 
@@ -1101,7 +1101,7 @@ function initializeOnAvatarClickForTagging() {
 			user = message_details[2].split(" ");
 			getSmsTags(message_details[0],message_details[1]);	
 		} catch(err) {
-			sendReport(err,0)
+			sendReport(err.stack,0)
 			const report = {
 	            type: "error_logs",
 	            metric_name: "get_sms_tag_error_logs",
@@ -1138,7 +1138,7 @@ function getSmsTags (sms_id, mobile_id) {
         };
 
         PMS.send(report);
-        sendReport(err,0)
+        sendReport(err.stack,0)
 	}
 	
 }
@@ -1173,7 +1173,7 @@ function initializeEWITemplateModal() {
 	        };
 
         	PMS.send(report);
-        	sendReport(err,0)
+        	sendReport(err.stack,0)
 		}
         
 	});
@@ -1265,7 +1265,7 @@ function initializeOnClickConfirmTagging () {
 				}
 			}
 		} catch(err) {
-			sendReport(err,0)
+			sendReport(err.stack,0)
 			const report = {
 	            type: "error_logs",
 	            metric_name: "confirm_tagging_error_logs",
@@ -1290,7 +1290,7 @@ function initializeDeleteTag (tag){
 		}
 		wss_connect.send(JSON.stringify(message));
 	} catch(err) {
-		sendReport(err,0)
+		sendReport(err.stack,0)
 		const report = {
             type: "error_logs",
             metric_name: "delete_tag_error_logs",
@@ -1366,7 +1366,7 @@ function addNewTags (message_details, new_tag, is_important, site_code, recipien
         };
 
     	PMS.send(report);
-    	sendReport(err,0)
+    	sendReport(err.stack,0)
 	}
 	
 }
@@ -1386,7 +1386,7 @@ function initializeOnClickConfirmNarrative () {
 				addNewTags(message_details, TEMP_IMPORTANT_TAG, true, sites_selected, recipient_container);
 			}
 		} catch(err) {
-			sendReport(err,0)
+			sendReport(err.stack,0)
 			const report = {
 	            type: "error_logs",
 	            metric_name: "confirm_narrative_error_logs",
@@ -1443,7 +1443,7 @@ function displaySitesToTag(sites) {
 				$("#tag_sites").append('<div class="checkbox col-xs-2" style="margin-top: 10px;"><label class="sites-to-tag"><input name="sitenames" type="checkbox" value="'+site_id+'" checked>'+sitename.toUpperCase()+'</label></div>');
 			}
 		} catch(err) {
-			sendReport(err,0)
+			sendReport(err.stack,0)
 			const report = {
 	            type: "error_logs",
 	            metric_name: "display_sites_to_tag_error_logs",
@@ -1479,7 +1479,7 @@ function initializeAlertStatusOnChange() {
 	        };
 
 	    	PMS.send(report);
-	    	sendReport(err,0)
+	    	sendReport(err.stack,0)
 		}
         
     });
@@ -1557,7 +1557,7 @@ function initializeQuickSearchMessages () {
 			}
 			wss_connect.send(JSON.stringify(request));
 		} catch(err) {
-			sendReport(err,0)
+			sendReport(err.stack,0)
 			const report = {
 	            type: "error_logs",
 	            metric_name: "quick_search_error_logs",
@@ -1633,7 +1633,7 @@ function initializeConfirmEWITemplateViaChatterbox() {
 			    		}
 						$("#msg").val(rain_info_template);
                 	} catch(err) {
-                		sendReport(err,0)
+                		sendReport(err.stack,0)
                 		const report = {
 				            type: "error_logs",
 				            metric_name: "display_rain_info_error_logs",
@@ -1678,7 +1678,7 @@ function initializeConfirmEWITemplateViaChatterbox() {
 		        };
 
 		    	PMS.send(report);
-		    	sendReport(err,0)
+		    	sendReport(err.stack,0)
 			}
 	    }
     });
@@ -1702,7 +1702,7 @@ function initializeLoadSearchedKeyMessage() {
 	        };
 	        wss_connect.send(JSON.stringify(search_request));
 		} catch(err) {
-			sendReport(err,0)
+			sendReport(err.stack,0)
 			const report = {
 	            type: "error_logs",
 	            metric_name: "search_key_error_logs",
@@ -1741,7 +1741,7 @@ function initializeEmployeeContactGroupSending() {
 	        };
 
 	    	PMS.send(report);
-	    	sendReport(err,0)
+	    	sendReport(err.stack,0)
 		}
         
 	});
@@ -1773,7 +1773,7 @@ function initializeSemiAutomatedGroundMeasurementReminder() {
 	        };
 
 	    	PMS.send(report);
-	    	sendReport(err,0)
+	    	sendReport(err.stack,0)
 		}
         
     });
@@ -1823,7 +1823,7 @@ function initializeGndMeasSaveButton() {
 	                    	wss_connect.send(JSON.stringify(special_case_settings));
 	            			$.notify('Ground measurement settings saved for special case!','success');
 						} catch(err) {
-							sendReport(err,0)
+							sendReport(err.stack,0)
 							const report = {
 					            type: "error_logs",
 					            metric_name: "set_groud_meas_settings_error_logs",
@@ -1857,7 +1857,7 @@ function initializeGndMeasSaveButton() {
 		            wss_connect.send(JSON.stringify(gnd_meas_settings));
 	            	$.notify('Ground measurement settings saved!','success');
 				} catch(err) {
-					sendReport(err,0)
+					sendReport(err.stack,0)
 					const report = {
 			            type: "error_logs",
 			            metric_name: "set_groud_meas_settings_error_logs",
@@ -1895,7 +1895,7 @@ function initializeGndMeasSaveButton() {
 		                };
 		                wss_connect.send(JSON.stringify(gnd_meas_settings));
 					} catch(err) {
-						sendReport(err,0)
+						sendReport(err.stack,0)
 						const report = {
 				            type: "error_logs",
 				            metric_name: "set_groud_meas_settings_error_logs",
@@ -1929,7 +1929,7 @@ function initializeGndMeasSaveButton() {
 		                        wss_connect.send(JSON.stringify(gnd_meas_settings));  
 		                        $.notify('Ground measurement settings saved!','success');       
 							} catch(err) {
-								sendReport(err,0)
+								sendReport(err.stack,0)
 								const report = {
 						            type: "error_logs",
 						            metric_name: "set_groud_meas_settings_error_logs",
@@ -1990,7 +1990,7 @@ function resetSpecialCases() {
         };
 
     	PMS.send(report);
-    	sendReport(err,0)
+    	sendReport(err.stack,0)
 	}
     
 }
@@ -2022,7 +2022,7 @@ function loadSiteConvoViaQacess() {
 	        };
 
 	    	PMS.send(report);
-	    	sendReport(err,0)
+	    	sendReport(err.stack,0)
 		}
     	
     });
