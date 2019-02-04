@@ -54,8 +54,18 @@ function initialize() {
                 $("#chatterbox-loader-modal").modal("hide");
             } catch (err) {
                 $("#chatterbox-loader-modal").modal("hide");
-                sendReport(err.message,0);;
-                // Add PMS HERE.
+                const report = {
+                    type: "error_logs",
+                    metric_name: "initializer_error_logs",
+                    module_name: "Communications",
+                    report_message: `${err}`,
+                    reference_table: "",
+                    reference_id: 0,
+                    submetrics: []
+                };
+
+                PMS.send(report);
+                sendReport(err.message,0);
             }
             
         }, 3000);
@@ -91,8 +101,23 @@ function getContactSuggestion (name_suggestion) {
         awesomplete.list = contact_suggestion_container;
         initializeGoChatOnClick(awesomplete);
     } catch(err) {
+<<<<<<< HEAD
         sendReport(err.message,0);;
         // PMS
+=======
+        const report = {
+            type: "error_logs",
+            metric_name: "get_contact_suggetions_error_logs",
+            module_name: "Communications",
+            report_message: `${err}`,
+            reference_table: "",
+            reference_id: 0,
+            submetrics: []
+        };
+
+        PMS.send(report);
+        sendReport(err.message);
+>>>>>>> 4106adee95d5ee9960c03afce7d449fd074d1c9c
     }
 }
 
@@ -115,8 +140,23 @@ function initializeGoChatOnClick (awesomplete) {
             $("#quick-access-panel").hide(400);
             $("#conversation-panel").show(400)
         } catch(err) {
+<<<<<<< HEAD
             sendReport(err.message,0);;
             // PMS
+=======
+            const report = {
+                type: "error_logs",
+                metric_name: "chat_search_users_error_logs",
+                module_name: "Communications",
+                report_message: `${err}`,
+                reference_table: "",
+                reference_id: 0,
+                submetrics: []
+            };
+
+            PMS.send(report);
+            sendReport(err.message);
+>>>>>>> 4106adee95d5ee9960c03afce7d449fd074d1c9c
         }
     });
 }
@@ -142,8 +182,23 @@ function validateContactSearchKey(searchKey, contact_suggestion) {
             return true;
         }
     } catch(err) {
+<<<<<<< HEAD
         sendReport(err.message,0);;
         // PMS
+=======
+        const report = {
+            type: "error_logs",
+            metric_name: "contact_search_validation_error_logs",
+            module_name: "Communications",
+            report_message: `${err}`,
+            reference_table: "",
+            reference_id: 0,
+            submetrics: []
+        };
+
+        PMS.send(report);
+        sendReport(err.message)
+>>>>>>> 4106adee95d5ee9960c03afce7d449fd074d1c9c
     }
 }
 
@@ -202,8 +257,23 @@ function prepareConversationDetails(multiple_contact) {
         }    
         return conversation_details;
     } catch(err) {
+<<<<<<< HEAD
         sendReport(err.message,0);;
         // PMS
+=======
+        const report = {
+            type: "error_logs",
+            metric_name: "prepare_conversation_details_error_logs",
+            module_name: "Communications",
+            report_message: `${err}`,
+            reference_table: "",
+            reference_id: 0,
+            submetrics: []
+        };
+
+        PMS.send(report);
+        sendReport(err.message);
+>>>>>>> 4106adee95d5ee9960c03afce7d449fd074d1c9c
     }
 }
 
@@ -413,8 +483,23 @@ function initLoadLatestAlerts (data) {
         }
         displayQuickEventInbox(quick_inbox_registered, quick_release);
     } catch(err) {
+<<<<<<< HEAD
         sendReport(err.message,0);;
         // PMS
+=======
+        const report = {
+            type: "error_logs",
+            metric_name: "load_latest_alerts_error_logs",
+            module_name: "Communications",
+            report_message: `${err}`,
+            reference_table: "",
+            reference_id: 0,
+            submetrics: []
+        };
+
+        PMS.send(report);
+        sendReport(err.message);
+>>>>>>> 4106adee95d5ee9960c03afce7d449fd074d1c9c
     }
 }
 
@@ -449,9 +534,24 @@ function displayQuickEventInbox (){
             console.log(err);
         }
     } catch (err) {
+<<<<<<< HEAD
         console.log(err);
         sendReport(err.message,0);;
         //Add PMS here
+=======
+        const report = {
+            type: "error_logs",
+            metric_name: "load_quick_inbox_error_logs",
+            module_name: "Communications",
+            report_message: `${err}`,
+            reference_table: "",
+            reference_id: 0,
+            submetrics: []
+        };
+
+        PMS.send(report);
+        sendReport(err.message);
+>>>>>>> 4106adee95d5ee9960c03afce7d449fd074d1c9c
     }
 }
 
@@ -593,8 +693,23 @@ function initializeOnSubmitEmployeeContactForm () {
         try{
             employeeContactFormValidation();
         } catch (err) {
+<<<<<<< HEAD
             sendReport(err.message,0);;
             //PMS
+=======
+            const report = {
+                type: "error_logs",
+                metric_name: "on_click_submit_employee_form_error_logs",
+                module_name: "Communications",
+                report_message: `${err}`,
+                reference_table: "",
+                reference_id: 0,
+                submetrics: []
+            };
+
+            PMS.send(report);
+            sendReport(err.message);
+>>>>>>> 4106adee95d5ee9960c03afce7d449fd074d1c9c
         }
 	});
 }
@@ -604,8 +719,23 @@ function initializeOnSubmitCommunityContactForm () {
 		try{
 			communityContactFormValidation();
 		} catch (err) {
+<<<<<<< HEAD
 			sendReport(err.message,0);;
             //PMS
+=======
+            const report = {
+                type: "error_logs",
+                metric_name: "on_click_submit_community_form_error_logs",
+                module_name: "Communications",
+                report_message: `${err}`,
+                reference_table: "",
+                reference_id: 0,
+                submetrics: []
+            };
+
+            PMS.send(report);
+			sendReport(err.message);
+>>>>>>> 4106adee95d5ee9960c03afce7d449fd074d1c9c
 		}
 	});
 }
@@ -615,8 +745,23 @@ function initializeOnSubmitUnregisteredEmployeeContactForm (){
         try{
             unregisteredEmployeeContactFormValidation();
         } catch (err) {
+<<<<<<< HEAD
             sendReport(err.message,0);;
             //PMS
+=======
+            const report = {
+                type: "error_logs",
+                metric_name: "on_click_submit_unregistered_form_error_logs",
+                module_name: "Communications",
+                report_message: `${err}`,
+                reference_table: "",
+                reference_id: 0,
+                submetrics: []
+            };
+
+            PMS.send(report);
+            sendReport(err.message);
+>>>>>>> 4106adee95d5ee9960c03afce7d449fd074d1c9c
         }
     });
 }
@@ -626,8 +771,23 @@ function initializeOnSubmitUnregisteredCommunityContactForm (){
         try{
             unregisteredCommunityContactFormValidation();
         } catch (err) {
+<<<<<<< HEAD
             sendReport(err.message,0);;
             //PMS
+=======
+            const report = {
+            type: "error_logs",
+            metric_name: "display_ewi_status_error_logs",
+            module_name: "Communications",
+            report_message: `${err}`,
+            reference_table: "",
+            reference_id: 0,
+            submetrics: []
+        };
+
+        PMS.send(report);
+            sendReport(err.message);
+>>>>>>> 4106adee95d5ee9960c03afce7d449fd074d1c9c
         }
     });
 }
@@ -654,18 +814,16 @@ function employeeContactFormValidation() {
                 $(placement).append(error);
             } else {
                 error.insertAfter(placement);
-            } // remove on success
+            } 
 
             element.parents(".form-group").addClass("has-feedback");
 
-            // Add the span element, if doesn't exists, and apply the icon classes to it.
             const $next_span = element.next("span");
             if (!$next_span[0]) {
                 if (element.is("select") || element.is("textarea")) $next_span.css({ top: "25px", right: "25px" });
             }
         },
         success (label, element) {
-            // Add the span element, if doesn't exists, and apply the icon classes to it.
             if (!$(element).next("span")) {
                 $("<span class='glyphicon glyphicon-ok form-control-feedback' style='top:0px; right:37px;'></span>").insertAfter($(element));
             }
@@ -716,18 +874,16 @@ function unregisteredEmployeeContactFormValidation() {
                 $(placement).append(error);
             } else {
                 error.insertAfter(placement);
-            } // remove on success
+            }
 
             element.parents(".form-group").addClass("has-feedback");
 
-            // Add the span element, if doesn't exists, and apply the icon classes to it.
             const $next_span = element.next("span");
             if (!$next_span[0]) {
                 if (element.is("select") || element.is("textarea")) $next_span.css({ top: "25px", right: "25px" });
             }
         },
         success (label, element) {
-            // Add the span element, if doesn't exists, and apply the icon classes to it.
             if (!$(element).next("span")) {
                 $("<span class='glyphicon glyphicon-ok form-control-feedback' style='top:0px; right:37px;'></span>").insertAfter($(element));
             }
@@ -781,18 +937,16 @@ function communityContactFormValidation () {
                 $(placement).append(error);
             } else {
                 error.insertAfter(placement);
-            } // remove on success
+            }
 
             element.parents(".form-group").addClass("has-feedback");
 
-            // Add the span element, if doesn't exists, and apply the icon classes to it.
             const $next_span = element.next("span");
             if (!$next_span[0]) {
                 if (element.is("select") || element.is("textarea")) $next_span.css({ top: "25px", right: "25px" });
             }
         },
         success (label, element) {
-            // Add the span element, if doesn't exists, and apply the icon classes to it.
             if (!$(element).next("span")) {
                 $("<span class='glyphicon glyphicon-ok form-control-feedback' style='top:0px; right:37px;'></span>").insertAfter($(element));
             }
@@ -837,7 +991,6 @@ function communityContactFormValidation () {
 			} else {
                 
 				$("#org-and-site-alert").hide(300);
-				//success function here
                 let has_duplicate = checkChangesInPriority();
                 if(has_duplicate == false){
                     submitCommunityContactForm(site_selected, organization_selected);
@@ -880,8 +1033,23 @@ function checkChangesInPriority(){
 
         return has_duplicate;
     } catch(err) {
+<<<<<<< HEAD
         sendReport(err.message,0);;
         // PMS
+=======
+        const report = {
+            type: "error_logs",
+            metric_name: "check_changes_in_priority_error_logs",
+            module_name: "Communications",
+            report_message: `${err}`,
+            reference_table: "contact_hierarchy",
+            reference_id: 25,
+            submetrics: []
+        };
+
+        PMS.send(report);
+        sendReport(err.message);
+>>>>>>> 4106adee95d5ee9960c03afce7d449fd074d1c9c
     }
 }
 
@@ -906,18 +1074,16 @@ function unregisteredCommunityContactFormValidation () {
                 $(placement).append(error);
             } else {
                 error.insertAfter(placement);
-            } // remove on success
+            }
 
             element.parents(".form-group").addClass("has-feedback");
 
-            // Add the span element, if doesn't exists, and apply the icon classes to it.
             const $next_span = element.next("span");
             if (!$next_span[0]) {
                 if (element.is("select") || element.is("textarea")) $next_span.css({ top: "25px", right: "25px" });
             }
         },
         success (label, element) {
-            // Add the span element, if doesn't exists, and apply the icon classes to it.
             if (!$(element).next("span")) {
                 $("<span class='glyphicon glyphicon-ok form-control-feedback' style='top:0px; right:37px;'></span>").insertAfter($(element));
             }
@@ -1285,8 +1451,17 @@ function initializeSamarSites() {
         };
         wss_connect.send(JSON.stringify(msg));
     } catch(err) {
-        console.log(err);
-        // Add PMS here
+        const report = {
+            type: "error_logs",
+            metric_name: "get_samar_sites_error_logs",
+            module_name: "Communications",
+            report_message: `${err}`,
+            reference_table: "",
+            reference_id: 0,
+            submetrics: []
+        };
+
+        PMS.send(report);
     }
     
 }
@@ -1322,8 +1497,23 @@ function initializeScrollOldMessages() {
             };
             wss_connect.send(JSON.stringify(msg));
         } catch(err) {
+<<<<<<< HEAD
             sendReport(err.message,0);;
             // Add PMS here
+=======
+            const report = {
+                type: "error_logs",
+                metric_name: "load_old_messages_error_logs",
+                module_name: "Communications",
+                report_message: `${err}`,
+                reference_table: "",
+                reference_id: 0,
+                submetrics: []
+            };
+
+            PMS.send(report);
+            sendReport(err.message);
+>>>>>>> 4106adee95d5ee9960c03afce7d449fd074d1c9c
         }
         
       }
