@@ -1464,6 +1464,7 @@ function initializeScrollOldMessages() {
         }
       }
     });
+    initializeOnAvatarClickForTagging();
 }
 
 
