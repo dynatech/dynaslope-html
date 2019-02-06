@@ -1090,6 +1090,7 @@ function contactSettingsFeedback (status) {
 }
 
 function initializeOnAvatarClickForTagging() {
+	$(".chat-message").unbind();
 	$(".chat-message").on("click","#messages .user-avatar",function(){
 		try {
 			$("#gintag_selected").tagsinput('removeAll');
