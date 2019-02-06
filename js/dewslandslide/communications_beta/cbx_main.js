@@ -80,7 +80,7 @@ function getQuickCommunitySelection () {
             reference_id: 5,
             submetrics: []
         };
-
+        sendReport(err.stack,0)
         PMS.send(report);
 	}
 
@@ -102,7 +102,7 @@ function getQuickCommunitySelection () {
             reference_id: 6,
             submetrics: []
         };
-
+        sendReport(err.stack,0)
         PMS.send(report);
 	}
 
@@ -125,7 +125,7 @@ function getEmployeeContact(){
             reference_id: 0,
             submetrics: []
         };
-
+        sendReport(err.stack,0)
         PMS.send(report);
 	}
 }
@@ -146,7 +146,7 @@ function getCommunityContact(){
             reference_id: 0,
             submetrics: []
         };
-
+        sendReport(err.stack,0)
         PMS.send(report);
 	}
 }
@@ -168,7 +168,7 @@ function getUnregisteredNumber(){
             reference_id: 0,
             submetrics: []
         };
-
+        sendReport(err.stack,0)
         PMS.send(report);
 	}
 }
@@ -208,7 +208,7 @@ function startConversation(details) {
             reference_id: 7,
             submetrics: []
         };
-
+        sendReport(err.stack,0)
         PMS.send(report);
 	}	
 }
@@ -216,14 +216,15 @@ function startConversation(details) {
 function displayQuickInboxMain(msg_data) {
 	try {
 		try {
-			for (let counter = 0; counter < msg_data.length; counter++) {
-				if(msg_data[counter].isunknown == 1){
-					console.log("has unknown");
+			if (msg_data != null) {
+				for (let counter = 0; counter < msg_data.length; counter++) {
+					if(msg_data[counter].isunknown == 1){
+						console.log("has unknown");
+					}
+					msg_data[counter].isunknown = 0;
+					quick_inbox_registered.unshift(msg_data[counter]);
 				}
-				msg_data[counter].isunknown = 0;
-				quick_inbox_registered.unshift(msg_data[counter]);
 			}
-			
 		} catch(err) {
 			const report = {
 		        type: "error_logs",
@@ -263,10 +264,11 @@ function displayQuickInboxMain(msg_data) {
 function displayUnregisteredInboxMain(msg_data) {
 	try {
 		try {
-			for (let counter = 0; counter < msg_data.length; counter++) {
-				quick_inbox_unregistered.push(msg_data[counter]);
+			if (msg_data != null) {
+				for (let counter = 0; counter < msg_data.length; counter++) {
+					quick_inbox_unregistered.push(msg_data[counter]);
+				}		
 			}
-			
 		} catch(err) {
 			const report = {
 	            type: "error_logs",
