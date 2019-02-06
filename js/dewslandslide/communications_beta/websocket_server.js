@@ -53,6 +53,8 @@ function connectWS() {
 					displayDataTableEmployeeContacts(msg_data.data);
 					break;
 				case "loadSmsConversation":
+					isNewConvo = false;
+					initializeScrollOldMessages();
 					displayConversationPanel(msg_data.data,msg_data.full_name,msg_data.recipients,msg_data.titles);
 					$('#chatterbox-loader-modal').modal("hide");
 					break;
@@ -191,10 +193,12 @@ function connectWS() {
 				case "loadOldSmsConversation":
 					if(msg_data.data.length == 0){
 						isNewConvo = true;
+					}else{
+						isNewConvo = false;
 					}
 					displayConversationPanel(msg_data.data,msg_data.full_name,msg_data.recipients,msg_data.titles,isOld = true);
+            		$('.modal-backdrop').remove();
 					initializeScrollOldMessages();
-					$('#chatterbox-loader-modal').modal("hide");
 					break;
 				default:
 					console.log("No request to load.");
