@@ -1413,9 +1413,12 @@ function initializeSamarSites() {
 }
 
 function initializeScrollOldMessages() {
+    $('.chat-message').unbind();
     $('.chat-message').scroll(function() {
       if ($(this).scrollTop() == 0) {
-        $('#chatterbox-loader-modal').modal({backdrop: 'static', keyboard: false});
+        if(isNewConvo == false){
+            $('#chatterbox-loader-modal').modal({backdrop: 'static', keyboard: false});
+        }
 
         let tag_offices = [];
         $('input[name="orgs"]:checked').each(function() {

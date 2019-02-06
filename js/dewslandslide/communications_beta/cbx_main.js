@@ -18,6 +18,7 @@ let latest_conversation_timestamp = "";
 let psgc_scope_filter = [0,0,6,4,2];
 let important_tags = null;
 let conversation_details_label = null;
+let isNewConvo = null;
 
 
 let quick_inbox_template = Handlebars.compile($('#quick-inbox-template').html());
@@ -189,8 +190,8 @@ function displaySitesSelection(data) {
 }
 
 function startConversation(details) {
-	$('#chatterbox-loader-modal').modal({backdrop: 'static', keyboard: false});
 	try {
+		$('#chatterbox-loader-modal').modal({backdrop: 'static', keyboard: false});
 		call_log_site.push(details.site);
 		let convo_details = {
 			type: 'loadSmsConversation',
@@ -650,7 +651,9 @@ function displayConversationPanel(msg_data, full_data, recipients, titles, isOld
 			recipients.forEach(function(mobile_data){
 				if (recipient_container.includes(mobile_data.mobile_id) != true) {recipient_container.push(mobile_data.mobile_id);}
 			});
-		}	
+		}else{
+			$('#chatterbox-loader-modal').modal("hide");
+		}
 
 		let counter = 0;
 		msg_data.forEach(function(data) {
@@ -670,7 +673,7 @@ function displayConversationPanel(msg_data, full_data, recipients, titles, isOld
 			displayUpdatedMessages(data, isOld);
 			counter++;
 		});
-
+		$("#chatterbox-loader-modal").modal("hide");
 		initializeOnClickCallLogModal(recipient_container);
 	} catch(err) {
 		sendReport(err.stack,0)
