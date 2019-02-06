@@ -18,7 +18,7 @@ let latest_conversation_timestamp = "";
 let psgc_scope_filter = [0,0,6,4,2];
 let important_tags = null;
 let conversation_details_label = null;
-let isNewConvo = null;
+let isNewConvo = false;
 
 
 let quick_inbox_template = Handlebars.compile($('#quick-inbox-template').html());

@@ -1418,6 +1418,8 @@ function initializeScrollOldMessages() {
       if ($(this).scrollTop() == 0) {
         if(isNewConvo == false){
             $('#chatterbox-loader-modal').modal({backdrop: 'static', keyboard: false});
+        }else{
+            $('#chatterbox-loader-modal').modal("hide");
         }
 
         let tag_offices = [];
