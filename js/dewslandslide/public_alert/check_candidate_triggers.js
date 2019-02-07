@@ -236,8 +236,9 @@ function adjustAlertLevelIfInvalidSensor (public_alert, entry) {
         const hasSensorData = subsurface_alert.filter(x => x.alert !== "ND");
         if (hasSensorData === 0 && surficial_alert === "g0") internal_alert_level = internal_alert_level.replace(/A[1-3]/g, "ND");
         else internal_alert_level = internal_alert_level.replace(/A[1-3]/g, "A1");
-
-        invalid_index = getRetriggerIndex(retriggers, "L2");
+        
+        if (isL2Available === -1) invalid_index = getRetriggerIndex(retriggers, "L3");
+        else invalid_index = isL2Available;
     }
 
     const obj = {
