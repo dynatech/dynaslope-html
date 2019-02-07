@@ -47,7 +47,9 @@ $(document).ready(function() {
 	initializeOnClickUnregistered();
 
 	if(window.location.origin+window.location.pathname == window.location.origin+"/communications/chatterbox_beta"){
-		getUnregisteredNumber();
+		setTimeout(function(){
+			getUnregisteredNumber();
+		}, 3000);
 		initializeOnClickCallLogModal();
 	}
 
