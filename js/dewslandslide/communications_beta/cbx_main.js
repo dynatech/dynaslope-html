@@ -429,10 +429,11 @@ function displayDataTableCommunityContacts(cmmty_contact_data){
 			data: cmmty_contact_data,
 			columns: [
 			{ "data": "user_id", "title": "User ID"},
-			{ "data": "salutation", "title": "Salutation" },
 			{ "data": "firstname", "title": "Firstname"},
 			{ "data": "lastname", "title": "Lastname"},
-			{ "data": "middlename", "title": "Middlename"},
+			{ "data": "site_code", "title": "Site"},
+			{ "data": "org_name", "title": "Office"},
+			{ "data": "mobile_number", "title": "Mobile Number"},
 			{ "data": "active_status", "title": "Active Status"}
 			]
 		});
