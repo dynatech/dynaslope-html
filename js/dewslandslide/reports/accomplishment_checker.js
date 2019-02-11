@@ -233,15 +233,15 @@ function prepareSearchByStaffFunctions () {
             const start = moment($("#duration_start").val()).add(30, "minutes").format("YYYY-MM-DD HH:mm:ss");
             const end = moment($("#duration_end").val()).subtract(1, "hours").format("YYYY-MM-DD HH:mm:ss");
 
-            console.log(start, end);
+            // console.log(start, end);
 
             getReleasesByStaff(start, end)
             .then((releases) => {
-                console.log("Releases", releases);
+                // console.log("Releases", releases);
                 return prepareTableData(releases);
             })
             .then((table_data) => {
-                console.log("Table Data", table_data);
+                // console.log("Table Data", table_data);
                 plotReleasesTable(STAFF_ID, table_data);
             });
         }
@@ -262,12 +262,17 @@ function prepareTableData (raw_table_data) {
             release_id, reporter_id_ct, site_code
         } = row;
 
-        const date = moment(data_timestamp).format("MMMM Do YYYY");
         const shift_sched = prepareShiftSched(data_timestamp);
+        let date = "";
+        if (shift_sched === "PM") {
+            date = moment(data_timestamp).subtract(12, "hours").format("MMMM Do YYYY");
+        } else {
+            date = moment(data_timestamp).format("MMMM Do YYYY");
+        }
         const site_event_code = prepareSiteCodeWithLink(event_id, site_code);
         const ewi_release = prepareEWIRelease(data_timestamp, event_id, release_id);
         const role = prepareStaffRole(STAFF_ID, reporter_id_ct);
-
+        
         const obj = {
             date,
             shift_sched,
@@ -278,6 +283,8 @@ function prepareTableData (raw_table_data) {
             status,
             groupings: `${shift_sched} ${role}-Shift of ${date}`
         };
+
+        // console.log(obj);
 
         table_data.push(obj);
     });
