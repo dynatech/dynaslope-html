@@ -53,6 +53,8 @@ function connectWS() {
 					displayDataTableEmployeeContacts(msg_data.data);
 					break;
 				case "loadSmsConversation":
+					isNewConvo = false;
+					initializeScrollOldMessages();
 					displayConversationPanel(msg_data.data,msg_data.full_name,msg_data.recipients,msg_data.titles);
 					$('#chatterbox-loader-modal').modal("hide");
 					break;
@@ -189,9 +191,14 @@ function connectWS() {
 					samar_sites_details = msg_data.data;
 					break;
 				case "loadOldSmsConversation":
-					console.log(msg_data);
-					$('#chatterbox-loader-modal').modal("hide");
+					if(msg_data.data.length == 0){
+						isNewConvo = true;
+					}else{
+						isNewConvo = false;
+					}
 					displayConversationPanel(msg_data.data,msg_data.full_name,msg_data.recipients,msg_data.titles,isOld = true);
+            		$('.modal-backdrop').remove();
+					initializeScrollOldMessages();
 					break;
 				default:
 					console.log("No request to load.");

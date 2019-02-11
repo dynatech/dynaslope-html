@@ -47,30 +47,47 @@ $(document).ready(function() {
 	initializeOnClickUnregistered();
 
 	if(window.location.origin+window.location.pathname == window.location.origin+"/communications/chatterbox_beta"){
-		getUnregisteredNumber();
+		setTimeout(function(){
+			getUnregisteredNumber();
+		}, 3000);
 		initializeOnClickCallLogModal();
 	}
 
 });
 
 function initializeOnClickSendRoutine () {
-	
-	let offices = [];
-	let sites_on_routine = [];
+	try {
+		let offices = [];
+		let sites_on_routine = [];
 
-	$('#send-routine-message').click(() => {
-		$("#chatterbox-loader-modal").modal("show");
-	    if ($("#routine-tabs li.active a").text() == "Reminder Message") {
-	        offices = ["LEWC"];
-	    } else {
-	        offices = ["LEWC", "MLGU", "BLGU"];
-	    }
+		$('#send-routine-message').click(() => {
+			$("#chatterbox-loader-modal").modal("show");
+		    if ($("#routine-tabs li.active a").text() == "Reminder Message") {
+		        offices = ["LEWC"];
+		    } else {
+		        offices = ["LEWC", "MLGU", "BLGU"];
+		    }
 
-        $("input[name=\"sites-on-routine\"]:checked").each(function () {
-            sites_on_routine.push(this.id);
-        });
-        getRoutineMobileIDs(offices, sites_on_routine);                
-    });
+	        $("input[name=\"sites-on-routine\"]:checked").each(function () {
+	            sites_on_routine.push(this.id);
+	        });
+	        getRoutineMobileIDs(offices, sites_on_routine);                
+	    });
+	} catch(err) {
+		sendReport(err.stack,0)
+		const report = {
+            type: "error_logs",
+            metric_name: "send_routine_error_logs",
+            module_name: "Communications",
+            report_message: `${err}`,
+            reference_table: "",
+            reference_id: 0,
+            submetrics: []
+        };
+
+        PMS.send(report);
+	}
+
 }
 
 function getRoutineMobileIDs(offices, sites_on_routine) {
@@ -94,10 +111,11 @@ function getRoutineMobileIDs(offices, sites_on_routine) {
         };
 
         PMS.send(report);
+        sendReport(err.stack,0)
 	}
 }
 
-function sendRoutineSMSToLEWC(raw) { // To be refactored to accomodate custom routine message per site
+function sendRoutineSMSToLEWC(raw) {
 	let message = $("#routine-default-message").val();
 	let sender = " - " + $("#user_name").html() + " from PHIVOLCS-DYNASLOPE";
 	raw.data.forEach(function(contact) {
@@ -121,7 +139,6 @@ function sendRoutineSMSToLEWC(raw) { // To be refactored to accomodate custom ro
 				message = message.replace("(current_date)", raw.date);
 				message = message.replace("(greetings)", "umaga");
 				message = message.replace("(gndmeas_time_submission)","bago-mag 11:30 AM");
-				// console.log(message);
 				try {
 					let convo_details = {
 						type: 'sendSmsToRecipients',
@@ -129,12 +146,22 @@ function sendRoutineSMSToLEWC(raw) { // To be refactored to accomodate custom ro
 						message: message + sender,
 						sender_id: current_user_id,
 						site_id: site.site_id,
-						rain_info: false
+						is_routine: true
 					};
 					wss_connect.send(JSON.stringify(convo_details));   		
 				} catch(err) {
-					console.log(err);
-					// Add PMS here
+					sendReport(err.stack,0)
+					const report = {
+			            type: "error_logs",
+			            metric_name: "send_routine_error_logs",
+			            module_name: "Communications",
+			            report_message: `${err}`,
+			            reference_table: "",
+			            reference_id: 0,
+			            submetrics: []
+			        };
+
+			        PMS.send(report);
 				}
 				message = $("#routine-default-message").val();
 			}
@@ -319,105 +346,181 @@ function initializeQuickSelectionGroupFlagOnClick () {
 
 function initializeOnClickQuickInbox () {
 	$("body").on("click","#quick-inbox-display li",function(){
-		let raw_name = $(this).closest('li').find("input[type='text']").val().split(",");
-		let firstname = raw_name[1].trim();
-		let lastname = raw_name[0].split("-")[1].trim();
-		let office = raw_name[0].split(" ")[1].trim();
-		let site = raw_name[0].split(" ")[0].trim();
-		let conversation_details = {
-			full_name: $(this).closest('li').find("input[type='text']").val(),
-			firstname: firstname,
-			lastname: lastname,
-			office: office,
-			site: site,
-			number: "N/A"
-		}
+		try {
+			let raw_name = $(this).closest('li').find("input[type='text']").val().split(",");
+			let firstname = raw_name[1].trim();
+			let lastname = raw_name[0].split("-")[1].trim();
+			let office = raw_name[0].split(" ")[1].trim();
+			let site = raw_name[0].split(" ")[0].trim();
+			let conversation_details = {
+				full_name: $(this).closest('li').find("input[type='text']").val(),
+				firstname: firstname,
+				lastname: lastname,
+				office: office,
+				site: site,
+				number: "N/A"
+			}
 
-		conversation_details_label = site+" "+office+" - "+firstname+" "+lastname;
-		startConversation(conversation_details);
+			conversation_details_label = site+" "+office+" - "+firstname+" "+lastname;
+			startConversation(conversation_details);
+		} catch(err) {
+			sendReport(err.stack,0)
+			const report = {
+	            type: "error_logs",
+	            metric_name: "click_quick_inbox_error_logs",
+	            module_name: "Communications",
+	            report_message: `${err}`,
+	            reference_table: "",
+	            reference_id: 0,
+	            submetrics: []
+	        };
+
+	        PMS.send(report);
+		}
 	});
 }
 
 function initializeOnClickEventInbox () {
 	$("body").on("click","#quick-event-inbox-display li",function(){
-		let raw_name = $(this).closest('li').find("input[type='text']").val().split(",");
-		let firstname = raw_name[1].trim();
-		let lastname = raw_name[0].split("-")[1].trim();
-		let office = raw_name[0].split(" ")[1].trim();
-		let site = raw_name[0].split(" ")[0].trim();
-		let conversation_details = {
-			full_name: $(this).closest('li').find("input[type='text']").val(),
-			firstname: firstname,
-			lastname: lastname,
-			office: office,
-			site: site,
-			number: "N/A"
-		}
+		try {
+			let raw_name = $(this).closest('li').find("input[type='text']").val().split(",");
+			let firstname = raw_name[1].trim();
+			let lastname = raw_name[0].split("-")[1].trim();
+			let office = raw_name[0].split(" ")[1].trim();
+			let site = raw_name[0].split(" ")[0].trim();
+			let conversation_details = {
+				full_name: $(this).closest('li').find("input[type='text']").val(),
+				firstname: firstname,
+				lastname: lastname,
+				office: office,
+				site: site,
+				number: "N/A"
+			}
 
-		conversation_details_label = site+" "+office+" - "+firstname+" "+lastname;
-		startConversation(conversation_details);
+			conversation_details_label = site+" "+office+" - "+firstname+" "+lastname;
+			startConversation(conversation_details);
+		} catch(err) {
+			sendReport(err.stack,0)
+			const report = {
+	            type: "error_logs",
+	            metric_name: "click_event_inbox_error_logs",
+	            module_name: "Communications",
+	            report_message: `${err}`,
+	            reference_table: "",
+	            reference_id: 0,
+	            submetrics: []
+	        };
+
+	        PMS.send(report);
+		}
 	});
 }
 
 function initializeOnClickUnregistered() {
 	$("body").on("click","#quick-unregistered-inbox-display li",function(){
-		let raw_name = $(this).closest('li').find("input[type='text']").val().split(",");
-		let firstname = raw_name[1].trim();
-		let lastname = raw_name[0].trim();
-		let conversation_details = {
-			full_name: $(this).closest('li').find("input[type='text']").val(),
-			firstname: firstname,
-			lastname: lastname,
-			number: "N/A"
-		}
+		try {
+			let raw_name = $(this).closest('li').find("input[type='text']").val().split(",");
+			let firstname = raw_name[1].trim();
+			let lastname = raw_name[0].trim();
+			let conversation_details = {
+				full_name: $(this).closest('li').find("input[type='text']").val(),
+				firstname: firstname,
+				lastname: lastname,
+				number: "N/A"
+			}
 
-		conversation_details_label = firstname+" "+lastname;
-		startConversation(conversation_details);
+			conversation_details_label = firstname+" "+lastname;
+			startConversation(conversation_details);
+		} catch(err) {
+			sendReport(err.stack,0)
+			const report = {
+	            type: "error_logs",
+	            metric_name: "click_unregistered_inbox_error_logs",
+	            module_name: "Communications",
+	            report_message: `${err}`,
+	            reference_table: "",
+	            reference_id: 0,
+	            submetrics: []
+	        };
+
+	        PMS.send(report);
+		}
 	});
 }
 
 function initializeGoLoadOnClick () {
 	$("#go-load-groups").click(function() {
-		const offices_selected = [];
-		const sites_selected = [];
-		$("#modal-select-sitenames input:checked").each(function() {
-		    sites_selected.push($(this).closest('label').text());
-		});
-		$("#modal-select-offices input:checked").each(function() {
-		    offices_selected.push($(this).attr('value'));
-		});
+		try {
+			const offices_selected = [];
+			const sites_selected = [];
+			$("#modal-select-sitenames input:checked").each(function() {
+			    sites_selected.push($(this).closest('label').text());
+			});
+			$("#modal-select-offices input:checked").each(function() {
+			    offices_selected.push($(this).attr('value'));
+			});
 
-		// Validate if there is incomplete checkbox input from user
-		if((sites_selected.length === 0) && (offices_selected.length === 0)) {
-			$.notify("You need to specify at least an OFFICE and a SITE to search.", "warn");
+			// Validate if there is incomplete checkbox input from user
+			if((sites_selected.length === 0) && (offices_selected.length === 0)) {
+				$.notify("You need to specify at least an OFFICE and a SITE to search.", "warn");
+			}
+			else if(offices_selected.length === 0) {
+				$.notify("No OFFICE selected! Please choose at least 1 office.", "warn");		
+			} else if (sites_selected.length === 0) {
+				$.notify("No SITE selected! Please choose at least 1 site.", "warn");
+			} else { 
+				const sites = sites_selected.join(", ");
+				const offices = offices_selected.join(", ");
+				conversation_details_label = "Site(s): "+sites.toUpperCase()+" | Office(s): "+offices.toUpperCase();
+				loadSiteConversation();			
+			}
+		} catch(err) {
+			sendReport(err.stack,0)
+			const report = {
+	            type: "error_logs",
+	            metric_name: "load_multiple_site_org_error_logs",
+	            module_name: "Communications",
+	            report_message: `${err}`,
+	            reference_table: "",
+	            reference_id: 0,
+	            submetrics: []
+	        };
+
+	        PMS.send(report);
 		}
-		else if(offices_selected.length === 0) {
-			$.notify("No OFFICE selected! Please choose at least 1 office.", "warn");		
-		} else if (sites_selected.length === 0) {
-			$.notify("No SITE selected! Please choose at least 1 site.", "warn");
-		} else { 
-			const sites = sites_selected.join(", ");
-			const offices = offices_selected.join(", ");
-			conversation_details_label = "Site(s): "+sites.toUpperCase()+" | Office(s): "+offices.toUpperCase();
-			loadSiteConversation();			
-		}
+
 	});
 }
 
 function initializeSendMessageOnClick () {
 	$("#send-msg").click(function() {
-		if($.trim($("#msg").val()) == ""){
-	    	$("#chatbox-warning").show(300);
-	    }else{
-	    	$("#chatbox-warning").hide();
-			const check_rain_info = $('#msg').val().includes('day cumulative rainfall');
-			if(check_rain_info == true){
-				sendRainInfo(recipient_container,$("#msg").val());
-			}else{
-				sendSms(recipient_container,$("#msg").val());
-			}
-			
-	    }
+		try {
+			if($.trim($("#msg").val()) == ""){
+		    	$("#chatbox-warning").show(300);
+		    }else{
+		    	$("#chatbox-warning").hide();
+				const check_rain_info = $('#msg').val().includes('day cumulative rainfall');
+				if(check_rain_info == true){
+					sendRainInfo(recipient_container,$("#msg").val());
+				}else{
+					sendSms(recipient_container,$("#msg").val());
+				}
+				
+		    }
+		} catch(err) {
+			sendReport(err.stack,0)
+			const report = {
+	            type: "error_logs",
+	            metric_name: "sms_fails_error",
+	            module_name: "Communications",
+	            report_message: `${err}`,
+	            reference_table: "",
+	            reference_id: 0,
+	            submetrics: []
+	        };
+
+	        PMS.send(report);
+		}
 	});
 }
 
@@ -691,8 +794,6 @@ function submitEmployeeInformation () {
 			"numbers": mobile_numbers,
 			"landline": landline_numbers
 		}
-
-		console.log(contact_data);
 		
 		if (save_type === "updatecontact") {
 			message_type = "updateDewslContact";
@@ -706,11 +807,9 @@ function submitEmployeeInformation () {
 		}
 		$('#emp-response-contact-container_wrapper').show();
 		$('#employee-contact-wrapper').hide();
-		
-		// console.log(mobile_numbers);
+
 		wss_connect.send(JSON.stringify(message));
 	} catch(err) {
-		console.log(err);
 		const report = {
             type: "error_logs",
             metric_name: "save_employee_error_logs",
@@ -722,6 +821,7 @@ function submitEmployeeInformation () {
         };
 
         PMS.send(report);
+        sendReport(err.stack,0)
 	}
 	
 }
@@ -735,7 +835,6 @@ function submitUnregisteredEmployeeInformation () {
 		let mobile_numbers = [];
 		let landline_numbers = [];
 
-		//for mobile number
 		const employee_mobile = $("#emp_unregistered_mobile_div :input").length / 4;
 		for (let counter = 1; counter < employee_input_count; counter +=1) {
 			const mobile_number_raw = {
@@ -747,8 +846,7 @@ function submitUnregisteredEmployeeInformation () {
 			};
 			mobile_numbers.push(mobile_number_raw);
 		}
-		
-		//for landline number
+
 		for (let counter = 1; counter < employee_input_count_landline; counter +=1) {
 			const landline_number_raw = {
 				"user_id": $("#emp_unregistered_user_id").val(),
@@ -774,28 +872,21 @@ function submitUnregisteredEmployeeInformation () {
 			"numbers": mobile_numbers,
 			"landline": landline_numbers
 		}
-
-		console.log(contact_data);
 		
 		if (save_type === "updatecontact") {
 			message_type = "updateDewslContact";
 		}else {
 			message_type = "newDewslContact";
 		}
-		console.log(contact_data);
 		message = {
 			type: message_type,
 			data: contact_data
 		}
-		// $('#emp-response-contact-container_wrapper').show();
-		// $('#employee-contact-wrapper').hide();
-		
-		// console.log(mobile_numbers);
+
 		wss_connect.send(JSON.stringify(message));
 		$("#employee-unregistered-form")[0].reset();
 		getUnregisteredNumber();
 	} catch(err) {
-		console.log(err);
 		const report = {
             type: "error_logs",
             metric_name: "save_employee_error_logs",
@@ -807,6 +898,7 @@ function submitUnregisteredEmployeeInformation () {
         };
 
         PMS.send(report);
+        sendReport(err.stack,0)
 	}
 	
 }
@@ -818,7 +910,6 @@ function submitCommunityContactForm (sites, organizations) {
 		let mobile_numbers = [];
 		let landline_numbers = [];
 
-		//for mobile number
 		for (let counter = 1; counter < community_input_count; counter +=1) {
 			const mobile_number_raw = {
 				"user_id": $("#user_id_cc").val(),
@@ -830,7 +921,6 @@ function submitCommunityContactForm (sites, organizations) {
 			mobile_numbers.push(mobile_number_raw);
 		}
 
-		//for landline number
 		for (let counter = 1; counter < community_input_count_landline; counter +=1) {
 			const landline_number_raw = {
 				"user_id": $("#user_id_cc").val(),
@@ -858,8 +948,6 @@ function submitCommunityContactForm (sites, organizations) {
 			"organizations": organization_selected
 		}
 
-		// console.log(contact_data);
-
 		if (save_type === "updatecontact") {
 			message_type = "updateCommunityContact";
 		}else {
@@ -876,7 +964,6 @@ function submitCommunityContactForm (sites, organizations) {
 
 		wss_connect.send(JSON.stringify(message));
 	} catch(err) {
-		console.log(err);
 		const report = {
             type: "error_logs",
             metric_name: "save_community_error_logs",
@@ -888,8 +975,8 @@ function submitCommunityContactForm (sites, organizations) {
         };
 
         PMS.send(report);
+        sendReport(err.stack,0)
 	}
-	
 }
 
 function submitUnregisteredCommunityContactForm (sites, organizations) {
@@ -899,7 +986,6 @@ function submitUnregisteredCommunityContactForm (sites, organizations) {
 		let mobile_numbers = [];
 		let landline_numbers = [];
 
-		//for mobile number
 		for (let counter = 1; counter < community_input_count; counter +=1) {
 			const mobile_number_raw = {
 				"user_id": $("#user_id_cc").val(),
@@ -911,7 +997,6 @@ function submitUnregisteredCommunityContactForm (sites, organizations) {
 			mobile_numbers.push(mobile_number_raw);
 		}
 
-		//for landline number
 		for (let counter = 1; counter < community_input_count_landline; counter +=1) {
 			const landline_number_raw = {
 				"user_id": $("#user_id_cc").val(),
@@ -939,9 +1024,6 @@ function submitUnregisteredCommunityContactForm (sites, organizations) {
 			"organizations": organization_selected
 		}
 
-
-		// console.log(contact_data);
-
 		if (save_type === "updatecontact") {
 			message_type = "updateCommunityContact";
 		}else {
@@ -952,13 +1034,8 @@ function submitUnregisteredCommunityContactForm (sites, organizations) {
 			type: message_type,
 			data: contact_data
 		}
-		console.log(message);
-		// $('#comm-response-contact-container_wrapper').show();
-		// $('#community-contact-wrapper').hide();
-
 		wss_connect.send(JSON.stringify(message));
 	} catch(err) {
-		console.log(err);
 		const report = {
             type: "error_logs",
             metric_name: "save_community_error_logs",
@@ -970,6 +1047,7 @@ function submitUnregisteredCommunityContactForm (sites, organizations) {
         };
 
         PMS.send(report);
+        sendReport(err.stack,0)
 	}
 }
 
@@ -1015,15 +1093,29 @@ function contactSettingsFeedback (status) {
 
 function initializeOnAvatarClickForTagging() {
 	$(".chat-message").on("click","#messages .user-avatar",function(){
-		$("#gintag_selected").tagsinput('removeAll');
-		$("#gintag-modal").modal({backdrop: 'static', keyboard: false});
-		message_details = null;
-		tag_container = $(this).closest("li.clearfix");
-		message_details = $(this).closest("li.clearfix").find("input[class='msg_details']").val().split('<split>');
-		console.log(message_details);
-		const gintag_selected = $("#gintag_selected").tagsinput("items");
-		user = message_details[2].split(" ");
-		getSmsTags(message_details[0],message_details[1]);
+		try {
+			$("#gintag_selected").tagsinput('removeAll');
+			$("#gintag-modal").modal({backdrop: 'static', keyboard: false});
+			message_details = null;
+			tag_container = $(this).closest("li.clearfix");
+			message_details = $(this).closest("li.clearfix").find("input[class='msg_details']").val().split('<split>');
+			const gintag_selected = $("#gintag_selected").tagsinput("items");
+			user = message_details[2].split(" ");
+			getSmsTags(message_details[0],message_details[1]);	
+		} catch(err) {
+			sendReport(err.stack,0)
+			const report = {
+	            type: "error_logs",
+	            metric_name: "get_sms_tag_error_logs",
+	            module_name: "Communications",
+	            report_message: `${err}`,
+	            reference_table: "gintags",
+	            reference_id: 12,
+	            submetrics: []
+	        };
+
+	        PMS.send(report);
+		}
 	});
 }
 
@@ -1037,18 +1129,18 @@ function getSmsTags (sms_id, mobile_id) {
 
 		wss_connect.send(JSON.stringify(message));
 	} catch(err) {
-		console.log(err);
 		const report = {
             type: "error_logs",
             metric_name: "get_sms_tag_error_logs",
             module_name: "Communications",
             report_message: `${err}`,
-            reference_table: "gintags_reference",
-            reference_id: 10,
+            reference_table: "gintags",
+            reference_id: 12,
             submetrics: []
         };
 
         PMS.send(report);
+        sendReport(err.stack,0)
 	}
 	
 }
@@ -1083,6 +1175,7 @@ function initializeEWITemplateModal() {
 	        };
 
         	PMS.send(report);
+        	sendReport(err.stack,0)
 		}
         
 	});
@@ -1090,87 +1183,102 @@ function initializeEWITemplateModal() {
 
 function initializeOnClickConfirmTagging () {
 	$("#confirm-tagging").on("click", ({ currentTarget }) => {
-		let gintag_selected = [];
-		gintag_selected = $("#gintag_selected").tagsinput("items");
-		TEMP_IMPORTANT_TAG = [];
-		const important = [];
-		const new_tag = [];
-		let delete_tag = [];
-		
-		if (TAG_INFORMATION != null) {
-			let counter = 0;
-			TAG_INFORMATION.forEach(function(tag){
-				if (gintag_selected.length > 0) {
-					if ($.inArray(tag['tag_name'], gintag_selected) == -1) {
-						delete_tag.push(tag['gintags_id']);
-						TAG_INFORMATION.splice(counter,1);
-					}
-					counter++;
-				} else {
-					TAG_INFORMATION.forEach(function(tag){
-						delete_tag.push(tag['gintags_id']);
-						TAG_INFORMATION = [];
-					});
-				}
-			});
-		}
-
-		if (delete_tag.length != 0) {
-			initializeDeleteTag(delete_tag);
-		} else {
-			if (gintag_selected.length === 0 ) {
-				$("#gintag_warning_message").show(300).effect("shake");
-				$("#gintag_warning_message_text").text("This field is required!");
-			} else {
-				$("#gintag_warning_message").hide(300);
-				gintag_selected.forEach(function(selected) {
-					const [result] = important_tags.filter(tags => tags === selected);
-					if(typeof result === "undefined") {
-						new_tag.push(selected);
-					}else {
-						important.push(result);
+		try {
+			let gintag_selected = [];
+			gintag_selected = $("#gintag_selected").tagsinput("items");
+			TEMP_IMPORTANT_TAG = [];
+			const important = [];
+			const new_tag = [];
+			let delete_tag = [];
+			
+			if (TAG_INFORMATION != null) {
+				let counter = 0;
+				TAG_INFORMATION.forEach(function(tag){
+					if (gintag_selected.length > 0) {
+						if ($.inArray(tag['tag_name'], gintag_selected) == -1) {
+							delete_tag.push(tag['gintags_id']);
+							TAG_INFORMATION.splice(counter,1);
+						}
+						counter++;
+					} else {
+						TAG_INFORMATION.forEach(function(tag){
+							delete_tag.push(tag['gintags_id']);
+							TAG_INFORMATION = [];
+						});
 					}
 				});
+			}
 
-				if (new_tag.length > 0){
-					addNewTags(message_details, new_tag, false, recipient_container, site_code);
-				}
-
-				if(important.length > 0){
-					if(message_details[2] != "You"){
-						const check_tags = (important.indexOf("#EwiMessage") > -1)
-						if(check_tags == true){
-							$("#gintag_warning_message").show(300).effect("shake");
-							$("#gintag_warning_message_text").text("Invalid tag!");
-						}else{
-							$("#narrative-modal").modal({backdrop: 'static', keyboard: false});
-							$("#gintag-modal").modal("hide");
-							$("#gintag_warning_message").hide(300);
+			if (delete_tag.length != 0) {
+				initializeDeleteTag(delete_tag);
+			} else {
+				if (gintag_selected.length === 0 ) {
+					$("#gintag_warning_message").show(300).effect("shake");
+					$("#gintag_warning_message_text").text("This field is required!");
+				} else {
+					$("#gintag_warning_message").hide(300);
+					gintag_selected.forEach(function(selected) {
+						const [result] = important_tags.filter(tags => tags === selected);
+						if(typeof result === "undefined") {
+							new_tag.push(selected);
+						}else {
+							important.push(result);
 						}
-					}else{
-						const check_tags = (important.indexOf("#EwiResponse") > -1)
-						if(check_tags == true){
-							$("#gintag_warning_message").show(300).effect("shake");
-							$("#gintag_warning_message_text").text("Invalid tag!");
-						}else{
-							$("#narrative-modal").modal({backdrop: 'static', keyboard: false});
-							$("#gintag-modal").modal("hide");
-							$("#gintag_warning_message").hide(300);
-						}
-					}
-					$.grep(gintag_selected, function (current_tags) {
-					    if ($.inArray(current_tags, CONVERSATION_TAGS) == -1) {
-					        TEMP_IMPORTANT_TAG.push(current_tags);
-					    }
 					});
-					$("#narrative_message").empty();
-					$("#narrative_message").append(
-						"Contact(s) to be tagged: " + "&#013;&#010;"+ 
-						"Timestamp: " + message_details[3] + "&#013;&#010;&#013;&#010;&#013;&#010;" +
-						message_details[4] + "&#013;&#010;"
-					);
+
+					if (new_tag.length > 0){
+						addNewTags(message_details, new_tag, false, recipient_container, site_code);
+					}
+
+					if(important.length > 0){
+						if(message_details[2] != "You"){
+							const check_tags = (important.indexOf("#EwiMessage") > -1)
+							if(check_tags == true){
+								$("#gintag_warning_message").show(300).effect("shake");
+								$("#gintag_warning_message_text").text("Invalid tag!");
+							}else{
+								$("#narrative-modal").modal({backdrop: 'static', keyboard: false});
+								$("#gintag-modal").modal("hide");
+								$("#gintag_warning_message").hide(300);
+							}
+						}else{
+							const check_tags = (important.indexOf("#EwiResponse") > -1)
+							if(check_tags == true){
+								$("#gintag_warning_message").show(300).effect("shake");
+								$("#gintag_warning_message_text").text("Invalid tag!");
+							}else{
+								$("#narrative-modal").modal({backdrop: 'static', keyboard: false});
+								$("#gintag-modal").modal("hide");
+								$("#gintag_warning_message").hide(300);
+							}
+						}
+						$.grep(gintag_selected, function (current_tags) {
+						    if ($.inArray(current_tags, CONVERSATION_TAGS) == -1) {
+						        TEMP_IMPORTANT_TAG.push(current_tags);
+						    }
+						});
+						$("#narrative_message").empty();
+						$("#narrative_message").append(
+							"Contact(s) to be tagged: " + "&#013;&#010;"+ 
+							"Timestamp: " + message_details[3] + "&#013;&#010;&#013;&#010;&#013;&#010;" +
+							message_details[4] + "&#013;&#010;"
+						);
+					}
 				}
 			}
+		} catch(err) {
+			sendReport(err.stack,0)
+			const report = {
+	            type: "error_logs",
+	            metric_name: "confirm_tagging_error_logs",
+	            module_name: "Communications",
+	            report_message: `${err}`,
+	            reference_table: "gintags",
+	            reference_id: 12,
+	            submetrics: []
+	        };
+
+	        PMS.send(report);
 		}
 	});
 }
@@ -1184,7 +1292,18 @@ function initializeDeleteTag (tag){
 		}
 		wss_connect.send(JSON.stringify(message));
 	} catch(err) {
-		// err
+		sendReport(err.stack,0)
+		const report = {
+            type: "error_logs",
+            metric_name: "delete_tag_error_logs",
+            module_name: "Communications",
+            report_message: `${err}`,
+            reference_table: "gintags",
+            reference_id: 12,
+            submetrics: []
+        };
+
+        PMS.send(report);
 	}
 }
 
@@ -1238,7 +1357,6 @@ function addNewTags (message_details, new_tag, is_important, site_code, recipien
 		}
 		wss_connect.send(JSON.stringify(message));
 	} catch(err) {
-		console.log(err);
 		const report = {
             type: "error_logs",
             metric_name: "gintagged_message_error_logs",
@@ -1250,6 +1368,7 @@ function addNewTags (message_details, new_tag, is_important, site_code, recipien
         };
 
     	PMS.send(report);
+    	sendReport(err.stack,0)
 	}
 	
 }
@@ -1257,15 +1376,30 @@ function addNewTags (message_details, new_tag, is_important, site_code, recipien
 function initializeOnClickConfirmNarrative () {
 
 	$("#save-narrative").click(function(event){
-		let sites_selected = [];
-		$(".sites-to-tag input:checked").each(function() {
-		    sites_selected.push($(this).closest('label').text());
-		});
+		try {
+			let sites_selected = [];
+			$(".sites-to-tag input:checked").each(function() {
+			    sites_selected.push($(this).closest('label').text());
+			});
 
-		if (message_details[2] != "You") {
-			addNewTags(message_details, TEMP_IMPORTANT_TAG, true, sites_selected);
-		} else {
-			addNewTags(message_details, TEMP_IMPORTANT_TAG, true, sites_selected, recipient_container);
+			if (message_details[2] != "You") {
+				addNewTags(message_details, TEMP_IMPORTANT_TAG, true, sites_selected);
+			} else {
+				addNewTags(message_details, TEMP_IMPORTANT_TAG, true, sites_selected, recipient_container);
+			}
+		} catch(err) {
+			sendReport(err.stack,0)
+			const report = {
+	            type: "error_logs",
+	            metric_name: "confirm_narrative_error_logs",
+	            module_name: "Communications",
+	            report_message: `${err}`,
+	            reference_table: "narratives",
+	            reference_id: 26,
+	            submetrics: []
+	        };
+
+	    	PMS.send(report);
 		}
 	});
 }
@@ -1302,12 +1436,27 @@ function updateSMSTagInformation(data){
 function displaySitesToTag(sites) {
 	$("#tag_sites").empty();
 	for (let i = 0; i < sites.length; i++) {
-		sitename = sites[i].site_code;
-		site_id = sites[i].site_id;
-		if (i == 0) {
-			$("#tag_sites").append('<div class="checkbox col-xs-2"><label class="sites-to-tag"><input name="sitenames" type="checkbox" value="'+site_id+'" checked>'+sitename.toUpperCase()+'</label></div>');
-		} else {
-			$("#tag_sites").append('<div class="checkbox col-xs-2" style="margin-top: 10px;"><label class="sites-to-tag"><input name="sitenames" type="checkbox" value="'+site_id+'" checked>'+sitename.toUpperCase()+'</label></div>');
+		try {
+			sitename = sites[i].site_code;
+			site_id = sites[i].site_id;
+			if (i == 0) {
+				$("#tag_sites").append('<div class="checkbox col-xs-2"><label class="sites-to-tag"><input name="sitenames" type="checkbox" value="'+site_id+'" checked>'+sitename.toUpperCase()+'</label></div>');
+			} else {
+				$("#tag_sites").append('<div class="checkbox col-xs-2" style="margin-top: 10px;"><label class="sites-to-tag"><input name="sitenames" type="checkbox" value="'+site_id+'" checked>'+sitename.toUpperCase()+'</label></div>');
+			}
+		} catch(err) {
+			sendReport(err.stack,0)
+			const report = {
+	            type: "error_logs",
+	            metric_name: "display_sites_to_tag_error_logs",
+	            module_name: "Communications",
+	            report_message: `${err}`,
+	            reference_table: "",
+	            reference_id: 0,
+	            submetrics: []
+	        };
+
+	        PMS.send(report);
 		}
 	}
 }
@@ -1321,7 +1470,6 @@ function initializeAlertStatusOnChange() {
 	        }
 	        wss_connect.send(JSON.stringify(alert_request));
 		} catch(err) {
-			console.log(err);
 			const report = {
 	            type: "error_logs",
 	            metric_name: "get_ewi_error_logs",
@@ -1333,6 +1481,7 @@ function initializeAlertStatusOnChange() {
 	        };
 
 	    	PMS.send(report);
+	    	sendReport(err.stack,0)
 		}
         
     });
@@ -1343,7 +1492,6 @@ function initializeQuickSearchModal () {
 		$("#quick-search-modal").modal({backdrop: 'static', keyboard: false});
 	});
 }
-
 
 function initializeSearchViaOption() {
 	$("#search-via").on("change",function() {
@@ -1366,49 +1514,65 @@ function initializeSearchViaOption() {
 }
 function initializeQuickSearchMessages () {
 	$('#submit-search').click(function(){
-		$('#chatterbox-loader-modal').modal({backdrop: 'static', keyboard: false});
-		const search_via = $("#search-via").val();
-		const search_key = $("#search-keyword").val();
-		const search_limit = $("#search-limit").val();
-		let request = null;
-		switch(search_via) {
-			case "messages":
-				request = {
-					type: "searchMessageGlobal",
-					searchKey: search_key,
-					searchLimit: search_limit
-				}
-				break;
-			case "gintags":
-				request = {
-					type: "searchGintagMessages",
-					searchKey: search_key,
-					searchLimit: search_limit
-				}
-				break;
-			case "ts_sent":
-				request = {
-					type: "searchViaTsSent",
-					searchKey: search_key,
-					searchLimit: search_limit
-				}
-				break;
-			case "ts_written":
-				request = {
-					type: "searchViaTsWritten",
-					searchKey: search_key,
-					searchLimit: search_limit
-				}
-				break;
-			case "unknown":
-				request = {
-					type: "searchViaUnknownNumber",
-					searchKey: search_key,
-					searchLimit: search_limit
-				}
-				break;
+		try {
+			$('#chatterbox-loader-modal').modal({backdrop: 'static', keyboard: false});
+			const search_via = $("#search-via").val();
+			const search_key = $("#search-keyword").val();
+			const search_limit = $("#search-limit").val();
+			let request = null;
+			switch(search_via) {
+				case "messages":
+					request = {
+						type: "searchMessageGlobal",
+						searchKey: search_key,
+						searchLimit: search_limit
+					}
+					break;
+				case "gintags":
+					request = {
+						type: "searchGintagMessages",
+						searchKey: search_key,
+						searchLimit: search_limit
+					}
+					break;
+				case "ts_sent":
+					request = {
+						type: "searchViaTsSent",
+						searchKey: search_key,
+						searchLimit: search_limit
+					}
+					break;
+				case "ts_written":
+					request = {
+						type: "searchViaTsWritten",
+						searchKey: search_key,
+						searchLimit: search_limit
+					}
+					break;
+				case "unknown":
+					request = {
+						type: "searchViaUnknownNumber",
+						searchKey: search_key,
+						searchLimit: search_limit
+					}
+					break;
+			}
+			wss_connect.send(JSON.stringify(request));
+		} catch(err) {
+			sendReport(err.stack,0)
+			const report = {
+	            type: "error_logs",
+	            metric_name: "quick_search_error_logs",
+	            module_name: "Communications",
+	            report_message: `${err}`,
+	            reference_table: "",
+	            reference_id: 0,
+	            submetrics: []
+	        };
+
+	        PMS.send(report);
 		}
-		wss_connect.send(JSON.stringify(request));
+
 	});
 }
 
@@ -1446,53 +1610,65 @@ function initializeConfirmEWITemplateViaChatterbox() {
                 url: "../rainfall_scanner/getRainfallPercentages",
                 dataType: "json",
                 success (result) {
-		    	let data = JSON.parse(result);
-		    	console.log(data)
-		    	for (let counter = 0; counter < samar_sites.length; counter++) {
-		    	 	for (let sub_counter = 0; sub_counter < data.length; sub_counter++) {
-		    	 		if (data[sub_counter].site_code == samar_sites[counter]) {
-		    	 			if ($("#rainfall-cummulative").val() == "1d") {
-	    		 				rainfall_percent = parseInt((data[sub_counter]["1D cml"] / data[sub_counter]["half of 2yr max"]) * 100);
-		    	 			} else {
-		    	 				rainfall_percent = parseInt((data[sub_counter]["3D cml"] / data[sub_counter]["2yr max"]) * 100);
-		    	 			}
-		    	 			rain_info_template = `${rain_info_template} ${data[sub_counter].site_code} = ${rainfall_percent}%,\n`;
-		    	 		}
-		    	 	}
-		    	 }
-		        
-			for (let counter = 0; counter < samar_sites_details.length; counter++ ) {
-        		let sbmp = `${samar_sites_details[counter].sitio}, ${samar_sites_details[counter].barangay}, ${samar_sites_details[counter].municipality}`;
-        		let formatSbmp = sbmp.replace("null", "");
-        		if (formatSbmp.charAt(0) == ",") {
-        	    		formatSbmp = formatSbmp.substr(1);
-        		}
-        		rain_info_template = rain_info_template.replace(samar_sites_details[counter].site_code, formatSbmp);
-    		}
-    		console.log(rain_info_template);
-			$("#msg").val(rain_info_template);
-		}
-		});
-	} else if ($("#ewi-date-picker input").val() == "" || $("#sites").val() == "") {
-            alert("Invalid input, All fields must be filled");
-        } else {
-        	let template_container = {
-				site_name: $("#sites").val(),
-                internal_alert: $("#internal-alert").val() == "------------" ? "N/A" : $("#internal-alert").val(),
-                alert_level: $("#alert-lvl").val() == "------------" ? "N/A" : $("#alert-lvl").val(),
-                alert_status: $("#alert_status").val() == "------------" ? "N/A" : $("#alert_status").val(),
-                formatted_data_timestamp: moment($("#ewi-date-picker input").val()).format('MMMM D, YYYY h:MM A'),
-                data_timestamp: $("#ewi-date-picker input").val()
-        	};
+                	try {
+				    	let data = JSON.parse(result);
+				    	for (let counter = 0; counter < samar_sites.length; counter++) {
+				    	 	for (let sub_counter = 0; sub_counter < data.length; sub_counter++) {
+				    	 		if (data[sub_counter].site_code == samar_sites[counter]) {
+				    	 			if ($("#rainfall-cummulative").val() == "1d") {
+			    		 				rainfall_percent = parseInt((data[sub_counter]["1D cml"] / data[sub_counter]["half of 2yr max"]) * 100);
+				    	 			} else {
+				    	 				rainfall_percent = parseInt((data[sub_counter]["3D cml"] / data[sub_counter]["2yr max"]) * 100);
+				    	 			}
+				    	 			rain_info_template = `${rain_info_template} ${data[sub_counter].site_code} = ${rainfall_percent}%,\n`;
+				    	 		}
+				    	 	}
+				    	 }
+				        
+						for (let counter = 0; counter < samar_sites_details.length; counter++ ) {
+			        		let sbmp = `${samar_sites_details[counter].sitio}, ${samar_sites_details[counter].barangay}, ${samar_sites_details[counter].municipality}`;
+			        		let formatSbmp = sbmp.replace("null", "");
+			        		if (formatSbmp.charAt(0) == ",") {
+			        	    		formatSbmp = formatSbmp.substr(1);
+			        		}
+			        		rain_info_template = rain_info_template.replace(samar_sites_details[counter].site_code, formatSbmp);
+			    		}
+						$("#msg").val(rain_info_template);
+                	} catch(err) {
+                		sendReport(err.stack,0)
+                		const report = {
+				            type: "error_logs",
+				            metric_name: "display_rain_info_error_logs",
+				            module_name: "Communications",
+				            report_message: `${err}`,
+				            reference_table: "",
+				            reference_id: 0,
+				            submetrics: []
+				        };
 
-        	try {
+				        PMS.send(report);
+                	}
+				}
+			});
+		} else if ($("#ewi-date-picker input").val() == "" || $("#sites").val() == "") {
+	            alert("Invalid input, All fields must be filled");
+	    } else {
+	    	let template_container = {
+				site_name: $("#sites").val(),
+	            internal_alert: $("#internal-alert").val() == "------------" ? "N/A" : $("#internal-alert").val(),
+	            alert_level: $("#alert-lvl").val() == "------------" ? "N/A" : $("#alert-lvl").val(),
+	            alert_status: $("#alert_status").val() == "------------" ? "N/A" : $("#alert_status").val(),
+	            formatted_data_timestamp: moment($("#ewi-date-picker input").val()).format('MMMM D, YYYY h:MM A'),
+	            data_timestamp: $("#ewi-date-picker input").val()
+	    	};
+
+	    	try {
 				let template_request = {
 	            	type: "fetchTemplateViaLoadTemplateCbx",
 	                data: template_container
 	            };
 	            wss_connect.send(JSON.stringify(template_request));
 			} catch(err) {
-				console.log(err);
 				const report = {
 		            type: "error_logs",
 		            metric_name: "load_template_error_logs",
@@ -1504,9 +1680,9 @@ function initializeConfirmEWITemplateViaChatterbox() {
 		        };
 
 		    	PMS.send(report);
+		    	sendReport(err.stack,0)
 			}
-            
-        }
+	    }
     });
 }
 
@@ -1528,8 +1704,18 @@ function initializeLoadSearchedKeyMessage() {
 	        };
 	        wss_connect.send(JSON.stringify(search_request));
 		} catch(err) {
-			console.log(err);
-			// Add PMS here
+			sendReport(err.stack,0)
+			const report = {
+	            type: "error_logs",
+	            metric_name: "search_key_error_logs",
+	            module_name: "Communications",
+	            report_message: `${err}`,
+	            reference_table: "",
+	            reference_id: 0,
+	            submetrics: []
+	        };
+
+	        PMS.send(report);
 		}
         
         $(".recent_activities").hide();
@@ -1557,6 +1743,7 @@ function initializeEmployeeContactGroupSending() {
 	        };
 
 	    	PMS.send(report);
+	    	sendReport(err.stack,0)
 		}
         
 	});
@@ -1577,7 +1764,6 @@ function initializeSemiAutomatedGroundMeasurementReminder() {
 	        };
 	        wss_connect.send(JSON.stringify(data));
 		} catch(err) {
-			console.log(err);
 			const report = {
 	            type: "error_logs",
 	            metric_name: "ground_meas_settings_error_logs",
@@ -1589,6 +1775,7 @@ function initializeSemiAutomatedGroundMeasurementReminder() {
 	        };
 
 	    	PMS.send(report);
+	    	sendReport(err.stack,0)
 		}
         
     });
@@ -1638,8 +1825,18 @@ function initializeGndMeasSaveButton() {
 	                    	wss_connect.send(JSON.stringify(special_case_settings));
 	            			$.notify('Ground measurement settings saved for special case!','success');
 						} catch(err) {
-							console.log(err);
-							// Add PMS here
+							sendReport(err.stack,0)
+							const report = {
+					            type: "error_logs",
+					            metric_name: "set_groud_meas_settings_error_logs",
+					            module_name: "Communications",
+					            report_message: `${err}`,
+					            reference_table: "",
+					            reference_id: 0,
+					            submetrics: []
+					        };
+
+					        PMS.send(report);
 						}
 			            
 		            }
@@ -1662,8 +1859,18 @@ function initializeGndMeasSaveButton() {
 		            wss_connect.send(JSON.stringify(gnd_meas_settings));
 	            	$.notify('Ground measurement settings saved!','success');
 				} catch(err) {
-					console.log(err);
-					// Add PMS here
+					sendReport(err.stack,0)
+					const report = {
+			            type: "error_logs",
+			            metric_name: "set_groud_meas_settings_error_logs",
+			            module_name: "Communications",
+			            report_message: `${err}`,
+			            reference_table: "",
+			            reference_id: 0,
+			            submetrics: []
+			        };
+
+			        PMS.send(report);
 				}
             	
           
@@ -1690,8 +1897,18 @@ function initializeGndMeasSaveButton() {
 		                };
 		                wss_connect.send(JSON.stringify(gnd_meas_settings));
 					} catch(err) {
-						console.log(err);
-						// Add PMS here
+						sendReport(err.stack,0)
+						const report = {
+				            type: "error_logs",
+				            metric_name: "set_groud_meas_settings_error_logs",
+				            module_name: "Communications",
+				            report_message: `${err}`,
+				            reference_table: "",
+				            reference_id: 0,
+				            submetrics: []
+				        };
+
+				        PMS.send(report);
 					}
 	                
 	                if (special_case_length > 0) {
@@ -1714,12 +1931,20 @@ function initializeGndMeasSaveButton() {
 		                        wss_connect.send(JSON.stringify(gnd_meas_settings));  
 		                        $.notify('Ground measurement settings saved!','success');       
 							} catch(err) {
-								console.log(err);
-								// Add PMS here
-							}
-	                             
+								sendReport(err.stack,0)
+								const report = {
+						            type: "error_logs",
+						            metric_name: "set_groud_meas_settings_error_logs",
+						            module_name: "Communications",
+						            report_message: `${err}`,
+						            reference_table: "",
+						            reference_id: 0,
+						            submetrics: []
+						        };
+
+						        PMS.send(report);
+							} 
 	                    }
-	                	
 		            } else {
 		            	// $.notify('Please check at least on site on special cases','error');
 		            }
@@ -1743,7 +1968,6 @@ function initializeResetSpecialCasesButtonOnCLick () {
 }
 
 function resetSpecialCases() {
-    // Clear special cases
     $("#gnd-meas-category").val('event');
     let special_case_length = $(".special-case-template").length;
     special_case_num = 0;
@@ -1757,7 +1981,6 @@ function resetSpecialCases() {
 	    };
 	    wss_connect.send(JSON.stringify(data));
 	} catch(err) {
-		console.log(err);
 		const report = {
             type: "error_logs",
             metric_name: "ground_meas_settings_error_logs",
@@ -1769,6 +1992,7 @@ function resetSpecialCases() {
         };
 
     	PMS.send(report);
+    	sendReport(err.stack,0)
 	}
     
 }
@@ -1789,7 +2013,6 @@ function loadSiteConvoViaQacess() {
 			};
 			wss_connect.send(JSON.stringify(convo_request));
 		} catch(err) {
-			console.log(err);
 			const report = {
 	            type: "error_logs",
 	            metric_name: "load_sms_sites_error_logs",
@@ -1801,6 +2024,7 @@ function loadSiteConvoViaQacess() {
 	        };
 
 	    	PMS.send(report);
+	    	sendReport(err.stack,0)
 		}
     	
     });

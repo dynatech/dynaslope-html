@@ -8,7 +8,6 @@ let message_position = null;
 let ROUTINE_SITES = null;
 $(document).ready(function() {
 	$('#chatterbox-loader-modal').modal({backdrop: 'static', keyboard: false});
-	// $('#ground-meas-reminder-modal').modal({backdrop: 'static', keyboard: false});
     initialize();
 	$(".birthdate").datetimepicker({
 		locale: "en",
@@ -27,7 +26,7 @@ $(document).ready(function() {
 
 function initialize() {
     setTimeout(function() {
-        // initializeOnClickGetRoutineReminder();
+        initializeOnClickGetRoutineReminder();
         initializeQuickInboxMessages();
         initializeDatepickers();
         getRecentActivity();
@@ -53,14 +52,20 @@ function initialize() {
                 initializeSamarSites();
                 initializeScrollOldMessages();
                 $("#chatterbox-loader-modal").modal("hide");
-                // $("#recent-activity-panel").removeClass("blink");
-                // $("#messages-panel").removeClass("blink");
             } catch (err) {
                 $("#chatterbox-loader-modal").modal("hide");
-                // $("#recent-activity-panel").removeClass("blink");
-                // $("#messages-panel").removeClass("blink");
-                console.log(err.message);
-                // Add PMS HERE.
+                const report = {
+                    type: "error_logs",
+                    metric_name: "initializer_error_logs",
+                    module_name: "Communications",
+                    report_message: `${err}`,
+                    reference_table: "",
+                    reference_id: 0,
+                    submetrics: []
+                };
+
+                PMS.send(report);
+                sendReport(err.stack,0)
             }
             
         }, 3000);
@@ -76,131 +81,184 @@ function getContactSuggestion (name_suggestion) {
         '</span>'
     );
 
-	let contact_suggestion_input = document.getElementById("contact-suggestion");
-	awesomplete = new Awesomplete(contact_suggestion_input,{
-            filter (text, input) {
-                return Awesomplete.FILTER_CONTAINS(text, input.match(/[^;]*$/)[0]);
-            },replace (text) {
-                var before = this.input.value.match(/^.+;\s*|/)[0];
-                this.input.value = `${before + text}; `;
-            },minChars: 3
-        });
-	let contact_suggestion_container = [];
+    try {
+        let contact_suggestion_input = document.getElementById("contact-suggestion");
+        awesomplete = new Awesomplete(contact_suggestion_input,{
+                filter (text, input) {
+                    return Awesomplete.FILTER_CONTAINS(text, input.match(/[^;]*$/)[0]);
+                },replace (text) {
+                    var before = this.input.value.match(/^.+;\s*|/)[0];
+                    this.input.value = `${before + text}; `;
+                },minChars: 3
+            });
+        let contact_suggestion_container = [];
 
-	name_suggestion.data.forEach(function(raw_names) {
-        let mobile_number = raw_names.number.replace("63", "0");
-        let display_info = `${raw_names.fullname} (${mobile_number})`;
-		contact_suggestion_container.push(display_info);
-	});
-	awesomplete.list = contact_suggestion_container;
-    initializeGoChatOnClick(awesomplete);
+        name_suggestion.data.forEach(function(raw_names) {
+            let mobile_number = raw_names.number.replace("63", "0");
+            let display_info = `${raw_names.fullname} (${mobile_number})`;
+            contact_suggestion_container.push(display_info);
+        });
+        awesomplete.list = contact_suggestion_container;
+        initializeGoChatOnClick(awesomplete);
+    } catch(err) {
+        sendReport(err.stack,0);
+        const report = {
+            type: "error_logs",
+            metric_name: "get_contact_suggetions_error_logs",
+            module_name: "Communications",
+            report_message: `${err}`,
+            reference_table: "",
+            reference_id: 0,
+            submetrics: []
+        };
+
+        PMS.send(report);
+    }
 }
 
 function initializeGoChatOnClick (awesomplete) {
     $("#go-chat").on("click", ()=>{
-        let contact_suggestion = $("#contact-suggestion");
-        let searchKey = contact_suggestion.val();
+        try {
+            let contact_suggestion = $("#contact-suggestion");
+            let searchKey = contact_suggestion.val();
 
-        let isValidContact = validateContactSearchKey(searchKey, contact_suggestion);
+            let isValidContact = validateContactSearchKey(searchKey, contact_suggestion);
 
-        if(isValidContact) {
-            console.log("go click");
-            let multiple_contact = contact_suggestion.val().split(";");
+            if(isValidContact) {
+                console.log("go click");
+                let multiple_contact = contact_suggestion.val().split(";");
 
-            conversation_details = prepareConversationDetails(multiple_contact);
-            startConversation(conversation_details);            
+                conversation_details = prepareConversationDetails(multiple_contact);
+                startConversation(conversation_details);            
+            }
+            $("#recent-activity-panel").hide(400);
+            $("#quick-access-panel").hide(400);
+            $("#conversation-panel").show(400)
+        } catch(err) {
+            sendReport(err.stack,0);
+            const report = {
+                type: "error_logs",
+                metric_name: "chat_search_users_error_logs",
+                module_name: "Communications",
+                report_message: `${err}`,
+                reference_table: "",
+                reference_id: 0,
+                submetrics: []
+            };
+
+            PMS.send(report);
         }
-        $("#recent-activity-panel").hide(400);
-        $("#quick-access-panel").hide(400);
-        $("#conversation-panel").show(400)
     });
 }
 
 function validateContactSearchKey(searchKey, contact_suggestion) {
-    let isInInput = searchKey.includes(";");
+    try {
+        let isInInput = searchKey.includes(";");
+        if(isInInput) {
+            let searchKey = contact_suggestion.val().split("; ");
+            searchKey.pop();
+            isInSuggestions = searchKey.every(elem => awesomplete._list.indexOf(elem) > -1);
+        } else {
+            isInSuggestions = searchKey.indexOf(awesomplete._list) > -1;
+        }
+        if(contact_suggestion.val().length === 0){
+            $.notify("No keyword specified! Please enter a value and select from the suggestions.", "warn");
+            return false;
+        } else if(!isInSuggestions) {
+            console.log("contact_suggestion is empty.");
+            $.notify("Please use the correct format and select from the suggestions.", "warn");
+            return false
+        } else {
+            return true;
+        }
+    } catch(err) {
+        sendReport(err.stack,0);
+        const report = {
+            type: "error_logs",
+            metric_name: "contact_search_validation_error_logs",
+            module_name: "Communications",
+            report_message: `${err}`,
+            reference_table: "",
+            reference_id: 0,
+            submetrics: []
+        };
 
-    console.log("searchKey " + searchKey);
-    console.log("\";\" IN INPUT " + isInInput);
-
-    if(isInInput) {
-        let searchKey = contact_suggestion.val().split("; ");
-        searchKey.pop();
-        console.log(searchKey);
-        isInSuggestions = searchKey.every(elem => awesomplete._list.indexOf(elem) > -1);
-    } else {
-        isInSuggestions = searchKey.indexOf(awesomplete._list) > -1;
-    }
-    console.log(isInSuggestions);
-    if(contact_suggestion.val().length === 0){
-        $.notify("No keyword specified! Please enter a value and select from the suggestions.", "warn");
-        return false;
-    } else if(!isInSuggestions) {
-        console.log("contact_suggestion is empty.");
-        $.notify("Please use the correct format and select from the suggestions.", "warn");
-        return false
-    } else {
-        return true;
+        PMS.send(report);
     }
 }
 
-function prepareConversationDetails(multiple_contact) { // Removed from initializeGoChatOnClick for purpose of unit test in the future
-    let raw_name = "";
-    let firstname = "";
-    let lastname = "";
-    let office = "";
-    let site = "";
-    let number = "N/A";
-    let conversation_details = {};
-    if (multiple_contact.length > 2) {
-        let recipient_container = [];
-        let temp = {};
-        for (let counter = 0; counter < multiple_contact.length-1; counter++) {
-            raw_name = multiple_contact[counter].split(",");
+function prepareConversationDetails(multiple_contact) {
+    try {
+        let raw_name = "";
+        let firstname = "";
+        let lastname = "";
+        let office = "";
+        let site = "";
+        let number = "N/A";
+        let conversation_details = {};
+        if (multiple_contact.length > 2) {
+            let recipient_container = [];
+            let temp = {};
+            for (let counter = 0; counter < multiple_contact.length-1; counter++) {
+                raw_name = multiple_contact[counter].split(",");
+                firstname = raw_name[1].trim();
+                lastname = raw_name[0].split("-")[1].trim();
+                office = raw_name[0].split(" ")[1].trim();
+                site = raw_name[0].split(" ")[0].trim();
+                number = "N/A";
+
+                temp = {
+                    raw_name: raw_name,
+                    firstname: firstname,
+                    lastname: lastname,
+                    office: office,
+                    site: site,
+                    number: number,
+                    isMultiple: true
+                };
+                recipient_container.push(temp);
+            }
+            conversation_details = {
+                isMultiple: true,
+                data: recipient_container
+            };
+        } else {
+            raw_name = multiple_contact[0].split(",");
             firstname = raw_name[1].trim();
             lastname = raw_name[0].split("-")[1].trim();
+            lastname = lastname.replace("NA ","");
             office = raw_name[0].split(" ")[1].trim();
             site = raw_name[0].split(" ")[0].trim();
-            number = "N/A";
-
-            temp = {
-                raw_name: raw_name,
+            conversation_details = {
+                full_name: $("#contact-suggestion").val(),
                 firstname: firstname,
                 lastname: lastname,
                 office: office,
                 site: site,
-                number: number,
-                isMultiple: true
-            };
-            recipient_container.push(temp);
-        }
-        conversation_details = {
-            isMultiple: true,
-            data: recipient_container
+                number: "N/A",
+                isMultiple: false
+            }
+            conversation_details_label = site+" "+office+" - "+firstname+" "+lastname;
+        }    
+        return conversation_details;
+    } catch(err) {
+        sendReport(err.stack,0);
+        const report = {
+            type: "error_logs",
+            metric_name: "prepare_conversation_details_error_logs",
+            module_name: "Communications",
+            report_message: `${err}`,
+            reference_table: "",
+            reference_id: 0,
+            submetrics: []
         };
-    } else {
-        raw_name = multiple_contact[0].split(",");
-        firstname = raw_name[1].trim();
-        lastname = raw_name[0].split("-")[1].trim();
-        lastname = lastname.replace("NA ","");
-        office = raw_name[0].split(" ")[1].trim();
-        site = raw_name[0].split(" ")[0].trim();
-        conversation_details = {
-            full_name: $("#contact-suggestion").val(),
-            firstname: firstname,
-            lastname: lastname,
-            office: office,
-            site: site,
-            number: "N/A",
-            isMultiple: false
-        }
-        conversation_details_label = site+" "+office+" - "+firstname+" "+lastname;
-    }    
-    return conversation_details;
+
+        PMS.send(report);
+    }
 }
 
 function initializeQuickInboxMessages () {
 	getQuickInboxMain();
-	getQuickInboxEvent();
 	getQuickInboxUnregistered();
 	getQuickInboxDataLogger();
     $("#inbox-loader").hide();
@@ -225,12 +283,9 @@ function getQuickInboxMain () {
         };
 
         PMS.send(report);
+        sendReport(err.stack,0);
     }
 	
-}
-
-function getQuickInboxEvent() {
-
 }
 
 function getQuickInboxUnregistered() {
@@ -252,6 +307,7 @@ function getQuickInboxUnregistered() {
         };
 
         PMS.send(report);
+        sendReport(err.stack,0);
     }
     
 }
@@ -264,19 +320,6 @@ function getRecentActivity () {
 	getRecentlyViewedContacts();
 	getRecentlyViewedSites();
 	getOnRoutineSites();
-}
-
-function getQuickAcces () {
-	getQASitesWithEvent();
-	getQAGroupMessages();
-}
-
-function getQASitesWithEvent () {
-
-}
-
-function getQAGroupMessages () {
-
 }
 
 function initializeOnClickUpdateEmployeeContact () {
@@ -306,6 +349,7 @@ function initializeOnClickUpdateEmployeeContact () {
             };
 
             PMS.send(report);
+            sendReport(err.stack,0);
         }
 		
 	});
@@ -338,6 +382,7 @@ function initializeOnClickUpdateCommunityContact () {
             };
 
             PMS.send(report);
+            sendReport(err.stack,0);
         }
 		
 	});
@@ -379,51 +424,67 @@ function initializeOnClickUpdateUnregisteredContact () {
             };
 
             PMS.send(report);
+            sendReport(err.stack,0);
         }
         
     });
 }
 
 function initLoadLatestAlerts (data) {
-    initCheckboxColors();
-    initializeUncheckSiteOnEventInRoutine(data);
-    if (data == null) {
-        return;
-    }
-    var alerts = data;
-    temp = data;
-    var msg;
-    for (var i = alerts.length - 1; i >= 0; i--) {
-        msg = alerts[i];
-        updateLatestPublicRelease(msg);
-        $("input[name=\"sitenames\"]:unchecked").each(function () {
-            if ($(this).val() == alerts[i].site_id) {
-                if (alerts[i].status == "on-going") {
-                    $(this).parent().css("color", "red");
-                } else if (alerts[i].status == "extended") {
-                    $(this).parent().css("color", "blue");
-                } 
-            } else if ($(this).val() == 32 || $(this).val() == 33) { 
-                if (alerts[i].site_code == "msl" || alerts[i].site_code == "msu") {
+    try {
+        initCheckboxColors();
+        initializeUncheckSiteOnEventInRoutine(data);
+        if (data == null) {
+            return;
+        }
+        let alerts = data;
+        temp = data;
+        let msg;
+        for (let i = alerts.length - 1; i >= 0; i--) {
+            msg = alerts[i];
+            updateLatestPublicRelease(msg);
+            $("input[name=\"sitenames\"]:unchecked").each(function () {
+                if ($(this).val() == alerts[i].site_id) {
                     if (alerts[i].status == "on-going") {
                         $(this).parent().css("color", "red");
                     } else if (alerts[i].status == "extended") {
                         $(this).parent().css("color", "blue");
+                    } 
+                } else if ($(this).val() == 32 || $(this).val() == 33) { 
+                    if (alerts[i].site_code == "msl" || alerts[i].site_code == "msu") {
+                        if (alerts[i].status == "on-going") {
+                            $(this).parent().css("color", "red");
+                        } else if (alerts[i].status == "extended") {
+                            $(this).parent().css("color", "blue");
+                        }
                     }
                 }
-            }
-        });
-    }
-    // if(quick_inbox_registered.length != 0){
+            });
+        }
         displayQuickEventInbox(quick_inbox_registered, quick_release);
-    // }
+    } catch(err) {
+        sendReport(err.stack,0)
+        const report = {
+            type: "error_logs",
+            metric_name: "load_latest_alerts_error_logs",
+            module_name: "Communications",
+            report_message: `${err}`,
+            reference_table: "",
+            reference_id: 0,
+            submetrics: []
+        };
+
+        PMS.send(report);
+    }
 }
 
 function initializeUncheckSiteOnEventInRoutine(event_sites){
-    event_sites.forEach(function(site) {
-        const { site_code } = site;
-        $(".routine-site-selection label").find("input[value="+site_code+"]").prop("checked", false);
-    });
+    if(event_sites != null){
+        event_sites.forEach(function(site) {
+            const { site_code } = site;
+            $(".routine-site-selection label").find("input[value="+site_code+"]").prop("checked", false);
+        });
+    }
 }
 
 function displayQuickEventInbox (){
@@ -450,8 +511,18 @@ function displayQuickEventInbox (){
             console.log(err);
         }
     } catch (err) {
-        console.log(err);
-        //Add PMS here
+        sendReport(err.stack,0)
+        const report = {
+            type: "error_logs",
+            metric_name: "load_quick_inbox_error_logs",
+            module_name: "Communications",
+            report_message: `${err}`,
+            reference_table: "",
+            reference_id: 0,
+            submetrics: []
+        };
+
+        PMS.send(report);
     }
 }
 
@@ -480,6 +551,7 @@ function getSiteSelection() {
         };
 
         PMS.send(report);
+        sendReport(err.stack,0);
     }
 	
 }
@@ -504,6 +576,7 @@ function getOrganizationSelection() {
         };
 
         PMS.send(report);
+        sendReport(err.stack,0);
     }
 	
 }
@@ -528,6 +601,7 @@ function initializeContactSuggestion(name_query) {
         };
 
         PMS.send(report);
+        sendReport(err.stack,0);
     }
 	
 }
@@ -551,6 +625,7 @@ function getImportantTags () {
         };
 
         PMS.send(report);
+        sendReport(err.stack,0);
     }
 	
 }
@@ -586,7 +661,22 @@ function getEmployeeContactGroups () {
 
 function initializeOnSubmitEmployeeContactForm () {
 	$('#emp-settings-cmd button[type="submit"], #sbt-update-contact-info').on('click',function(){
-		employeeContactFormValidation();
+        try{
+            employeeContactFormValidation();
+        } catch (err) {
+            sendReport(err.stack,0)
+            const report = {
+                type: "error_logs",
+                metric_name: "on_click_submit_employee_form_error_logs",
+                module_name: "Communications",
+                report_message: `${err}`,
+                reference_table: "",
+                reference_id: 0,
+                submetrics: []
+            };
+
+            PMS.send(report);
+        }
 	});
 }
 
@@ -594,21 +684,62 @@ function initializeOnSubmitCommunityContactForm () {
 	$('#comm-settings-cmd button[type="submit"], #sbt-update-comm-contact-info').on('click',function(){
 		try{
 			communityContactFormValidation();
-		} catch (e) {
-			console.log(e.message);
+		} catch (err) {
+			sendReport(err.stack,0);
+            const report = {
+                type: "error_logs",
+                metric_name: "on_click_submit_community_form_error_logs",
+                module_name: "Communications",
+                report_message: `${err}`,
+                reference_table: "",
+                reference_id: 0,
+                submetrics: []
+            };
+
+            PMS.send(report);
 		}
 	});
 }
 
 function initializeOnSubmitUnregisteredEmployeeContactForm (){
     $('#emp_unregistered_save').on('click',function(){
-        unregisteredEmployeeContactFormValidation();
+        try{
+            unregisteredEmployeeContactFormValidation();
+        } catch (err) {
+            sendReport(err.stack,0);
+            const report = {
+                type: "error_logs",
+                metric_name: "on_click_submit_unregistered_form_error_logs",
+                module_name: "Communications",
+                report_message: `${err}`,
+                reference_table: "",
+                reference_id: 0,
+                submetrics: []
+            };
+
+            PMS.send(report);
+        }
     });
 }
 
 function initializeOnSubmitUnregisteredCommunityContactForm (){
     $('#comm_unregistered_save').on('click',function(){
-        unregisteredCommunityContactFormValidation();
+        try{
+            unregisteredCommunityContactFormValidation();
+        } catch (err) {
+            sendReport(err.stack,0);
+            const report = {
+            type: "error_logs",
+            metric_name: "display_ewi_status_error_logs",
+            module_name: "Communications",
+            report_message: `${err}`,
+            reference_table: "",
+            reference_id: 0,
+            submetrics: []
+        };
+
+        PMS.send(report);
+        }
     });
 }
 
@@ -634,18 +765,16 @@ function employeeContactFormValidation() {
                 $(placement).append(error);
             } else {
                 error.insertAfter(placement);
-            } // remove on success
+            } 
 
             element.parents(".form-group").addClass("has-feedback");
 
-            // Add the span element, if doesn't exists, and apply the icon classes to it.
             const $next_span = element.next("span");
             if (!$next_span[0]) {
                 if (element.is("select") || element.is("textarea")) $next_span.css({ top: "25px", right: "25px" });
             }
         },
         success (label, element) {
-            // Add the span element, if doesn't exists, and apply the icon classes to it.
             if (!$(element).next("span")) {
                 $("<span class='glyphicon glyphicon-ok form-control-feedback' style='top:0px; right:37px;'></span>").insertAfter($(element));
             }
@@ -696,18 +825,16 @@ function unregisteredEmployeeContactFormValidation() {
                 $(placement).append(error);
             } else {
                 error.insertAfter(placement);
-            } // remove on success
+            }
 
             element.parents(".form-group").addClass("has-feedback");
 
-            // Add the span element, if doesn't exists, and apply the icon classes to it.
             const $next_span = element.next("span");
             if (!$next_span[0]) {
                 if (element.is("select") || element.is("textarea")) $next_span.css({ top: "25px", right: "25px" });
             }
         },
         success (label, element) {
-            // Add the span element, if doesn't exists, and apply the icon classes to it.
             if (!$(element).next("span")) {
                 $("<span class='glyphicon glyphicon-ok form-control-feedback' style='top:0px; right:37px;'></span>").insertAfter($(element));
             }
@@ -761,18 +888,16 @@ function communityContactFormValidation () {
                 $(placement).append(error);
             } else {
                 error.insertAfter(placement);
-            } // remove on success
+            }
 
             element.parents(".form-group").addClass("has-feedback");
 
-            // Add the span element, if doesn't exists, and apply the icon classes to it.
             const $next_span = element.next("span");
             if (!$next_span[0]) {
                 if (element.is("select") || element.is("textarea")) $next_span.css({ top: "25px", right: "25px" });
             }
         },
         success (label, element) {
-            // Add the span element, if doesn't exists, and apply the icon classes to it.
             if (!$(element).next("span")) {
                 $("<span class='glyphicon glyphicon-ok form-control-feedback' style='top:0px; right:37px;'></span>").insertAfter($(element));
             }
@@ -817,7 +942,6 @@ function communityContactFormValidation () {
 			} else {
                 
 				$("#org-and-site-alert").hide(300);
-				//success function here
                 let has_duplicate = checkChangesInPriority();
                 if(has_duplicate == false){
                     submitCommunityContactForm(site_selected, organization_selected);
@@ -832,37 +956,47 @@ function communityContactFormValidation () {
 }
 
 function checkChangesInPriority(){
-    contact_priorities = [];
-    // let current_user_hierarchy_data = {
-    //     hierarchy_id : $("#contact_priority_id").val(),
-    //     hierarchy_priority: $("#contact_priority").val()
-    // }
-    // contact_priorities.push(current_user_hierarchy_data);
-    $('.contact_priority_id').each(function(){
-        let hierarchy_data = {
-            hierarchy_id : $(this).val(),
-            hierarchy_priority: $(this).prev().val()
+    try {
+        contact_priorities = [];
+        $('.contact_priority_id').each(function(){
+            let hierarchy_data = {
+                hierarchy_id : $(this).val(),
+                hierarchy_priority: $(this).prev().val()
+            }
+
+           contact_priorities.push(hierarchy_data);
+        });
+
+        let check_array = contact_priorities.map(function(item){ return item.hierarchy_priority });
+        let has_duplicate = check_array.some(function(item, idx){ 
+            return check_array.indexOf(item) != idx 
+        });
+        
+        if(has_duplicate == false){
+            if(contact_priorities.length > 1){
+                const message = {
+                    type: "updateContactHierarchy",
+                    data: contact_priorities
+                }
+                wss_connect.send(JSON.stringify(message));
+            } 
         }
 
-       contact_priorities.push(hierarchy_data);
-    });
+        return has_duplicate;
+    } catch(err) {
+        sendReport(err.stack,0);
+        const report = {
+            type: "error_logs",
+            metric_name: "check_changes_in_priority_error_logs",
+            module_name: "Communications",
+            report_message: `${err}`,
+            reference_table: "contact_hierarchy",
+            reference_id: 25,
+            submetrics: []
+        };
 
-    var check_array = contact_priorities.map(function(item){ return item.hierarchy_priority });
-    var has_duplicate = check_array.some(function(item, idx){ 
-        return check_array.indexOf(item) != idx 
-    });
-    
-    if(has_duplicate == false){
-        if(contact_priorities.length > 1){
-            const message = {
-                type: "updateContactHierarchy",
-                data: contact_priorities
-            }
-            wss_connect.send(JSON.stringify(message));
-        } 
+        PMS.send(report);
     }
-
-    return has_duplicate;
 }
 
 function unregisteredCommunityContactFormValidation () {
@@ -886,18 +1020,16 @@ function unregisteredCommunityContactFormValidation () {
                 $(placement).append(error);
             } else {
                 error.insertAfter(placement);
-            } // remove on success
+            }
 
             element.parents(".form-group").addClass("has-feedback");
 
-            // Add the span element, if doesn't exists, and apply the icon classes to it.
             const $next_span = element.next("span");
             if (!$next_span[0]) {
                 if (element.is("select") || element.is("textarea")) $next_span.css({ top: "25px", right: "25px" });
             }
         },
         success (label, element) {
-            // Add the span element, if doesn't exists, and apply the icon classes to it.
             if (!$(element).next("span")) {
                 $("<span class='glyphicon glyphicon-ok form-control-feedback' style='top:0px; right:37px;'></span>").insertAfter($(element));
             }
@@ -957,17 +1089,12 @@ function unregisteredCommunityContactFormValidation () {
 function recentActivityInitializer() {
     $("#routine-actual-option").on("click", function () {
         $("#routine-reminder-option").removeClass("active");
-        // $("#routine-msg").val("");
-        // $(this).addClass("active");
         $("#def-recipients").text("Default recipients: LEWC, BLGU, MLGU");
     });
 
     $("#routine-reminder-option").on("click", function () {
         $("#routine-actual-option").removeClass("active");
         $("#def-recipients").text("Default recipients: LEWC");
-        // $("#routine-msg").val("");
-        // $("#routine-msg").val(routine_reminder_msg);
-        // $(this).addClass("active");
     });
 
     $(".rv_contacts a").on("click", function () {
@@ -1049,6 +1176,7 @@ function getRoutineSites() {
         };
 
         PMS.send(report);
+        sendReport(err.stack,0);
     }
 	
 }
@@ -1072,6 +1200,7 @@ function getRoutineReminder() {
         };
 
         PMS.send(report);
+        sendReport(err.stack,0);
     }
 	
 }
@@ -1101,6 +1230,7 @@ function getRoutineTemplate() {
         };
 
         PMS.send(report);
+        sendReport(err.stack,0);
     }
 }
 
@@ -1123,6 +1253,7 @@ function getLatestAlert() {
         };
 
         PMS.send(report);
+        sendReport(err.stack,0);
     }
     
 }
@@ -1159,7 +1290,6 @@ function displayRoutineReminder(sites,template) {
             });
 
             $(".routine_section").append("<div class='routine-msg-container'></div>");
-            // $(".routine-msg-container").append("<textarea class='form-control' id='routine-msg' cols='30'rows='10'></textarea>");
             $("#routine-reminder-message").val(parsed_template);
             break;
         case "Tuesday":
@@ -1182,7 +1312,6 @@ function displayRoutineReminder(sites,template) {
             });
 
             $(".routine_section").append("<div class='routine-msg-container'></div>");
-            // $(".routine-msg-container").append("<textarea class='form-control' id='routine-msg' cols='30'rows='10'></textarea>");
             $("#routine-reminder-message").val(parsed_template);
             break;
         case "Wednesday":
@@ -1205,7 +1334,6 @@ function displayRoutineReminder(sites,template) {
             });
 
             $(".routine_section").append("<div class='routine-msg-container'></div>");
-            // $(".routine-msg-container").prepend("<textarea class='form-control' id='routine-msg' cols='30'rows='10'></textarea>");
             $("#routine-reminder-message").val(parsed_template);
             break;
         default:
@@ -1269,16 +1397,30 @@ function initializeSamarSites() {
         };
         wss_connect.send(JSON.stringify(msg));
     } catch(err) {
-        console.log(err);
-        // Add PMS here
+        const report = {
+            type: "error_logs",
+            metric_name: "get_samar_sites_error_logs",
+            module_name: "Communications",
+            report_message: `${err}`,
+            reference_table: "",
+            reference_id: 0,
+            submetrics: []
+        };
+
+        PMS.send(report);
     }
     
 }
 
 function initializeScrollOldMessages() {
+    $('.chat-message').unbind();
     $('.chat-message').scroll(function() {
       if ($(this).scrollTop() == 0) {
-        $('#chatterbox-loader-modal').modal({backdrop: 'static', keyboard: false});
+        if(isNewConvo == false){
+            $('#chatterbox-loader-modal').modal({backdrop: 'static', keyboard: false});
+        }else{
+            $('#chatterbox-loader-modal').modal("hide");
+        }
 
         let tag_offices = [];
         $('input[name="orgs"]:checked').each(function() {
@@ -1306,12 +1448,23 @@ function initializeScrollOldMessages() {
             };
             wss_connect.send(JSON.stringify(msg));
         } catch(err) {
-            console.log(err);
-            // Add PMS here
+            sendReport(err.stack,0)
+            const report = {
+                type: "error_logs",
+                metric_name: "load_old_messages_error_logs",
+                module_name: "Communications",
+                report_message: `${err}`,
+                reference_table: "",
+                reference_id: 0,
+                submetrics: []
+            };
+
+            PMS.send(report);
+            sendReport(err.stack,0)
         }
-        
       }
     });
+    initializeOnAvatarClickForTagging();
 }
 
 
@@ -1480,19 +1633,3 @@ function initializeDataTaggingButton () {
         });
     });  
 }
-
-// function initializeOnClickReportBugButton(){
-//     $('#data-tagging-container').on('click',function(){
-//         // $("#bug-report-modal").modal("show");
-//     });
-// }
-
-// function initializeOnClickEnableBugReportButton(){
-//     $('#enable-bug-report-button').on('click',function(){
-//         $("#bug-report-modal").modal("hide");
-//         $("#report-quick-access").show();
-//         $("#report-quick-inbox").show();
-//         $("#report-recent-activity").show();
-//         $("#report-conversation").show();
-//     });
-// }
