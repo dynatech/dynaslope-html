@@ -92,7 +92,6 @@ function getContactSuggestion (name_suggestion) {
                 },minChars: 3
             });
         let contact_suggestion_container = [];
-        console.log(name_suggestion)
         name_suggestion.data.forEach(function(raw_names) {
             let priority = "";
             if(raw_names.priority == 1){
