@@ -92,10 +92,16 @@ function getContactSuggestion (name_suggestion) {
                 },minChars: 3
             });
         let contact_suggestion_container = [];
-
+        console.log(name_suggestion)
         name_suggestion.data.forEach(function(raw_names) {
+            let priority = "";
+            if(raw_names.priority == 1){
+                priority = " - Primary";
+            }else{
+                priority = "";
+            }
             let mobile_number = raw_names.number.replace("63", "0");
-            let display_info = `${raw_names.fullname} (${mobile_number})`;
+            let display_info = `${raw_names.fullname} (${mobile_number})${priority}`;
             contact_suggestion_container.push(display_info);
         });
         awesomplete.list = contact_suggestion_container;
@@ -127,8 +133,12 @@ function initializeGoChatOnClick (awesomplete) {
             if(isValidContact) {
                 console.log("go click");
                 let multiple_contact = contact_suggestion.val().split(";");
-
-                conversation_details = prepareConversationDetails(multiple_contact);
+                let final_contact = [];
+                multiple_contact.forEach(function(user){
+                    let value = user.replace(" - Primary", "");
+                    final_contact.push(value);
+                });
+                conversation_details = prepareConversationDetails(final_contact);
                 startConversation(conversation_details);            
             }
             $("#recent-activity-panel").hide(400);
