@@ -120,11 +120,11 @@ function postRecentEventsInTable(table_data){
                 title: "Magnitude"
             },
             {
-                data: "latitude",
+                data: "eq_lat",
                 title: "Latitude"
             },
             {
-                data: "longitude",
+                data: "eq_lon",
                 title: "Longitude"
             },
             {
