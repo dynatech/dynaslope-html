@@ -31,7 +31,6 @@ function FilterDataDuplicates(filterBy,event){
 
 
 function initialLoadMap(data,state){
-    console.log(state)
     let mymap;
     if (state == 0){
         mymap = L.map("earthquake-percentages-plot").setView(["12.8797", "121.7740"], 6);
@@ -58,7 +57,9 @@ function initialLoadMap(data,state){
         for (let i = 0; i < data.length; i++) {
             if (data[0]["eq_lat"] == data[i]["eq_lat"]){
                 L.marker([data[i]["latitude"], data[i]["longitude"]])
-                .addTo(mymap).bindPopup(data[i]["site_code"]).openPopup();
+                .addTo(mymap)
+                .bindPopup(data[i]["site_code"])
+                .openPopup();
             } 
         }
         
@@ -68,16 +69,17 @@ function initialLoadMap(data,state){
         .openOn(mymap);
     }else{
         for (let i = 0; i < 10; i++) {
-            console.log(data[i])
             L.circle([data[i]["eq_lat"], data[i]["eq_lon"]], {
                 color: 'red',
                 fillColor: '#f03',
                 fillOpacity: 0.1,
-                radius: parseInt(data[0]["critical_distance"]) * 1000
+                radius: parseInt(data[i]["critical_distance"]) * 1000
             }).addTo(mymap);
 
             L.marker([data[i]["eq_lat"], data[i]["eq_lon"]])
-            .addTo(mymap).bindPopup(data[i]["ts"]+" Magnitude: " + data[0]["magnitude"]).openPopup();
+            .addTo(mymap)
+            .bindPopup(data[i]["ts"]+" Magnitude: " + data[i]["magnitude"])
+            .openPopup();
         }
     }
     
@@ -150,22 +152,9 @@ function processEventSelection(table,table_data){
  
 }
 
-
-
-
 function getRecentEvents() {
     return $.getJSON("../../earthquake_scanner/getRecentEarthquakeEvent");
 
-}
-
-function adjustHeightOnResize() {
-    $(window).resize(() => {
-        const height = $(window).height();
-        let final;
-        if (height > 720) final = 550;
-        else final = 400;
-        CHART.setSize(null, final);
-    });
 }
 
 
