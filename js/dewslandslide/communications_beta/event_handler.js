@@ -116,11 +116,19 @@ function getRoutineMobileIDs(offices, sites_on_routine) {
 }
 
 function sendRoutineSMSToLEWC(raw) {
-	let message = $("#routine-default-message").val();
+	debugger;
+	let message = null;
+	let defaul_message = null;
+	if ($("#routine-tabs li.active a").text() == "Reminder Message") {
+        message = $("#routine-reminder-message").val();
+
+    } else {
+        message = $("#routine-default-message").val();
+    }
+	defaul_message = message;
 	let sender = " - " + $("#user_name").html() + " from PHIVOLCS-DYNASLOPE";
 	raw.data.forEach(function(contact) {
 		raw.sites.forEach(function(site) {
-			console.log(site);
 			if (contact.fk_site_id == site.site_id) {
 				let temp = "";
 				if (site.purok == null && site.sitio == null) {
@@ -139,6 +147,7 @@ function sendRoutineSMSToLEWC(raw) {
 				message = message.replace("(current_date)", raw.date);
 				message = message.replace("(greetings)", "umaga");
 				message = message.replace("(gndmeas_time_submission)","bago-mag 11:30 AM");
+				console.log(message)
 				try {
 					let convo_details = {
 						type: 'sendSmsToRecipients',
@@ -163,7 +172,7 @@ function sendRoutineSMSToLEWC(raw) {
 
 			        PMS.send(report);
 				}
-				message = $("#routine-default-message").val();
+				message = defaul_message;
 			}
 		});
 	});
