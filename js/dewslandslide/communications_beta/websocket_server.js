@@ -35,7 +35,7 @@ function connectWS() {
 					break;
 				case "smsloadquickinbox":
 					displayQuickInboxMain(msg_data.data);
-					console.log(msg_data)
+					// console.log(msg_data)
 					break;
 				case "smsloadunregisteredinbox":
 					displayUnregisteredInboxMain(msg_data.data);
