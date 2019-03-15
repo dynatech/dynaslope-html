@@ -240,6 +240,8 @@ function initializeContactCategoryOnChange () {
 			$("#unregistered-wrapper").hide();
 			$('#unregistered-contact-container').show();
 			$('#unregistered-contact-container_wrapper').show();
+			$('#emp_unregistered_birthdate').val(current_date);
+			$('#comm_unregistered_birthdate').val(current_date);
 		}else{
 			$('#contact-result').remove();
 			if ($('#contact-category').val() != 'default') {
