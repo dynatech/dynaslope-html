@@ -1067,7 +1067,7 @@ function emptyEmployeeContactForm () {
 	$("#middlename_ec").val("");
 	$("#lastname_ec").val("");
 	$("#nickname_ec").val("");
-	$("#birthdate_ec").val("");
+	$("#birthdate_ec").val(current_date);
 	$("#gender_ec").val("");
 	$("#active_status_ec").val(1);
 	$("#mobile-div").empty();
@@ -1083,7 +1083,7 @@ function emptyCommunityContactForm () {
 	$("#middlename_cc").val("");
 	$("#lastname_cc").val("");
 	$("#nickname_cc").val("");
-	$("#birthdate_cc").val("");
+	$("#birthdate_cc").val(current_date);
 	$("#gender_cc").val("");
 	$("#active_status_cc").val("");
 	$("#ewirecipient_cc").val("");

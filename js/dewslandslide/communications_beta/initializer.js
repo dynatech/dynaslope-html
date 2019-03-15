@@ -6,6 +6,7 @@ let last_outbox_ts = null;
 let last_inbox_ts = null;
 let message_position = null;
 let ROUTINE_SITES = null;
+let current_date = moment().format("YYYY-MM-DD");
 $(document).ready(function() {
 	$('#chatterbox-loader-modal').modal({backdrop: 'static', keyboard: false});
     initialize();
