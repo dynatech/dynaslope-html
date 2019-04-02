@@ -71,7 +71,7 @@ function initializeOnClickSendRoutine () {
 	        $("input[name=\"sites-on-routine\"]:checked").each(function () {
 	            sites_on_routine.push(this.id);
 	        });
-	        getRoutineMobileIDs(offices, sites_on_routine);                
+	        getRoutineMobileIDs(offices, sites_on_routine);              
 	    });
 	} catch(err) {
 		sendReport(err.stack,0)
@@ -684,7 +684,6 @@ function initializeOnClickAddMobileForEmployee () {
 
 function initializeOnClickAddMobileForCommunity () {
 	$("#community-add-number").click(function(){
-		console.log(community_input_count);
 		if (community_input_count <= 4) {
 			$("#mobile-div-cc").append(
 			"<div class='row'>"+
@@ -769,10 +768,22 @@ function submitEmployeeInformation () {
 		//for mobile number
 		const employee_mobile = $("#mobile-div :input").length / 4;
 		for (let counter = 1; counter < employee_input_count; counter +=1) {
+			let number_length = $("#employee_mobile_number_"+counter).val().length;
+			let mobile_number = $("#employee_mobile_number_"+counter).val();
+			
+			if(number_length == 11){
+				mobile_number = mobile_number.substr(1, 11);
+			}else if(number_length == 10){
+				mobile_number = mobile_number.substr(0, 10);
+			}else if(number_length == 12){
+				mobile_number = mobile_number.substr(2, 12);
+			}
+
+			mobile_number = "63"+mobile_number;
 			const mobile_number_raw = {
 				"user_id": $("#user_id_ec").val(),
 				"mobile_id": $("#employee_mobile_id_"+counter).val(),
-				"mobile_number": $("#employee_mobile_number_"+counter).val(),
+				"mobile_number": mobile_number,
 				"mobile_status": $("#employee_mobile_status_"+counter).val(),
 				"mobile_priority": $("#employee_mobile_priority_"+counter).val()
 			};
@@ -848,10 +859,22 @@ function submitUnregisteredEmployeeInformation () {
 
 		const employee_mobile = $("#emp_unregistered_mobile_div :input").length / 4;
 		for (let counter = 1; counter < employee_input_count; counter +=1) {
+			let number_length = $("#employee_mobile_number_"+counter).val().length;
+			let mobile_number = $("#employee_mobile_number_"+counter).val();
+			
+			if(number_length == 11){
+				mobile_number = mobile_number.substr(1, 11);
+			}else if(number_length == 10){
+				mobile_number = mobile_number.substr(0, 10);
+			}else if(number_length == 12){
+				mobile_number = mobile_number.substr(2, 12);
+			}
+
+			mobile_number = "63"+mobile_number;
 			const mobile_number_raw = {
 				"user_id": $("#emp_unregistered_user_id").val(),
 				"mobile_id": $("#employee_mobile_id_"+counter).val(),
-				"mobile_number": $("#employee_mobile_number_"+counter).val(),
+				"mobile_number": mobile_number,
 				"mobile_status": $("#employee_mobile_status_"+counter).val(),
 				"mobile_priority": $("#employee_mobile_priority_"+counter).val()
 			};
@@ -922,10 +945,22 @@ function submitCommunityContactForm (sites, organizations) {
 		let landline_numbers = [];
 
 		for (let counter = 1; counter < community_input_count; counter +=1) {
+			let number_length = $("#community_mobile_number_"+counter).val().length;
+			let mobile_number = $("#community_mobile_number_"+counter).val();
+
+			if(number_length == 11){
+				mobile_number = mobile_number.substr(1, 11);
+			}else if(number_length == 10){
+				mobile_number = mobile_number.substr(0, 10);
+			}else if(number_length == 12){
+				mobile_number = mobile_number.substr(2, 12);
+			}
+
+			mobile_number = "63"+mobile_number;
 			const mobile_number_raw = {
 				"user_id": $("#user_id_cc").val(),
 				"mobile_id": $("#community_mobile_id_"+counter).val(),
-				"mobile_number": $("#community_mobile_number_"+counter).val(),
+				"mobile_number": mobile_number,
 				"mobile_status": $("#community_mobile_status_"+counter).val(),
 				"mobile_priority": $("#community_mobile_priority_"+counter).val()
 			};
@@ -998,10 +1033,22 @@ function submitUnregisteredCommunityContactForm (sites, organizations) {
 		let landline_numbers = [];
 
 		for (let counter = 1; counter < community_input_count; counter +=1) {
+			let number_length = $("#community_mobile_number_"+counter).val().length;
+			let mobile_number = $("#community_mobile_number_"+counter).val();
+
+			if(number_length == 11){
+				mobile_number = mobile_number.substr(1, 11);
+			}else if(number_length == 10){
+				mobile_number = mobile_number.substr(0, 10);
+			}else if(number_length == 12){
+				mobile_number = mobile_number.substr(2, 12);
+			}
+
+			mobile_number = "63"+mobile_number;
 			const mobile_number_raw = {
 				"user_id": $("#user_id_cc").val(),
 				"mobile_id": $("#community_mobile_id_"+counter).val(),
-				"mobile_number": $("#community_mobile_number_"+counter).val(),
+				"mobile_number": mobile_number,
 				"mobile_status": $("#community_mobile_status_"+counter).val(),
 				"mobile_priority": $("#community_mobile_priority_"+counter).val()
 			};
