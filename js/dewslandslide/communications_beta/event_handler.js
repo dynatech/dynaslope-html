@@ -1010,6 +1010,7 @@ function submitCommunityContactForm (sites, organizations) {
 
 		wss_connect.send(JSON.stringify(message));
 	} catch(err) {
+		console.log(err)
 		const report = {
             type: "error_logs",
             metric_name: "save_community_error_logs",

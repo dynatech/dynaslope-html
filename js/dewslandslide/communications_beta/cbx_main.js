@@ -888,6 +888,7 @@ function displayUpdateEmployeeDetails (employee_data) {
 		for (let counter = 0; counter < employee_data.mobile_data.length; counter+=1) {
 			if(employee_data.mobile_data[counter].number != null){
 				const number_count = counter + 1;
+				employee_input_count = number_count;
 				const mobile_data = {
 					"mobile_number" : employee_data.mobile_data[counter].number,
 					"mobile_status" : employee_data.mobile_data[counter].number_status,
@@ -902,6 +903,7 @@ function displayUpdateEmployeeDetails (employee_data) {
 		for (let counter = 0; counter < employee_data.landline_data.length; counter+=1) {
 			if(employee_data.landline_data[counter].landline_number != null){
 				const number_count = counter + 1;
+				employee_input_count_landline = number_count;
 				const landline_data = {
 					"landline_number" : employee_data.landline_data[counter].landline_number,
 					"landline_remarks" : employee_data.landline_data[counter].landline_remarks,
@@ -961,6 +963,7 @@ function displayUpdateCommunityDetails (community_data) {
 		for (let counter = 0; counter < community_data.mobile_data.length; counter+=1) {
 			if(community_data.mobile_data[counter].number != null){
 				const number_count = counter + 1;
+				community_input_count = number_count;
 				const mobile_data = {
 					"mobile_number" : community_data.mobile_data[counter].number,
 					"mobile_status" : community_data.mobile_data[counter].number_status,
@@ -974,6 +977,7 @@ function displayUpdateCommunityDetails (community_data) {
 		for (let counter = 0; counter < community_data.landline_data.length; counter+=1) {
 			if(community_data.landline_data[counter].landline_number != null){
 				const number_count = counter + 1;
+				community_input_count_landline = number_count;
 				const landline_data = {
 					"landline_number" : community_data.landline_data[counter].landline_number,
 					"landline_remarks" : community_data.landline_data[counter].landline_remarks,
