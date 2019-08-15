@@ -343,6 +343,7 @@ function tableCSSifEmpty (table, data) {
 }
 
 function reloadTable (table, data, tbl_name) {
+    console.log(table);
     table.clear();
     table.rows.add(data).draw();
 

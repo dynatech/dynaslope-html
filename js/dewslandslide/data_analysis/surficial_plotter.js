@@ -208,7 +208,9 @@ function createSurficialChart (data, input, is_single_marker = false) {
         title_var = `Marker ${marker_name.toUpperCase()}`;
         subtext = `Site: <b>${site_name.toUpperCase()}<b><br/>`;
     }
-
+	console.log(data);
+	console.log(start_date);
+	console.log(end_date);
     $(`#${identifier}-surficial`).highcharts({
         series: data,
         chart: {

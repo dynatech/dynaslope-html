@@ -292,6 +292,10 @@ function createCumulativeRainfallChart (data, temp, source) {
 }
 
 function createInstantaneousRainfallChart (data, temp, source, null_processed) {
+    console.log(data);
+    console.log(temp);
+    console.log(source);
+    console.log(null_processed);
     const { site_code, start_date, end_date } = temp;
     const {
         distance, max_rval, gauge_name
