@@ -779,7 +779,7 @@ function initializeReleaseModalForm () {
                     const list = final.trigger_list;
 
                     // Don't include un-checked retriggers for rain and sensor
-                    $(".trigger_switch").each((count, item) => {
+                    $(".trigger_switch:enabled").each((count, item) => {
                         if (!$(item).is(":checked")) {
                             const haystack = list.join("").toUpperCase();
                             const x = item.value === "rainfall" ? "R" : "S";
