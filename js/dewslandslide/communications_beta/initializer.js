@@ -2,6 +2,7 @@ let recipient_container = [];
 let recent_contacts_collection = [];
 let recent_sites_collection = [];
 let samar_sites_details = [];
+let benguet_sites_details = [];
 let last_outbox_ts = null;
 let last_inbox_ts = null;
 let message_position = null;
@@ -51,6 +52,7 @@ function initialize() {
                 initializeMiscButtons();
                 getQuickGroupSelection();
                 initializeSamarSites();
+                initializeBenguetSites();
                 initializeScrollOldMessages();
                 $("#chatterbox-loader-modal").modal("hide");
             } catch (err) {
@@ -1403,7 +1405,30 @@ function initializeMiscButtons() {
 function initializeSamarSites() {
     try {
         let msg = {
-            type: "getSiteDetails"
+            type: "getSiteDetails",
+            site: "samar"
+        };
+        wss_connect.send(JSON.stringify(msg));
+    } catch(err) {
+        const report = {
+            type: "error_logs",
+            metric_name: "get_samar_sites_error_logs",
+            module_name: "Communications",
+            report_message: `${err}`,
+            reference_table: "",
+            reference_id: 0,
+            submetrics: []
+        };
+
+        PMS.send(report);
+    }
+}
+
+function initializeBenguetSites() {
+    try {
+        let msg = {
+            type: "getSiteDetails",
+            site: "benguet"
         };
         wss_connect.send(JSON.stringify(msg));
     } catch(err) {

@@ -1659,6 +1659,8 @@ function initializeConfirmEWITemplateViaChatterbox() {
 	$("#confirm-ewi").click(() => {
 		$("#msg").val('');
 		let samar_sites = ["jor", "bar", "ime", "lpa", "hin", "lte", "par", "lay"];
+		let benguet_sites= ["bak", "lab", "mam", "pug", "sin"]
+		let rainfall_sites = []
 		if ($("#rainfall-sites").val() != "#") {
 			let rain_info_template = "";
 			if ($("#rainfall-cummulative").val() == "1d") {
@@ -1672,9 +1674,14 @@ function initializeConfirmEWITemplateViaChatterbox() {
 				success(result) {
 					try {
 						let data = JSON.parse(result);
-						for (let counter = 0; counter < samar_sites.length; counter++) {
+						if ($("#rainfall-sites").val() == "SAMAR-SITES") {
+							rainfall_sites = samar_sites;
+						} else if ($("#rainfall-sites").val() == "BENGUET-SITES") {
+							rainfall_sites = benguet_sites;
+						}
+						for (let counter = 0; counter < rainfall_sites.length; counter++) {
 							for (let sub_counter = 0; sub_counter < data.length; sub_counter++) {
-								if (data[sub_counter].site_code == samar_sites[counter]) {
+								if (data[sub_counter].site_code == rainfall_sites[counter]) {
 									if ($("#rainfall-cummulative").val() == "1d") {
 										rainfall_percent = parseInt((data[sub_counter]["1D cml"] / data[sub_counter]["half of 2yr max"]) * 100);
 									} else {
@@ -1685,14 +1692,26 @@ function initializeConfirmEWITemplateViaChatterbox() {
 							}
 						}
 
-						for (let counter = 0; counter < samar_sites_details.length; counter++) {
-							let sbmp = `${samar_sites_details[counter].sitio}, ${samar_sites_details[counter].barangay}, ${samar_sites_details[counter].municipality}`;
-							let formatSbmp = sbmp.replace("null", "");
-							if (formatSbmp.charAt(0) == ",") {
-								formatSbmp = formatSbmp.substr(1);
+						if (("#rainfall-sites").val() == "SAMAR-SITES") {
+							for (let counter = 0; counter < samar_sites_details.length; counter++) {
+								let sbmp = `${samar_sites_details[counter].sitio}, ${samar_sites_details[counter].barangay}, ${samar_sites_details[counter].municipality}`;
+								let formatSbmp = sbmp.replace("null", "");
+								if (formatSbmp.charAt(0) == ",") {
+									formatSbmp = formatSbmp.substr(1);
+								}
+								rain_info_template = rain_info_template.replace(samar_sites_details[counter].site_code, formatSbmp);
 							}
-							rain_info_template = rain_info_template.replace(samar_sites_details[counter].site_code, formatSbmp);
+						} else if ($("#rainfall-sites").val() == "BENGUET-SITES") {
+							for (let counter = 0; counter < benguet_sites_details.length; counter++) {
+								let sbmp = `${benguet_sites_details[counter].sitio}, ${benguet_sites_details[counter].barangay}, ${benguet_sites_details[counter].municipality}`;
+								let formatSbmp = sbmp.replace("null", "");
+								if (formatSbmp.charAt(0) == ",") {
+									formatSbmp = formatSbmp.substr(1);
+								}
+								rain_info_template = rain_info_template.replace(benguet_sites_details[counter].site_code, formatSbmp);
+							}
 						}
+
 						$("#msg").val(rain_info_template);
 					} catch (err) {
 						sendReport(err.stack, 0)

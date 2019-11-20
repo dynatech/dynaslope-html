@@ -191,6 +191,9 @@ function connectWS() {
 				case "fetchedSamarSites":
 					samar_sites_details = msg_data.data;
 					break;
+				case "fetchedBenguetSites":
+					benguet_sites_details = msg_data.data;
+					break;
 				case "loadOldSmsConversation":
 					if(msg_data.data.length == 0){
 						isNewConvo = true;
